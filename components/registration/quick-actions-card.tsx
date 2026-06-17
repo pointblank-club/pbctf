@@ -24,7 +24,7 @@ export function QuickActionsCard({
   isEvaluated = false,
   isShortlisted = false,
   memberCount,
-  maxMembers = 4,
+  maxMembers = 2,
   onNavigate,
   onDeleteTeam,
   onLeaveTeam,

@@ -111,7 +111,7 @@ export async function GET(request: NextRequest) {
         },
         teamMembers: formattedMembers,
         currentMemberCount: team.memberCount,
-        maxMembers: 4,
+        maxMembers: 2,
         appliedFor: ps ? { id: ps._id.toString(), title: ps.title } : null,
         isLooking: team.isLooking,
       };

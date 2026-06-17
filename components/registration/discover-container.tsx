@@ -661,7 +661,7 @@ export function DiscoverContainer() {
             type="warning"
             message={
               <div>
-                <strong>Privacy Notice:</strong> When you make your profile public, the following information from your profile will be publicly visible and discoverable by other participants: your name, bio, organisation, profile picture, resume, and all professional/social links (GitHub, LinkedIn, LeetCode, Kaggle, Devfolio, Portfolio, etc.). Please ensure you've redacted any sensitive personal information (e.g., phone numbers, addresses, personal email addresses) from your resume before making your profile public.
+                <strong>Privacy Notice:</strong> When you make your profile public, the following information from your profile will be publicly visible and discoverable by other participants: your name, bio, organisation, profile picture, resume, and all professional/social links (GitHub, LinkedIn.). Please ensure you've redacted any sensitive personal information (e.g., phone numbers, addresses, personal email addresses) from your resume before making your profile public.
               </div>
             }
             className="mb-6"

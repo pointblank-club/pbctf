@@ -30,7 +30,7 @@ export function TeamOverviewCard({ team, isLead, status }: TeamOverviewCardProps
     }
   };
 
-  const maxMembers = team.maxMembers || 4;
+  const maxMembers = team.maxMembers || 2;
 
   return (
     <FormSection

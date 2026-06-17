@@ -145,7 +145,7 @@ export function TeamDetailsModal({
 
             {teamDetails.teamMembers && teamDetails.teamMembers.length > 0 && (
               <div>
-                <h4 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white mb-[12px]">Team Members</h4>
+                {teamDetails.teamMembers.length>1 && <h4 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white mb-[12px]">Team Members</h4>}
                 <div className="flex flex-col gap-[8px]">
                   {teamDetails.teamMembers
                     .filter(member => member.uid !== (teamDetails.teamLead.uid || teamDetails.teamLead.id))

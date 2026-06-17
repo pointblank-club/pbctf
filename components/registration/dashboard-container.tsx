@@ -1039,7 +1039,7 @@ export function DashboardContainer() {
                 teamName: team.teamName,
                 teamCode: team.teamCode,
                 memberCount: team.memberCount,
-                maxMembers: 4,
+                maxMembers: 2,
                 problemStatement: team.appliedFor?.title,
               }}
               isLead={isTeamLead()}
@@ -1158,7 +1158,7 @@ export function DashboardContainer() {
               isEvaluated={team.isEvaluated}
               isShortlisted={team.isShortlisted}
               memberCount={team.memberCount}
-              maxMembers={4}
+              maxMembers={2}
               onNavigate={(path) => router.push(path)}
               onDeleteTeam={checkDeleteTeamEligibility}
               onLeaveTeam={() => setLeaveTeamDialogOpen(true)}
