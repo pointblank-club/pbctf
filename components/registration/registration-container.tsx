@@ -908,7 +908,7 @@ export function RegistrationContainer({
             Registration Open
           </p>
           <div className="absolute inset-0 rounded-[15px]">
-            <div className="absolute border border-[#22c55e] border-solid inset-0 pointer-events-none rounded-[15px]" />
+            <div className="absolute border border-[#b85c00] border-solid inset-0 pointer-events-none rounded-[15px]" />
           </div>
         </div>
 
@@ -974,9 +974,9 @@ export function RegistrationContainer({
       )}
 
       {/* Card about filling more fields */}
-      <Card className="bg-[rgba(34,197,94,0.1)] border-[#22c55e]/30">
+      <Card className="bg-[rgba(255,77,0,0.1)] border-[#ff4d00]/30">
         <div className="flex items-start gap-[12px]">
-          <Info className="w-5 h-5 text-[#22c55e] flex-shrink-0 mt-0.5" />
+          <Info className="w-5 h-5 text-[#ff4d00] flex-shrink-0 mt-0.5" />
           <div className="flex flex-col gap-[4px]">
             <p
               className="text-[14px] text-white font-semibold"

@@ -13,7 +13,7 @@ export function HelpButton() {
                 onClick={() => setIsOpen(true)}
                 className="fixed bottom-6 right-6 z-50 flex items-center gap-2 glass-effect hover:bg-white/10 text-white rounded-full px-5 py-3 shadow-[0_0_20px_rgba(34,197,94,0.2)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,197,94,0.3)] group"
             >
-                <MessageCircleQuestion className="w-5 h-5 text-[var(--primary)] group-hover:rotate-12 transition-transform duration-300" />
+                <MessageCircleQuestion className="w-5 h-5 text-[var(--primary)] group-hover:rotate-12 transition-transform duration-300 text-[#52a447]"  />
                 <span className="font-medium pr-1">Need Help?</span>
             </button>
 
