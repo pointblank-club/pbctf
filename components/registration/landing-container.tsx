@@ -20,7 +20,7 @@ export function LandingContainer({ onNavigate }: LandingContainerProps) {
             <div className="absolute border border-[#b85c00] border-solid inset-0 pointer-events-none rounded-[15px]" />
           </div>
         </div>
-        
+
         <h1 className="font-['Google_Sans_Flex',sans-serif] text-[56px] text-white leading-[60px] tracking-[-1px]">
           Welcome to PBCTF 5.0
         </h1>
@@ -44,29 +44,11 @@ export function LandingContainer({ onNavigate }: LandingContainerProps) {
       {/* Skills Showcase */}
       <FormSection title="Featured Challenges">
         <div className="grid grid-cols-2 gap-[16px]">
-<<<<<<< Updated upstream
-          {problemStatements.slice(0, 4).map((ps) => (
-            <Card key={ps.id}>
-              <div className="flex flex-col gap-[8px]">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white">{ps.title}</h3>
-                  <span className="text-[12px] text-[#22c55e] bg-[rgba(34,197,94,0.2)] px-[8px] py-[4px] rounded-[8px]">
-                    {ps.category}
-                  </span>
-                </div>
-                <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70">
-                  {ps.description}
-                </p>
-                <div className="flex items-center gap-[8px] mt-[4px]">
-                  <span className="text-[12px] text-white opacity-60">{ps.difficulty}</span>
-                </div>
-=======
           <Card>
             <div className="flex flex-col gap-[8px]">
               <div className="flex items-center justify-between">
                 <h3 className="font-['Inter',sans-serif] text-[16px] text-white">Web Exploitation</h3>
                 <span className="text-[12px] text-[#ff4d00] bg-[rgba(255,77,0,0.2)] px-[8px] py-[4px] rounded-[8px]">Web</span>
->>>>>>> Stashed changes
               </div>
               <p className="font-['Inter',sans-serif] text-[13px] text-white opacity-70">
                 Test your ability to find and exploit vulnerabilities in web applications.
