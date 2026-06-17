@@ -2,9 +2,17 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from "@/hooks/use-auth";
 import { API_ENDPOINTS } from "@/lib/api-config";
-import { Users, Search, Home, User } from "lucide-react";
+import {
+  Users,
+  Search,
+  Home,
+  User,
+  Github,
+  Linkedin,
+  ExternalLink,
+} from "lucide-react";
 import { FormSection } from "./form-section";
 import { Button } from "./button";
 import { Card } from "./card";
@@ -14,7 +22,6 @@ import { UserProfileModal, UserDetails } from "./user-profile-modal";
 import { useToast } from "@/hooks/use-toast";
 import { Spinner } from "@/components/ui/spinner";
 import { AlertBanner } from "./alert-banner";
-
 
 interface TeamLookingForMembers {
   teamName: string;
@@ -40,11 +47,15 @@ interface TeamLookingForMembers {
 interface ParticipantLookingForTeam {
   id: string; // uid
   name: string;
-  skills: string;
-  interests: string;
+  // skills: string;
+  // interests: string;
   university?: string;
   email?: string;
   hasSolvedChallenge?: boolean;
+  bio?: string;
+  profile_picture?: string;
+  github_link?: string;
+  linkedin_link: string;
 }
 
 export function DiscoverContainer() {
@@ -52,8 +63,11 @@ export function DiscoverContainer() {
   const router = useRouter();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<"teams" | "participants">("teams");
-  const [teamsLookingForMembers, setTeamsLookingForMembers] = useState<TeamLookingForMembers[]>([]);
-  const [participantsLookingForTeams, setParticipantsLookingForTeams] = useState<ParticipantLookingForTeam[]>([]);
+  const [teamsLookingForMembers, setTeamsLookingForMembers] = useState<
+    TeamLookingForMembers[]
+  >([]);
+  const [participantsLookingForTeams, setParticipantsLookingForTeams] =
+    useState<ParticipantLookingForTeam[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [userRequests, setUserRequests] = useState<Record<string, string>>({}); // teamCode -> requestStatus
   const [sendingRequest, setSendingRequest] = useState<string | null>(null);
@@ -64,13 +78,22 @@ export function DiscoverContainer() {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [userIsLooking, setUserIsLooking] = useState(false);
   const [userHasTeam, setUserHasTeam] = useState(false);
-  const [teamCapacity, setTeamCapacity] = useState<{ current: number, max: number } | null>(null);
+  const [teamCapacity, setTeamCapacity] = useState<{
+    current: number;
+    max: number;
+  } | null>(null);
 
   // Pagination state
   const [teamsPage, setTeamsPage] = useState(1);
   const [participantsPage, setParticipantsPage] = useState(1);
-  const [teamsPagination, setTeamsPagination] = useState({ totalPages: 1, total: 0 });
-  const [participantsPagination, setParticipantsPagination] = useState({ totalPages: 1, total: 0 });
+  const [teamsPagination, setTeamsPagination] = useState({
+    totalPages: 1,
+    total: 0,
+  });
+  const [participantsPagination, setParticipantsPagination] = useState({
+    totalPages: 1,
+    total: 0,
+  });
   const ITEMS_PER_PAGE = 10;
 
   // Debounce search query
@@ -110,13 +133,15 @@ export function DiscoverContainer() {
         try {
           const userProfileResponse = await fetch(API_ENDPOINTS.userProfile, {
             headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           });
           if (userProfileResponse.ok) {
             const userProfileData = await userProfileResponse.json();
-            const profileData = userProfileData.success ? userProfileData.data : userProfileData;
+            const profileData = userProfileData.success
+              ? userProfileData.data
+              : userProfileData;
             userIsLookingValue = profileData?.isLooking || false;
             userHasTeamValue = !!profileData?.teamCode;
             setUserIsLooking(userIsLookingValue);
@@ -129,21 +154,27 @@ export function DiscoverContainer() {
         // Build query string
         const queryParams = debouncedSearchQuery.trim()
           ? `?search=${encodeURIComponent(debouncedSearchQuery.trim())}`
-          : '';
+          : "";
 
         // Check if user is Team Lead
         if (user?.teamCode) {
           try {
-            const teamResponse = await fetch(API_ENDPOINTS.getTeam(user.teamCode), {
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
-              }
-            });
+            const teamResponse = await fetch(
+              API_ENDPOINTS.getTeam(user.teamCode),
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
+              },
+            );
             if (teamResponse.ok) {
               const teamData = await teamResponse.json();
               if (teamData.success && teamData.data) {
-                const leadId = typeof teamData.data.teamLead === 'string' ? teamData.data.teamLead : teamData.data.teamLead?.id;
+                const leadId =
+                  typeof teamData.data.teamLead === "string"
+                    ? teamData.data.teamLead
+                    : teamData.data.teamLead?.id;
                 if (leadId === user.uid) {
                   setIsTeamLead(true);
                   setActiveTab("participants"); // Auto-switch for team leads
@@ -156,18 +187,29 @@ export function DiscoverContainer() {
 
                   // Fetch already sent invites by this team
                   try {
-                    const invitesResponse = await fetch(`${API_ENDPOINTS.joinRequest}?teamCode=${user.teamCode}`, {
-                      headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json',
-                      }
-                    });
+                    const invitesResponse = await fetch(
+                      `${API_ENDPOINTS.joinRequest}?teamCode=${user.teamCode}`,
+                      {
+                        headers: {
+                          Authorization: `Bearer ${token}`,
+                          "Content-Type": "application/json",
+                        },
+                      },
+                    );
                     if (invitesResponse.ok) {
                       const invitesData = await invitesResponse.json();
-                      if (invitesData.success && invitesData.data && Array.isArray(invitesData.data.requests)) {
+                      if (
+                        invitesData.success &&
+                        invitesData.data &&
+                        Array.isArray(invitesData.data.requests)
+                      ) {
                         const inviteeIds = new Set<string>();
                         invitesData.data.requests.forEach((req: any) => {
-                          if (req.type === 'invite' && (req.status === 'pending' || req.status === 'accepted')) {
+                          if (
+                            req.type === "invite" &&
+                            (req.status === "pending" ||
+                              req.status === "accepted")
+                          ) {
                             inviteeIds.add(req.userId);
                           }
                         });
@@ -189,22 +231,30 @@ export function DiscoverContainer() {
         if (userIsLookingValue || userHasTeamValue || isTeamLead) {
           // Fetch teams looking for members (only if user is looking for team or is team lead)
           if (!isTeamLead) {
-            const teamsResponse = await fetch(`${API_ENDPOINTS.lookingForMembers}${queryParams}${queryParams ? '&' : '?'}page=${teamsPage}&limit=${ITEMS_PER_PAGE}`, {
-              method: 'GET',
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json',
+            const teamsResponse = await fetch(
+              `${API_ENDPOINTS.lookingForMembers}${queryParams}${queryParams ? "&" : "?"}page=${teamsPage}&limit=${ITEMS_PER_PAGE}`,
+              {
+                method: "GET",
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                  "Content-Type": "application/json",
+                },
               },
-            });
+            );
 
             if (teamsResponse.ok) {
               const teamsData = await teamsResponse.json();
-              if (teamsData.success && teamsData.data && Array.isArray(teamsData.data.teams)) {
+              if (
+                teamsData.success &&
+                teamsData.data &&
+                Array.isArray(teamsData.data.teams)
+              ) {
                 // Transform API response to match component interface - store all available data
                 const transformed = teamsData.data.teams.map((team: any) => ({
                   teamName: team.teamName,
                   teamCode: team.teamCode,
-                  problemStatement: team.appliedFor?.title || 'No problem statement selected',
+                  problemStatement:
+                    team.appliedFor?.title || "No problem statement selected",
                   currentMembers: team.currentMemberCount || 0,
                   maxMembers: team.maxMembers || 2,
                   teamLead: team.teamLead,
@@ -226,17 +276,24 @@ export function DiscoverContainer() {
           }
 
           // Fetch participants looking for teams (only if user is looking for team or is team lead)
-          const participantsResponse = await fetch(`${API_ENDPOINTS.lookingForTeam}${queryParams}${queryParams ? '&' : '?'}page=${participantsPage}&limit=${ITEMS_PER_PAGE}`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
+          const participantsResponse = await fetch(
+            `${API_ENDPOINTS.lookingForTeam}${queryParams}${queryParams ? "&" : "?"}page=${participantsPage}&limit=${ITEMS_PER_PAGE}`,
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
             },
-          });
+          );
 
           if (participantsResponse.ok) {
             const participantsData = await participantsResponse.json();
-            if (participantsData.success && participantsData.data && Array.isArray(participantsData.data.users)) {
+            if (
+              participantsData.success &&
+              participantsData.data &&
+              Array.isArray(participantsData.data.users)
+            ) {
               // Transform API response to match component interface
               // Filter out own profile if user is looking for participants (team lead)
               const transformed = participantsData.data.users
@@ -250,11 +307,13 @@ export function DiscoverContainer() {
                 .map((user: any) => ({
                   id: user.id, // Store uid for fetching details
                   name: user.name,
-                  skills: user.bio || 'No skills listed',
-                  interests: user.bio || 'No interests listed',
+                  bio: user.bio,
                   university: user.organisation || undefined,
                   email: user.email,
                   hasSolvedChallenge: user.hasSolvedChallenge || false,
+                  profile_picture: user.profile_picture,
+                  github_link: user.github_link,
+                  linkedin_link: user.linkedin_link,
                 }));
               setParticipantsLookingForTeams(transformed);
               // Store pagination info
@@ -275,22 +334,29 @@ export function DiscoverContainer() {
         }
 
         // Fetch user's join requests
-        const requestsResponse = await fetch(`${API_ENDPOINTS.joinRequest}?type=user`, {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+        const requestsResponse = await fetch(
+          `${API_ENDPOINTS.joinRequest}?type=user`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
+            },
           },
-        });
+        );
 
         if (requestsResponse.ok) {
           const requestsData = await requestsResponse.json();
-          if (requestsData.success && requestsData.data && Array.isArray(requestsData.data.requests)) {
+          if (
+            requestsData.success &&
+            requestsData.data &&
+            Array.isArray(requestsData.data.requests)
+          ) {
             const requestsMap: Record<string, string> = {};
             requestsData.data.requests.forEach((req: any) => {
               // Only track pending and accepted requests
               // Declined/cancelled requests are ignored so user can send a new request
-              if (req.status === 'pending' || req.status === 'accepted') {
+              if (req.status === "pending" || req.status === "accepted") {
                 requestsMap[req.teamCode] = req.status;
               }
             });
@@ -298,14 +364,21 @@ export function DiscoverContainer() {
           }
         }
       } catch (error) {
-        console.error('Failed to fetch discover data:', error);
+        console.error("Failed to fetch discover data:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [getToken, user, debouncedSearchQuery, isTeamLead, teamsPage, participantsPage]);
+  }, [
+    getToken,
+    user,
+    debouncedSearchQuery,
+    isTeamLead,
+    teamsPage,
+    participantsPage,
+  ]);
 
   const handleSendRequest = async (teamCode: string) => {
     if (!user) return;
@@ -316,10 +389,10 @@ export function DiscoverContainer() {
       if (!token) return;
 
       const response = await fetch(API_ENDPOINTS.joinRequest, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ teamCode }),
       });
@@ -327,21 +400,22 @@ export function DiscoverContainer() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to send request');
+        throw new Error(data.message || "Failed to send request");
       }
 
       // Update user requests map
-      setUserRequests(prev => ({ ...prev, [teamCode]: 'pending' }));
+      setUserRequests((prev) => ({ ...prev, [teamCode]: "pending" }));
       toast({
         title: "Request sent",
         description: "Your join request has been sent successfully.",
       });
     } catch (error) {
-      console.error('Error sending join request:', error);
+      console.error("Error sending join request:", error);
       toast({
         variant: "destructive",
         title: "Failed to send request",
-        description: error instanceof Error ? error.message : 'Failed to send request',
+        description:
+          error instanceof Error ? error.message : "Failed to send request",
       });
     } finally {
       setSendingRequest(null);
@@ -357,37 +431,37 @@ export function DiscoverContainer() {
       if (!token) return;
 
       const response = await fetch(API_ENDPOINTS.joinRequest, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           teamCode: user.teamCode,
-          type: 'invite',
-          email: userEmail
+          type: "invite",
+          email: userEmail,
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.message || 'Failed to invite user');
+        throw new Error(data.message || "Failed to invite user");
       }
 
-      setSentInvites(prev => new Set(prev).add(userId));
+      setSentInvites((prev) => new Set(prev).add(userId));
 
       toast({
         title: "Invitation sent",
         description: `Invitation sent to ${userEmail} successfully.`,
       });
-
     } catch (error) {
-      console.error('Error sending invite:', error);
+      console.error("Error sending invite:", error);
       toast({
         variant: "destructive",
         title: "Failed to send invite",
-        description: error instanceof Error ? error.message : 'Failed to send invite',
+        description:
+          error instanceof Error ? error.message : "Failed to send invite",
       });
     } finally {
       setInvitingUser(null);
@@ -398,10 +472,12 @@ export function DiscoverContainer() {
     setSelectedTeamCode(teamCode);
     setIsLoadingTeam(true);
     setTeamError(null);
-    
+
     // First, try to use the basic data we already have from the looking-for-members endpoint
-    const basicTeamData = teamsLookingForMembers.find(t => t.teamCode === teamCode);
-    
+    const basicTeamData = teamsLookingForMembers.find(
+      (t) => t.teamCode === teamCode,
+    );
+
     // Try to fetch full team details (will fail if user is not a member)
     try {
       const token = await getToken();
@@ -411,20 +487,21 @@ export function DiscoverContainer() {
           const basicDetails = {
             teamCode: basicTeamData.teamCode,
             teamName: basicTeamData.teamName,
-            teamLead: basicTeamData.teamLead || { id: '', name: 'Unknown' },
-            teamMembers: basicTeamData.teamMembers?.map(m => ({
-              uid: m.id,
-              name: m.name,
-              role: 'Member',
-            })) || [],
+            teamLead: basicTeamData.teamLead || { id: "", name: "Unknown" },
+            teamMembers:
+              basicTeamData.teamMembers?.map((m) => ({
+                uid: m.id,
+                name: m.name,
+                role: "Member",
+              })) || [],
             appliedFor: basicTeamData.appliedFor,
             memberCount: basicTeamData.currentMembers,
             maxMembers: basicTeamData.maxMembers,
-            teamStatus: 'pending',
+            teamStatus: "pending",
           };
           setTeamDetails(basicDetails);
         } else {
-          setTeamError('Authentication required');
+          setTeamError("Authentication required");
         }
         setIsLoadingTeam(false);
         return;
@@ -432,8 +509,8 @@ export function DiscoverContainer() {
 
       const response = await fetch(API_ENDPOINTS.getTeam(teamCode), {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
@@ -448,20 +525,21 @@ export function DiscoverContainer() {
             const basicDetails = {
               teamCode: basicTeamData.teamCode,
               teamName: basicTeamData.teamName,
-              teamLead: basicTeamData.teamLead || { id: '', name: 'Unknown' },
-              teamMembers: basicTeamData.teamMembers?.map(m => ({
-                uid: m.id,
-                name: m.name,
-                role: 'Member',
-              })) || [],
+              teamLead: basicTeamData.teamLead || { id: "", name: "Unknown" },
+              teamMembers:
+                basicTeamData.teamMembers?.map((m) => ({
+                  uid: m.id,
+                  name: m.name,
+                  role: "Member",
+                })) || [],
               appliedFor: basicTeamData.appliedFor,
               memberCount: basicTeamData.currentMembers,
               maxMembers: basicTeamData.maxMembers,
-              teamStatus: 'pending',
+              teamStatus: "pending",
             };
             setTeamDetails(basicDetails);
           } else {
-            setTeamError('Failed to load team details');
+            setTeamError("Failed to load team details");
           }
         }
       } else {
@@ -470,46 +548,49 @@ export function DiscoverContainer() {
           const basicDetails = {
             teamCode: basicTeamData.teamCode,
             teamName: basicTeamData.teamName,
-            teamLead: basicTeamData.teamLead || { id: '', name: 'Unknown' },
-            teamMembers: basicTeamData.teamMembers?.map(m => ({
-              uid: m.id,
-              name: m.name,
-              role: 'Member',
-            })) || [],
+            teamLead: basicTeamData.teamLead || { id: "", name: "Unknown" },
+            teamMembers:
+              basicTeamData.teamMembers?.map((m) => ({
+                uid: m.id,
+                name: m.name,
+                role: "Member",
+              })) || [],
             appliedFor: basicTeamData.appliedFor,
             memberCount: basicTeamData.currentMembers,
             maxMembers: basicTeamData.maxMembers,
-            teamStatus: 'pending',
+            teamStatus: "pending",
           };
           setTeamDetails(basicDetails);
           setTeamError(null);
         } else {
           const errorData = await response.json().catch(() => ({}));
-          const errorMessage = errorData.message || 'Failed to fetch team details';
+          const errorMessage =
+            errorData.message || "Failed to fetch team details";
           setTeamError(errorMessage);
         }
       }
     } catch (error) {
-      console.error('Error fetching team details:', error);
+      console.error("Error fetching team details:", error);
       // Fallback to basic data if available
       if (basicTeamData) {
         const basicDetails: TeamDetails = {
           teamCode: basicTeamData.teamCode,
           teamName: basicTeamData.teamName,
-          teamLead: basicTeamData.teamLead || { id: '', name: 'Unknown' },
-          teamMembers: basicTeamData.teamMembers?.map(m => ({
-            uid: m.id,
-            name: m.name,
-            role: 'Member',
-          })) || [],
+          teamLead: basicTeamData.teamLead || { id: "", name: "Unknown" },
+          teamMembers:
+            basicTeamData.teamMembers?.map((m) => ({
+              uid: m.id,
+              name: m.name,
+              role: "Member",
+            })) || [],
           appliedFor: basicTeamData.appliedFor,
           memberCount: basicTeamData.currentMembers,
           maxMembers: basicTeamData.maxMembers,
-          teamStatus: 'pending',
+          teamStatus: "pending",
         };
         setTeamDetails(basicDetails);
       } else {
-        setTeamError('Network error. Please try again.');
+        setTeamError("Network error. Please try again.");
       }
     } finally {
       setIsLoadingTeam(false);
@@ -532,17 +613,22 @@ export function DiscoverContainer() {
       try {
         const token = await getToken();
         if (token) {
-          const teamResponse = await fetch(API_ENDPOINTS.getTeam(user.teamCode), {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            }
-          });
+          const teamResponse = await fetch(
+            API_ENDPOINTS.getTeam(user.teamCode),
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json",
+              },
+            },
+          );
           if (teamResponse.ok) {
             const teamData = await teamResponse.json();
             if (teamData.success && teamData.data) {
               const teamMembers = teamData.data.teamMembers || [];
-              const isTeamMember = teamMembers.some((member: any) => member.uid === userId);
+              const isTeamMember = teamMembers.some(
+                (member: any) => member.uid === userId,
+              );
               if (isTeamMember) {
                 toast({
                   variant: "destructive",
@@ -555,14 +641,14 @@ export function DiscoverContainer() {
           }
         }
       } catch (error) {
-        console.error('Error checking team membership:', error);
+        console.error("Error checking team membership:", error);
       }
     }
 
     setSelectedUserId(userId);
     setIsLoadingUser(true);
     setUserError(null);
-    
+
     try {
       const token = await getToken();
       if (!token) {
@@ -573,14 +659,14 @@ export function DiscoverContainer() {
 
       const response = await fetch(`/api/users/${userId}`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
       if (response.ok) {
         const data = await response.json();
-        if (data.status === 'success' && data.user) {
+        if (data.status === "success" && data.user) {
           setUserDetails(data.user);
         } else {
           setUserError(data.message || "Failed to load user details");
@@ -590,7 +676,7 @@ export function DiscoverContainer() {
         setUserError(errorData.message || "Failed to fetch user details");
       }
     } catch (error) {
-      console.error('Error fetching user details:', error);
+      console.error("Error fetching user details:", error);
       setUserError("Network error. Please try again.");
     } finally {
       setIsLoadingUser(false);
@@ -603,8 +689,6 @@ export function DiscoverContainer() {
     setUserError(null);
   };
 
-
-
   return (
     <div className="flex flex-col gap-[24px] w-full">
       {isLoading ? (
@@ -614,10 +698,16 @@ export function DiscoverContainer() {
       ) : (
         <>
           <div className="flex items-center justify-between">
-            <h1 className="text-[42px] text-white" style={{ fontFamily: 'var(--font-heading)' }}>
+            <h1
+              className="text-[42px] text-white"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
               Discover
             </h1>
-            <Button onClick={() => router.push("/dashboard")} variant="secondary">
+            <Button
+              onClick={() => router.push("/dashboard")}
+              variant="secondary"
+            >
               <Home className="w-4 h-4" />
               Back to Dashboard
             </Button>
@@ -625,280 +715,429 @@ export function DiscoverContainer() {
 
           {user?.teamCode && !isTeamLead ? (
             <div className="flex flex-col items-center justify-center py-[60px] text-center">
-          <div className="bg-[rgba(34,197,94,0.1)] border border-[#22c55e]/30 rounded-lg p-8 max-w-2xl">
-            <h2 className="text-2xl font-bold text-[#22c55e] mb-4">You are already in a team!</h2>
-            <p className="text-gray-300 mb-6">
-              You are currently a member of team <span className="font-mono text-white bg-white/10 px-2 py-1 rounded">{user.teamCode}</span>.
-              <br />
-              Please leave your current team if you wish to join another one.
-            </p>
-            <Button onClick={() => router.push("/dashboard")} variant="primary">
-              Go to Team Dashboard
-            </Button>
-          </div>
+              <div className="bg-[rgba(34,197,94,0.1)] border border-[#22c55e]/30 rounded-lg p-8 max-w-2xl">
+                <h2 className="text-2xl font-bold text-[#22c55e] mb-4">
+                  You are already in a team!
+                </h2>
+                <p className="text-gray-300 mb-6">
+                  You are currently a member of team{" "}
+                  <span className="font-mono text-white bg-white/10 px-2 py-1 rounded">
+                    {user.teamCode}
+                  </span>
+                  .
+                  <br />
+                  Please leave your current team if you wish to join another
+                  one.
+                </p>
+                <Button
+                  onClick={() => router.push("/dashboard")}
+                  variant="primary"
+                >
+                  Go to Team Dashboard
+                </Button>
+              </div>
             </div>
-          ) : !userIsLooking && !isTeamLead && !userHasTeam && activeTab === "teams" ? (
+          ) : !userIsLooking &&
+            !isTeamLead &&
+            !userHasTeam &&
+            activeTab === "teams" ? (
             <div className="flex flex-col items-center justify-center py-[60px] text-center">
-          <div className="bg-[rgba(34,197,94,0.1)] border border-[#22c55e]/30 rounded-lg p-8 max-w-2xl">
-            <h2 className="text-2xl font-bold text-[#22c55e] mb-4">Enable "Public Profile" to Discover Teams</h2>
-            <p className="text-gray-300 mb-6">
-              You need to enable "Public Profile" in your profile settings to see teams looking for members.
-            </p>
-
-            <div className="w-full h-full flex justify-center items-center">
-              <Button onClick={() => router.push("/dashboard/profile")} variant="primary">
-                Go to Profile Settings
-              </Button>
-            </div>
-          </div>
+              <div className="bg-[rgba(34,197,94,0.1)] border border-[#22c55e]/30 rounded-lg p-8 max-w-2xl">
+                <h2 className="text-2xl font-bold text-[#22c55e] mb-4">
+                  Enable "Public Profile" to Discover Teams
+                </h2>
+                <p className="text-gray-300 mb-6">
+                  You need to enable "Public Profile" in your profile settings
+                  to see teams looking for members.
+                </p>
+                <div className="w-full flex justify-center">
+                  <Button
+                    onClick={() => router.push("/dashboard/profile")}
+                    variant="primary"
+                  >
+                    Go to Profile Settings
+                  </Button>
+                </div>
+              </div>
             </div>
           ) : (
-        <>
-          {!user?.teamCode && (
-            <AlertBanner
-              type="info"
-              message="Want to invite members? You need to create a team first to send invitations."
-              className="mb-6"
-            />
-          )}
-          {/* Privacy Notice - shown for both teams and participants tabs */}
-          <AlertBanner
-            type="warning"
-            message={
-              <div>
-                <strong>Privacy Notice:</strong> When you make your profile public, the following information from your profile will be publicly visible and discoverable by other participants: your name, bio, organisation, profile picture, resume, and all professional/social links (GitHub, LinkedIn.). Please ensure you've redacted any sensitive personal information (e.g., phone numbers, addresses, personal email addresses) from your resume before making your profile public.
-              </div>
-            }
-            className="mb-6"
-          />
-          <FormSection title={isTeamLead ? "Find Team Members" : "What are you looking for?"}>
-            <div className="flex flex-col gap-[24px]">
-              {/* Tab Navigation */}
-              <div className="flex gap-[12px]">
-                {/* Only user without team can see teams tab */}
-                {!isTeamLead && (
-                  <SectionTab
-                    active={activeTab === "teams"}
-                    onClick={() => setActiveTab("teams")}
-                    icon={Users}
-                    label="Teams"
-                  />
-                )}
-                <SectionTab
-                  active={activeTab === "participants"}
-                  onClick={() => setActiveTab("participants")}
-                  icon={User}
-                  label="Participants"
+            <>
+              {!user?.teamCode && (
+                <AlertBanner
+                  type="info"
+                  message="Want to invite members? You need to create a team first to send invitations."
+                  className="mb-6"
                 />
-              </div>
+              )}
+              {/* Privacy Notice - shown for both teams and participants tabs */}
+              <AlertBanner
+                type="warning"
+                message={
+                  <div>
+                    <strong>Privacy Notice:</strong> When you make your profile
+                    public, the following information from your profile will be
+                    publicly visible and discoverable by other participants:
+                    your name, bio, organisation, profile picture, resume, and
+                    all professional/social links (GitHub, LinkedIn.). Please
+                    ensure you've redacted any sensitive personal information
+                    (e.g., phone numbers, addresses, personal email addresses)
+                    from your resume before making your profile public.
+                  </div>
+                }
+                className="mb-6"
+              />
+              <FormSection
+                title={
+                  isTeamLead ? "Find Team Members" : "What are you looking for?"
+                }
+              >
+                <div className="flex flex-col gap-[24px]">
+                  {/* Tab Navigation */}
+                  <div className="flex gap-[12px]">
+                    {/* Only user without team can see teams tab */}
+                    {!isTeamLead && (
+                      <SectionTab
+                        active={activeTab === "teams"}
+                        onClick={() => setActiveTab("teams")}
+                        icon={Users}
+                        label="Teams"
+                      />
+                    )}
+                    <SectionTab
+                      active={activeTab === "participants"}
+                      onClick={() => setActiveTab("participants")}
+                      icon={User}
+                      label="Participants"
+                    />
+                  </div>
 
-              {/* Search Bar */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white opacity-60" />
-                <input
-                  type="text"
-                  placeholder={`Search ${activeTab === "teams" ? "teams" : "participants"}...`}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-[rgba(138,138,138,0.1)] border border-[rgba(255,255,255,0.2)] rounded-[12px] text-white placeholder-white/60 focus:outline-none focus:border-[#22c55e] transition-colors"
-                  style={{ fontFamily: 'var(--font-body)' }}
-                />
-              </div>
+                  {/* Search Bar */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white opacity-60" />
+                    <input
+                      type="text"
+                      placeholder={`Search ${activeTab === "teams" ? "teams" : "participants"}...`}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 bg-[rgba(138,138,138,0.1)] border border-[rgba(255,255,255,0.2)] rounded-[12px] text-white placeholder-white/60 focus:outline-none focus:border-[#22c55e] transition-colors"
+                      style={{ fontFamily: "var(--font-body)" }}
+                    />
+                  </div>
 
-              {/* Tab Content */}
-              {activeTab === "teams" && !isTeamLead ? (
-                <div>
-                  {isLoading ? (
-                    <div className="flex justify-center py-[40px]">
-                      <Spinner size="lg" />
-                    </div>
-                  ) : teamsLookingForMembers.length === 0 ? (
-                    <div className="text-white text-center py-[40px] opacity-70">
-                      {searchQuery.trim() ? "No teams match your search." : "No teams are currently looking for members."}
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-[16px]">
-                      {teamsLookingForMembers.map((team, idx) => (
-                        <div
-                          key={idx}
-                          className="transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[rgba(34,197,94,0.2)]"
-                        >
-                          <Card>
-                            <div
-                              className="flex items-start justify-between cursor-pointer"
-                              onClick={() => handleTeamClick(team.teamCode)}
-                            >
-                              <div className="flex-1">
-                                <div className="flex items-center gap-[12px] mb-[8px]">
-                                  <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white">{team.teamName}</h3>
-                                  {userRequests[team.teamCode] === 'pending' && (
-                                    <span className="px-[8px] py-[2px] bg-[rgba(255,235,59,0.2)] border border-[#ffeb3b] rounded-[6px] text-[12px] text-[#ffeb3b] font-medium">
-                                      Request Sent
-                                    </span>
-                                  )}
-                                  {userRequests[team.teamCode] === 'accepted' && (
-                                    <span className="px-[8px] py-[2px] bg-[rgba(76,175,80,0.2)] border border-[#4caf50] rounded-[6px] text-[12px] text-[#4caf50] font-medium">
-                                      Accepted
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70 mb-[8px]">
-                                  Problem: {team.problemStatement}
-                                </p>
-                                <div className="flex items-center gap-[12px]">
-                                  <span className="font-['Google_Sans_Flex',sans-serif] text-[12px] text-white opacity-60">
-                                    {team.currentMembers}/{team.maxMembers} members
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </Card>
+                  {/* Tab Content */}
+                  {activeTab === "teams" && !isTeamLead ? (
+                    <div>
+                      {isLoading ? (
+                        <div className="flex justify-center py-[40px]">
+                          <Spinner size="lg" />
                         </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Teams Pagination Controls */}
-                  {teamsLookingForMembers.length > 0 && teamsPagination.totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-[16px] mt-[24px] pt-[16px] border-t border-[rgba(255,255,255,0.1)]">
-                      <Button
-                        variant="secondary"
-                        onClick={() => setTeamsPage(prev => Math.max(1, prev - 1))}
-                        disabled={teamsPage <= 1 || isLoading}
-                      >
-                        Previous
-                      </Button>
-                      <span className="text-[14px] text-white opacity-80" style={{ fontFamily: 'var(--font-body)' }}>
-                        Page {teamsPage} of {teamsPagination.totalPages}
-                      </span>
-                      <Button
-                        variant="secondary"
-                        onClick={() => setTeamsPage(prev => Math.min(teamsPagination.totalPages, prev + 1))}
-                        disabled={teamsPage >= teamsPagination.totalPages || isLoading}
-                      >
-                        Next
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div>
-                  {isLoading ? (
-                    <div className="flex justify-center py-[40px]">
-                      <Spinner size="lg" />
-                    </div>
-                  ) : participantsLookingForTeams.length === 0 ? (
-                    <div className="text-white text-center py-[40px] opacity-70">
-                      {searchQuery.trim() ? "No participants match your search." : "No participants are currently looking for teams."}
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-[16px]">
-                      {participantsLookingForTeams.map((participant, idx) => (
-                        <div
-                          key={idx}
-                          className="transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[rgba(34,197,94,0.2)]"
-                        >
-                          <Card>
-                            <div className="flex items-start justify-between">
-                              <div
-                                className="flex-1 cursor-pointer"
-                                onClick={() => handleUserClick(participant.id)}
-                              >
-                                <div className="flex flex-col gap-[8px]">
-                                  <div className="flex items-start justify-between">
-                                    <div className="flex items-center gap-[12px]">
-                                      <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white">{participant.name}</h3>
-                                      {sentInvites.has(participant.id) && (
+                      ) : teamsLookingForMembers.length === 0 ? (
+                        <div className="text-white text-center py-[40px] opacity-70">
+                          {searchQuery.trim()
+                            ? "No teams match your search."
+                            : "No teams are currently looking for members."}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-[16px]">
+                          {teamsLookingForMembers.map((team, idx) => (
+                            <div
+                              key={idx}
+                              className="transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[rgba(34,197,94,0.2)]"
+                            >
+                              <Card>
+                                <div
+                                  className="flex items-start justify-between cursor-pointer"
+                                  onClick={() => handleTeamClick(team.teamCode)}
+                                >
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-[12px] mb-[8px]">
+                                      <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white">
+                                        {team.teamName}
+                                      </h3>
+                                      {userRequests[team.teamCode] ===
+                                        "pending" && (
                                         <span className="px-[8px] py-[2px] bg-[rgba(255,235,59,0.2)] border border-[#ffeb3b] rounded-[6px] text-[12px] text-[#ffeb3b] font-medium">
-                                          Invite Sent
+                                          Request Sent
                                         </span>
                                       )}
-                                      {!participant.hasSolvedChallenge && (
+                                      {userRequests[team.teamCode] ===
+                                        "accepted" && (
+                                        <span className="px-[8px] py-[2px] bg-[rgba(76,175,80,0.2)] border border-[#4caf50] rounded-[6px] text-[12px] text-[#4caf50] font-medium">
+                                          Accepted
+                                        </span>
+                                      )}
+                                      {!user?.hasSolvedChallenge && (
                                         <span className="px-[8px] py-[2px] bg-red-500/10 border border-red-500/20 rounded-[6px] text-[11px] text-red-400 font-semibold tracking-wide">
                                           🔴 Unverified Noob
                                         </span>
                                       )}
                                     </div>
-                                    {participant.university && (
-                                      <span className="font-['Google_Sans_Flex',sans-serif] text-[12px] text-white opacity-60">{participant.university}</span>
-                                    )}
+                                    <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70 mb-[8px]">
+                                      Problem: {team.problemStatement}
+                                    </p>
+                                    <div className="flex items-center gap-[12px]">
+                                      <span className="font-['Google_Sans_Flex',sans-serif] text-[12px] text-white opacity-60">
+                                        {team.currentMembers}/{team.maxMembers}{" "}
+                                        members
+                                      </span>
+                                    </div>
                                   </div>
-                                  <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70">
-                                    Skills: {participant.skills}
-                                  </p>
-                                  <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70">
-                                    Interests: {participant.interests}
-                                  </p>
                                 </div>
-                              </div>
-
-                              {/* Invite Button removed from here and moved to UserProfileModal */}
+                              </Card>
                             </div>
-                          </Card>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      )}
 
-                  {/* Participants Pagination Controls */}
-                  {participantsLookingForTeams.length > 0 && participantsPagination.totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-[16px] mt-[24px] pt-[16px] border-t border-[rgba(255,255,255,0.1)]">
-                      <Button
-                        variant="secondary"
-                        onClick={() => setParticipantsPage(prev => Math.max(1, prev - 1))}
-                        disabled={participantsPage <= 1 || isLoading}
-                      >
-                        Previous
-                      </Button>
-                      <span className="text-[14px] text-white opacity-80" style={{ fontFamily: 'var(--font-body)' }}>
-                        Page {participantsPage} of {participantsPagination.totalPages}
-                      </span>
-                      <Button
-                        variant="secondary"
-                        onClick={() => setParticipantsPage(prev => Math.min(participantsPagination.totalPages, prev + 1))}
-                        disabled={participantsPage >= participantsPagination.totalPages || isLoading}
-                      >
-                        Next
-                      </Button>
+                      {/* Teams Pagination Controls */}
+                      {teamsLookingForMembers.length > 0 &&
+                        teamsPagination.totalPages > 1 && (
+                          <div className="flex items-center justify-center gap-[16px] mt-[24px] pt-[16px] border-t border-[rgba(255,255,255,0.1)]">
+                            <Button
+                              variant="secondary"
+                              onClick={() =>
+                                setTeamsPage((prev) => Math.max(1, prev - 1))
+                              }
+                              disabled={teamsPage <= 1 || isLoading}
+                            >
+                              Previous
+                            </Button>
+                            <span
+                              className="text-[14px] text-white opacity-80"
+                              style={{ fontFamily: "var(--font-body)" }}
+                            >
+                              Page {teamsPage} of {teamsPagination.totalPages}
+                            </span>
+                            <Button
+                              variant="secondary"
+                              onClick={() =>
+                                setTeamsPage((prev) =>
+                                  Math.min(
+                                    teamsPagination.totalPages,
+                                    prev + 1,
+                                  ),
+                                )
+                              }
+                              disabled={
+                                teamsPage >= teamsPagination.totalPages ||
+                                isLoading
+                              }
+                            >
+                              Next
+                            </Button>
+                          </div>
+                        )}
+                    </div>
+                  ) : (
+                    <div>
+                      {isLoading ? (
+                        <div className="flex justify-center py-[40px]">
+                          <Spinner size="lg" />
+                        </div>
+                      ) : participantsLookingForTeams.length === 0 ? (
+                        <div className="text-white text-center py-[40px] opacity-70">
+                          {searchQuery.trim()
+                            ? "No participants match your search."
+                            : "No participants are currently looking for teams."}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-[16px]">
+                          {participantsLookingForTeams.map(
+                            (participant, idx) => (
+                              <div
+                                key={idx}
+                                className="transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[rgba(34,197,94,0.2)]"
+                              >
+                                <Card key={participant.id}>
+                                  <div className="flex flex-col gap-[12px] w-full">
+                                    <div
+                                      className="flex-1 cursor-pointer"
+                                      onClick={() =>
+                                        handleUserClick(participant.id)
+                                      }
+                                    >
+                                      <div className="flex flex-col gap-[12px] w-full">
+                                        <div className="flex items-start justify-between w-full">
+                                          <div className="flex items-center gap-[12px]">
+                                            {participant.profile_picture ? (
+                                              <img
+                                                src={
+                                                  participant.profile_picture
+                                                }
+                                                alt={participant.name}
+                                                className="w-14 h-14 rounded-full object-cover border-2 border-[rgba(255,255,255,0.2)]"
+                                              />
+                                            ) : (
+                                              <div className="w-14 h-14 rounded-full bg-[rgba(138,138,138,0.2)] border-2 border-[rgba(255,255,255,0.2)] flex items-center justify-center">
+                                                <User className="w-7 h-7 text-white opacity-50" />
+                                              </div>
+                                            )}
+
+                                            <div className="flex flex-col gap-[4px]">
+                                              <div className="flex items-center gap-[8px] flex-wrap">
+                                                <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] font-medium text-white">
+                                                  {participant.name}
+                                                </h3>
+                                                {sentInvites.has(
+                                                  participant.id,
+                                                ) && (
+                                                  <span className="px-[8px] py-[2px] bg-[rgba(255,235,59,0.15)] border border-[#ffeb3b] rounded-[6px] text-[11px] text-[#ffeb3b] font-medium tracking-wide">
+                                                    Invite Sent
+                                                  </span>
+                                                )}
+                                              </div>
+                                            </div>
+                                          </div>
+
+                                          {participant.university && (
+                                            <span className="font-['Google_Sans_Flex',sans-serif] text-[12px] text-white opacity-60 text-right max-w-[40%] break-words">
+                                              {participant.university}
+                                            </span>
+                                          )}
+                                        </div>
+
+                                        <div className="flex items-end justify-between w-full gap-[24px] pl-[2px]">
+                                          {participant.bio && (
+                                            <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70 leading-relaxed flex-1">
+                                              {participant.bio}
+                                            </p>
+                                          )}
+
+                                          {/* Social Icons positioned to the right side of the bio description */}
+                                          <div className="flex items-center gap-[16px] z-10 flex-shrink-0 mb-[2px]">
+                                            {participant.github_link && (
+                                              <a
+                                                href={participant.github_link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-white opacity-60 hover:opacity-100 transition-opacity transform hover:scale-105"
+                                                aria-label="GitHub Profile"
+                                                onClick={(e) =>
+                                                  e.stopPropagation()
+                                                }
+                                              >
+                                                <Github className="w-5 h-5" />
+                                              </a>
+                                            )}
+
+                                            {participant.linkedin_link && (
+                                              <a
+                                                href={participant.linkedin_link}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-white opacity-60 hover:opacity-100 transition-opacity transform hover:scale-105"
+                                                aria-label="LinkedIn Profile"
+                                                onClick={(e) =>
+                                                  e.stopPropagation()
+                                                }
+                                              >
+                                                <Linkedin className="w-5 h-5" />
+                                              </a>
+                                            )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </Card>
+                              </div>
+                            ),
+                          )}
+                        </div>
+                      )}
+
+                      {/* Participants Pagination Controls */}
+                      {participantsLookingForTeams.length > 0 &&
+                        participantsPagination.totalPages > 1 && (
+                          <div className="flex items-center justify-center gap-[16px] mt-[24px] pt-[16px] border-t border-[rgba(255,255,255,0.1)]">
+                            <Button
+                              variant="secondary"
+                              onClick={() =>
+                                setParticipantsPage((prev) =>
+                                  Math.max(1, prev - 1),
+                                )
+                              }
+                              disabled={participantsPage <= 1 || isLoading}
+                            >
+                              Previous
+                            </Button>
+                            <span
+                              className="text-[14px] text-white opacity-80"
+                              style={{ fontFamily: "var(--font-body)" }}
+                            >
+                              Page {participantsPage} of{" "}
+                              {participantsPagination.totalPages}
+                            </span>
+                            <Button
+                              variant="secondary"
+                              onClick={() =>
+                                setParticipantsPage((prev) =>
+                                  Math.min(
+                                    participantsPagination.totalPages,
+                                    prev + 1,
+                                  ),
+                                )
+                              }
+                              disabled={
+                                participantsPage >=
+                                  participantsPagination.totalPages || isLoading
+                              }
+                            >
+                              Next
+                            </Button>
+                          </div>
+                        )}
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          </FormSection>
+              </FormSection>
 
-          {/* Team Details Modal */}
-          <TeamDetailsModal
-            isOpen={!!selectedTeamCode}
-            onClose={handleCloseTeamModal}
-            teamDetails={teamDetails}
-            isLoading={isLoadingTeam}
-            error={teamError}
-            onMemberClick={(userId: string) => handleUserClick(userId)}
-            requestStatus={selectedTeamCode ? userRequests[selectedTeamCode] : undefined}
-            onSendRequest={selectedTeamCode ? () => handleSendRequest(selectedTeamCode) : undefined}
-            isSendingRequest={selectedTeamCode ? sendingRequest === selectedTeamCode : false}
-          />
+              {/* Team Details Modal */}
+              <TeamDetailsModal
+                isOpen={!!selectedTeamCode}
+                onClose={handleCloseTeamModal}
+                teamDetails={teamDetails}
+                isLoading={isLoadingTeam}
+                error={teamError}
+                onMemberClick={(userId: string) => handleUserClick(userId)}
+                requestStatus={
+                  selectedTeamCode ? userRequests[selectedTeamCode] : undefined
+                }
+                onSendRequest={
+                  selectedTeamCode
+                    ? () => handleSendRequest(selectedTeamCode)
+                    : undefined
+                }
+                isSendingRequest={
+                  selectedTeamCode ? sendingRequest === selectedTeamCode : false
+                }
+              />
 
-          {/* User Details Modal */}
-          <UserProfileModal
-            isOpen={!!selectedUserId}
-            onClose={handleCloseUserModal}
-            userDetails={userDetails}
-            isLoading={isLoadingUser}
-            onInvite={handleInviteUser}
-            isInviting={userDetails ? invitingUser === userDetails.uid : false}
-            isInvited={userDetails ? sentInvites.has(userDetails.uid) : false}
-            canInvite={isTeamLead && (!teamCapacity || teamCapacity.current < teamCapacity.max)}
-            showCreateTeamHint={!user?.teamCode}
-            error={userError}
-            openResumeInNewTab
-          />
-        </>
-      )}
+              {/* User Details Modal */}
+              <UserProfileModal
+                isOpen={!!selectedUserId}
+                onClose={handleCloseUserModal}
+                userDetails={userDetails}
+                isLoading={isLoadingUser}
+                onInvite={handleInviteUser}
+                isInviting={
+                  userDetails ? invitingUser === userDetails.uid : false
+                }
+                isInvited={
+                  userDetails ? sentInvites.has(userDetails.uid) : false
+                }
+                canInvite={
+                  isTeamLead &&
+                  (!teamCapacity || teamCapacity.current < teamCapacity.max)
+                }
+                showCreateTeamHint={!user?.teamCode}
+                error={userError}
+                openResumeInNewTab
+              />
+            </>
+          )}
         </>
       )}
     </div>
   );
 }
-

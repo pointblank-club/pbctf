@@ -8,7 +8,7 @@ import { API_ENDPOINTS } from "@/lib/api-config";
 import { StickyAlert } from "@/components/registration/sticky-alert";
 import { Spinner } from "@/components/ui/spinner";
 import { FormSection } from "@/components/registration/form-section";
-
+import { Github,Linkedin,FileEdit } from "lucide-react";
 import { UserProfileModal, UserDetails } from "./user-profile-modal";
 
 interface TeamDetailViewProps {
@@ -198,7 +198,7 @@ export function TeamDetailView({ team, onBack, onEvaluationSuccess, onVoteSucces
                 {/* Left Column: Artifacts (PDF/Video) & Voting */}
                 <div className="lg:col-span-2 flex flex-col gap-6">
                     {/* Submission Artifacts */}
-                    <FormSection title="Submission Artifacts">
+                    {/* <FormSection title="Submission Artifacts">
                         <div className="flex flex-col gap-4">
                             <div className="flex gap-4 flex-wrap">
                                 {team.videoURL && (
@@ -246,7 +246,7 @@ export function TeamDetailView({ team, onBack, onEvaluationSuccess, onVoteSucces
                                 )}
                             </div>
                         </div>
-                    </FormSection>
+                    </FormSection> */}
 
                     {/* Official Evaluation / Community Vote Form*/}
                     <FormSection title={isAssigned ? "Official Evaluation" : "Community Vote"}>
@@ -374,52 +374,102 @@ export function TeamDetailView({ team, onBack, onEvaluationSuccess, onVoteSucces
                 </div>
 
                 {/* Right Column: Team Members*/}
-                <div className="flex flex-col h-full">
-                    <FormSection title="Team Members" className="h-full">
-                        <div className="flex flex-col h-full gap-4">
-                            {/* Render Actual Members */}
-                            {team.teamMembers?.map((member: any) => (
-                                <div
-                                    key={member.uid}
-                                    onClick={() => handleMemberClick(member.uid)}
-                                    className="flex-1 flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-white/20 cursor-pointer transition-all duration-200 group"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-white/10 group-hover:border-white/20 transition-colors">
-                                            <span className="text-sm font-bold text-white/70 group-hover:text-white">{member.name.charAt(0)}</span>
-                                        </div>
-                                        <div className="flex flex-col justify-center">
-                                            <span className="text-sm font-medium text-white group-hover:text-[#22c55e] transition-colors line-clamp-1">{member.name}</span>
-                                            <span className="text-xs text-white/50 line-clamp-1">{member.organisation}</span>
-                                        </div>
-                                    </div>
-                                    <span className={`text-[10px] uppercase px-2.5 py-1 rounded-full border ${member.role === 'Team Lead'
-                                        ? 'bg-[#22c55e]/10 text-[#22c55e] border-[#22c55e]/20'
-                                        : 'bg-white/5 text-white/40 border-white/5'
-                                        }`} style={{ fontFamily: 'var(--font-body)' }}>
-                                        {member.role === 'Team Lead' ? 'Lead' : 'Member'}
-                                    </span>
-                                </div>
-                            ))}
-                            {/* Render Empty Slots */}
-                            {Array.from({ length: Math.max(0, 2 - (team.teamMembers?.length || 0)) }).map((_, i) => (
-                                <div
-                                    key={`empty-${i}`}
-                                    className="flex-1 flex items-center justify-between p-4 border border-dashed border-white/10 rounded-xl bg-transparent opacity-50 select-none"
-                                >
-                                    <div className="flex items-center gap-4">
-                                        <div className="w-10 h-10 rounded-full border border-dashed border-white/20 flex items-center justify-center">
-                                            <User className="w-4 h-4 text-white/20" />
-                                        </div>
-                                        <div className="flex flex-col justify-center">
-                                            <span className="text-sm font-medium text-white/30" style={{ fontFamily: 'var(--font-body)' }}>Empty Slot</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    </FormSection>
-                </div>
+                <div className="flex flex-col h-full min-h-[350px]">
+  <FormSection title="Team Members" className="h-full">
+    {/* 2. Added 'flex-1 justify-stretch' so the inner container forces its children to expand */}
+    <div className="flex flex-col h-full gap-4 flex-1 justify-stretch pb-2">
+      
+      {/* Render Actual Members */}
+      {team.teamMembers?.map((member: any) => (
+        <div
+          key={member.uid}
+          onClick={() => handleMemberClick(member.uid)}
+          // 3. Changed h-[72px] back to flex-1 to distribute height equally
+          className="flex-1 min-h-[72px] w-full flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10 hover:border-white/20 cursor-pointer transition-all duration-200 group"
+        >
+          {/* Left Side: Identity & Institution Data */}
+          <div className="flex items-center gap-4 max-w-[70%]">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center border border-white/10 group-hover:border-white/20 transition-colors flex-shrink-0">
+              <span className="text-sm font-bold text-white/70 group-hover:text-white">
+                {member.name.charAt(0)}
+              </span>
+            </div>
+            <div className="flex flex-col justify-center">
+              <span className="text-sm font-medium text-white group-hover:text-[#22c55e] transition-colors line-clamp-1">
+                {member.name}
+              </span>
+              <span className="text-xs text-white/50 mt-0.5 break-words">
+                {member.organisation}
+              </span>
+            </div>
+          </div>
+
+          {/* Right Side: Stacked Layout (Badge on top, Actions on bottom right) */}
+          <div className="flex flex-col items-end gap-3 justify-between h-full py-0.5">
+            <span
+              className={`text-[10px] uppercase px-2.5 py-1 rounded-full border ${
+                member.role === 'Team Lead'
+                  ? 'bg-[#22c55e]/10 text-[#22c55e] border-[#22c55e]/20'
+                  : 'bg-white/5 text-white/40 border-white/5'
+              }`}
+              style={{ fontFamily: 'var(--font-body)' }}
+            >
+              {member.role === 'Team Lead' ? 'Lead' : 'Member'}
+            </span>
+            
+            {/* Action Bar: Clustered links in the bottom right corner */}
+            <div className="flex items-center gap-3 z-10">
+              {member.github_link && (
+                <a
+                  href={member.github_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white opacity-40 hover:opacity-100 transition-opacity"
+                  aria-label="GitHub Profile"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Github className="w-4 h-4" />
+                </a>
+              )}
+
+              {member.linkedin_link && (
+                <a
+                  href={member.linkedin_link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-white opacity-40 hover:opacity-100 transition-opacity"
+                  aria-label="LinkedIn Profile"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Linkedin className="w-4 h-4" />
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
+      ))}
+
+      {/* Render Empty Slots */}
+      {Array.from({ length: Math.max(0, 2 - (team.teamMembers?.length || 0)) }).map((_, i) => (
+        <div
+          key={`empty-${i}`}
+          className="flex-1 min-h-[72px] w-full flex items-center justify-between p-4 border border-dashed border-white/10 rounded-xl bg-transparent opacity-50 select-none"
+        >
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-full border border-dashed border-white/20 flex items-center justify-center">
+              <User className="w-4 h-4 text-white/20" />
+            </div>
+            <div className="flex flex-col justify-center">
+              <span className="text-sm font-medium text-white/30" style={{ fontFamily: 'var(--font-body)' }}>
+                Empty Slot
+              </span>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  </FormSection>
+</div>
             </div>
 
             {/* Community Activity Feed */}

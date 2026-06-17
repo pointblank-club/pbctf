@@ -1237,40 +1237,8 @@ export function DashboardContainer() {
 
         {/* Right Column - 1/3 width */}
         <div className="flex flex-col gap-[24px]">
-          {/* Compact Profile Status */}
-          <FormSection title="Profile Status">
-            <div className="flex flex-col gap-[12px]">
-              <div className="flex justify-between items-center">
-                <span
-                  className="text-[14px] text-white"
-                  style={{ fontFamily: "var(--font-body)" }}
-                >
-                  Completeness
-                </span>
-                <span
-                  className="text-[14px] text-white font-semibold"
-                  style={{ fontFamily: "var(--font-body)" }}
-                >
-                  {profileCompleteness}%
-                </span>
-              </div>
-              <div className="w-full bg-[rgba(138,138,138,0.2)] rounded-full h-[8px] overflow-hidden">
-                <div
-                  className="bg-gradient-to-r from-[#22c55e] to-[#4ade80] h-full transition-all duration-500"
-                  style={{ width: `${profileCompleteness}%` }}
-                />
-              </div>
-              {profileCompleteness < 100 && (
-                <p
-                  onClick={() => router.push("/dashboard/profile")}
-                  className="text-[12px] text-[#4ade80] opacity-80 cursor-pointer hover:opacity-100 transition-opacity break-words text-center"
-                  style={{ fontFamily: "var(--font-body)" }}
-                >
-                  {missingFields.length} fields missing → Complete now
-                </p>
-              )}
-            </div>
-          </FormSection>
+          
+
 
           {/* Quick Actions Card */}
           {team && teamStatus !== "none" && (
