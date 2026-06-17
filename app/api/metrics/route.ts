@@ -2,7 +2,6 @@ import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
 import TeamJoinRequest from "@/models/TeamJoinRequest";
-import ProblemStatement from "@/models/ProblemStatement";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
@@ -33,7 +32,7 @@ export async function GET(request: Request) {
 
         const MAX_TEAM_SIZE = 4;
 
-        const [users, teams, pendingJoinRequests, problems] =
+        const [users, teams, pendingJoinRequests] =
             await Promise.all([
                 User.find({}, { uid: 1, teamCode: 1, isLooking: 1 }).lean(),
                 Team.find(
@@ -49,10 +48,6 @@ export async function GET(request: Request) {
                     }
                 ).lean(),
                 TeamJoinRequest.countDocuments({ status: "pending" }),
-                ProblemStatement.find(
-                    {},
-                    { title: 1, teamCount: 1, isActive: 1 }
-                ).lean(),
             ]);
 
         /* -------------------- TEAM METRICS -------------------- */
@@ -134,22 +129,6 @@ export async function GET(request: Request) {
             (u: any) => u.isLooking === true
         ).length;
 
-        /* -------------------- PROBLEM METRICS -------------------- */
-
-        const activeProblems = problems.filter(
-            (p: any) => p.isActive
-        );
-
-        const totalProblemTeams = activeProblems.reduce(
-            (sum: number, p: any) => sum + (p.teamCount || 0),
-            0
-        );
-
-        const problemStats = activeProblems.map((p: any) => ({
-            title: p.title,
-            teamCount: p.teamCount || 0,
-        }));
-
         /* -------------------- MODE: PARTICIPANT DISTRIBUTION -------------------- */
 
         if (mode === "participant-distribution") {
@@ -208,12 +187,6 @@ export async function GET(request: Request) {
                 },
                 requests: {
                     pending: pendingJoinRequests,
-                },
-                problems: {
-                    total: problems.length,
-                    active: activeProblems.length,
-                    teamsAssigned: totalProblemTeams,
-                    list: problemStats,
                 },
                 backend: {
                     up: 1,

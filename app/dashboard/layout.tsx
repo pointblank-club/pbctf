@@ -89,11 +89,11 @@ export default function DashboardLayout({
         user={
           user && user.name
             ? {
-                uid: user.uid,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-              }
+              uid: user.uid,
+              name: user.name,
+              email: user.email,
+              role: user.role,
+            }
             : undefined
         }
         onLogout={handleLogout}

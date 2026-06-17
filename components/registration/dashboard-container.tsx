@@ -25,7 +25,6 @@ import { AlertBanner } from "./alert-banner";
 import { TeamOverviewCard } from "./team-overview-card";
 import { TeamMembersCard } from "./team-members-card";
 import { QuickActionsCard } from "./quick-actions-card";
-import { SubmissionStatusCard } from "./submission-status-card";
 import { DeadlineTimer } from "./deadline-timer";
 import { TransferOwnershipModal } from "./transfer-ownership-modal";
 import {
@@ -65,13 +64,6 @@ interface Team {
   memberCount: number;
   teamStatus: string;
   isLooking: boolean;
-  appliedFor?: {
-    id: string;
-    title: string;
-  } | null;
-  videoURL?: string;
-  submissionPDF?: string;
-  anyOtherLink?: string;
   isEvaluated?: boolean;
   evaluator?: {
     id: string;
@@ -304,8 +296,8 @@ export function DashboardContainer() {
                           if (rsvpData.data.userRSVP) {
                             setRsvpStatus(
                               rsvpData.data.userRSVP.rsvpStatus as
-                                | "confirmed"
-                                | "declined",
+                              | "confirmed"
+                              | "declined",
                             );
                           } else {
                             setRsvpStatus("pending");
@@ -684,6 +676,37 @@ export function DashboardContainer() {
     setWithdrawSubmissionDialogOpen(true);
   };
 
+  const handleSubmitTeam = async () => {
+    if (!team || !user) return;
+
+    try {
+      const token = await getToken();
+      if (!token) {
+        setAlert({ type: "error", message: "Authentication required" });
+        return;
+      }
+
+      const response = await fetch(API_ENDPOINTS.submitApplication, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ teamCode: team.teamCode }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setAlert({ type: "success", message: "Team submitted for evaluation!" });
+        setTeam((prev: any) => prev ? { ...prev, teamStatus: 'submitted' } : prev);
+      } else {
+        setAlert({ type: "error", message: data.message || "Failed to submit team" });
+      }
+    } catch (error) {
+      setAlert({ type: "error", message: "Network error submitting team" });
+    }
+  };
+
   const executeWithdrawSubmission = async () => {
     if (!team || !user) return;
 
@@ -892,7 +915,7 @@ export function DashboardContainer() {
           >
             <X className="w-5 h-5" />
           </button>
-          
+
           <div className="flex flex-col gap-[16px] pr-8">
             <div className="flex items-center gap-[12px]">
               <CheckCircle className="w-6 h-6 text-[#22c55e] flex-shrink-0" />
@@ -900,7 +923,7 @@ export function DashboardContainer() {
                 Registration Successful!
               </h3>
             </div>
-            
+
             <div className="space-y-[12px] text-white" style={{ fontFamily: 'var(--font-body)' }}>
               <p className="text-[15px] leading-[22px]">
                 You're registered!
@@ -908,7 +931,7 @@ export function DashboardContainer() {
               <p className="text-[14px] opacity-90 leading-[20px]">
                 All CTF communication happens on Discord — announcements, networking and doubts.
               </p>
-              
+
               <div className="flex items-start gap-[8px] pt-[4px]">
                 <ArrowRight className="w-5 h-5 text-[#22c55e] flex-shrink-0 mt-0.5" />
                 <div className="flex-1 space-y-[8px]">
@@ -923,7 +946,7 @@ export function DashboardContainer() {
                 </div>
               </div>
             </div>
-            
+
             <div className="pt-[4px]">
               <a
                 href="https://discord.gg/kqNUEVGmXA"
@@ -981,11 +1004,7 @@ export function DashboardContainer() {
       {/* Submission Deadline Timer */}
       <DeadlineTimer
         teamStatus={team?.teamStatus}
-        hasSubmitted={
-          teamStatus === "submitted" ||
-          teamStatus === "shortlisted" ||
-          teamStatus === "confirmed"
-        }
+        hasSubmitted={teamStatus === 'submitted' || teamStatus === 'shortlisted' || teamStatus === 'confirmed'}
         isEvaluated={team?.isEvaluated}
         evaluations={team?.evaluations}
         hasTeam={!!team}
@@ -1040,7 +1059,6 @@ export function DashboardContainer() {
                 teamCode: team.teamCode,
                 memberCount: team.memberCount,
                 maxMembers: 2,
-                problemStatement: team.appliedFor?.title,
               }}
               isLead={isTeamLead()}
               status={teamStatus}
@@ -1087,29 +1105,6 @@ export function DashboardContainer() {
                   </div>
                 </div>
               </FormSection>
-            )}
-
-          {/* Show SubmissionStatusCard for submitted/under-review teams that are not selected (accepted) or rejected */}
-          {team &&
-            (teamStatus === "submitted" || teamStatus === "under-review") &&
-            !hasAcceptedEvaluations() &&
-            !hasRejectedEvaluationsOnly() && (
-              <SubmissionStatusCard
-                status={teamStatus as "submitted" | "under-review"}
-                rsvpStatus={rsvpStatus}
-                submittedAt={team.submittedAt}
-                onRSVP={handleRSVP}
-              />
-            )}
-
-          {team &&
-            (teamStatus === "confirmed" || teamStatus === "declined") && (
-              <SubmissionStatusCard
-                status={teamStatus as "confirmed" | "declined"}
-                rsvpStatus={rsvpStatus}
-                submittedAt={team.submittedAt}
-                onRSVP={handleRSVP}
-              />
             )}
         </div>
 
@@ -1160,6 +1155,7 @@ export function DashboardContainer() {
               memberCount={team.memberCount}
               maxMembers={2}
               onNavigate={(path) => router.push(path)}
+              onSubmitTeam={handleSubmitTeam}
               onDeleteTeam={checkDeleteTeamEligibility}
               onLeaveTeam={() => setLeaveTeamDialogOpen(true)}
               onWithdrawSubmission={handleWithdrawSubmission}

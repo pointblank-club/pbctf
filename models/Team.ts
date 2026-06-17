@@ -44,11 +44,6 @@ export interface ITeam extends Document {
   teamMembers: ITeamMember[];
   memberCount: number;
   teamStatus: TeamStatus;
-  appliedFor?: string;
-
-  videoURL?: string;
-  submissionPDF?: string;
-  anyOtherLink?: string;
 
   isEvaluated: boolean;
   evaluations: IEvaluation[];
@@ -132,14 +127,6 @@ const TeamSchema: Schema = new Schema(
       default: "pending",
       index: true,
     },
-    appliedFor: {
-      type: String,
-      index: true,
-    },
-
-    videoURL: { type: String },
-    submissionPDF: { type: String },
-    anyOtherLink: { type: String },
 
     // Evaluation
     isEvaluated: {

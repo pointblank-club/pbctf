@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Users, FileText, Award, Gift, HelpCircle, Target, LogIn, UserPlus } from "lucide-react";
+import { Calendar, Users, Award, Gift, HelpCircle, LogIn, UserPlus, FileText } from "lucide-react";
 import { FormSection } from "./form-section";
 import { Button } from "./button";
 import { Card } from "./card";
@@ -8,23 +8,6 @@ import { Card } from "./card";
 interface LandingContainerProps {
   onNavigate: (view: string) => void;
 }
-
-interface ProblemStatement {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  difficulty: string;
-  active: boolean;
-}
-
-// Mock problem statements - will be replaced with API call
-const problemStatements: ProblemStatement[] = [
-  { id: '1', title: 'AI-Powered Healthcare Assistant', description: 'Build an AI solution for healthcare diagnostics', category: 'AI/ML', difficulty: 'Advanced', active: true },
-  { id: '2', title: 'Sustainable Smart City Platform', description: 'Create a platform for managing smart city infrastructure', category: 'IoT', difficulty: 'Intermediate', active: true },
-  { id: '3', title: 'Financial Inclusion App', description: 'Develop a mobile app for underbanked populations', category: 'FinTech', difficulty: 'Beginner', active: true },
-  { id: '4', title: 'Blockchain Supply Chain', description: 'Build a transparent supply chain solution using blockchain', category: 'Blockchain', difficulty: 'Advanced', active: true },
-];
 
 export function LandingContainer({ onNavigate }: LandingContainerProps) {
   return (
@@ -55,16 +38,13 @@ export function LandingContainer({ onNavigate }: LandingContainerProps) {
             <LogIn className="w-4 h-4" />
             Login
           </Button>
-          <Button onClick={() => onNavigate('problem-statements')} variant="secondary">
-            <Target className="w-4 h-4" />
-            View Challenges
-          </Button>
         </div>
       </div>
 
-      {/* Problem Statements Preview */}
+      {/* Skills Showcase */}
       <FormSection title="Featured Challenges">
         <div className="grid grid-cols-2 gap-[16px]">
+<<<<<<< Updated upstream
           {problemStatements.slice(0, 4).map((ps) => (
             <Card key={ps.id}>
               <div className="flex flex-col gap-[8px]">
@@ -80,13 +60,53 @@ export function LandingContainer({ onNavigate }: LandingContainerProps) {
                 <div className="flex items-center gap-[8px] mt-[4px]">
                   <span className="text-[12px] text-white opacity-60">{ps.difficulty}</span>
                 </div>
+=======
+          <Card>
+            <div className="flex flex-col gap-[8px]">
+              <div className="flex items-center justify-between">
+                <h3 className="font-['Inter',sans-serif] text-[16px] text-white">Web Exploitation</h3>
+                <span className="text-[12px] text-[#ff4d00] bg-[rgba(255,77,0,0.2)] px-[8px] py-[4px] rounded-[8px]">Web</span>
+>>>>>>> Stashed changes
               </div>
-            </Card>
-          ))}
+              <p className="font-['Inter',sans-serif] text-[13px] text-white opacity-70">
+                Test your ability to find and exploit vulnerabilities in web applications.
+              </p>
+            </div>
+          </Card>
+          <Card>
+            <div className="flex flex-col gap-[8px]">
+              <div className="flex items-center justify-between">
+                <h3 className="font-['Inter',sans-serif] text-[16px] text-white">Binary Exploitation</h3>
+                <span className="text-[12px] text-[#ff4d00] bg-[rgba(255,77,0,0.2)] px-[8px] py-[4px] rounded-[8px]">Pwn</span>
+              </div>
+              <p className="font-['Inter',sans-serif] text-[13px] text-white opacity-70">
+                Exploit memory corruption vulnerabilities in compiled binaries.
+              </p>
+            </div>
+          </Card>
+          <Card>
+            <div className="flex flex-col gap-[8px]">
+              <div className="flex items-center justify-between">
+                <h3 className="font-['Inter',sans-serif] text-[16px] text-white">Cryptography</h3>
+                <span className="text-[12px] text-[#ff4d00] bg-[rgba(255,77,0,0.2)] px-[8px] py-[4px] rounded-[8px]">Crypto</span>
+              </div>
+              <p className="font-['Inter',sans-serif] text-[13px] text-white opacity-70">
+                Break ciphers and cryptographic protocols to capture the flag.
+              </p>
+            </div>
+          </Card>
+          <Card>
+            <div className="flex flex-col gap-[8px]">
+              <div className="flex items-center justify-between">
+                <h3 className="font-['Inter',sans-serif] text-[16px] text-white">Reverse Engineering</h3>
+                <span className="text-[12px] text-[#ff4d00] bg-[rgba(255,77,0,0.2)] px-[8px] py-[4px] rounded-[8px]">Rev</span>
+              </div>
+              <p className="font-['Inter',sans-serif] text-[13px] text-white opacity-70">
+                Analyze and understand compiled programs to find hidden flags.
+              </p>
+            </div>
+          </Card>
         </div>
-        <Button onClick={() => onNavigate('problem-statements')} variant="secondary">
-          View All Challenges
-        </Button>
       </FormSection>
 
       {/* Timeline */}

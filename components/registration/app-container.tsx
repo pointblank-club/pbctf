@@ -11,15 +11,13 @@ import { RegistrationContainer } from "./registration-container";
 import { DashboardContainer } from "./dashboard-container";
 import { ProfileContainer } from "./profile-container";
 import { TeamContainer } from "./team-container";
-import { SubmissionContainer } from "./submission-container";
 import { LandingContainer } from "./landing-container";
-import { ProblemStatementsContainer } from "./problem-statements-container";
 import { DiscoverContainer } from "./discover-container";
 import { EvaluatorContainer } from "./evaluator-container";
 import { AdminContainer } from "./admin-container";
 import { Spinner } from "@/components/ui/spinner";
 
-type View = "landing" | "login" | "register" | "problem-statements" | "dashboard" | "profile" | "team" | "submission" | "discover" | "evaluator" | "admin";
+type View = "landing" | "login" | "register" | "dashboard" | "profile" | "team" | "discover" | "evaluator" | "admin";
 
 export function AppContainer() {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
@@ -58,7 +56,7 @@ export function AppContainer() {
       // Extract join code from query string
       const joinCode = view.split('joinCode=')[1];
       router.push(`/dashboard/team?joinCode=${joinCode}`);
-    } else if (view === 'dashboard' || view === 'profile' || view === 'team' || view === 'submission' || view === 'discover' || view === 'evaluator' || view === 'admin') {
+    } else if (view === 'dashboard' || view === 'profile' || view === 'team' || view === 'discover' || view === 'evaluator' || view === 'admin') {
       router.push(`/dashboard/${view === 'dashboard' ? '' : view}`);
     } else {
       setCurrentView(view as View);
@@ -123,9 +121,6 @@ export function AppContainer() {
                 <LandingContainer onNavigate={handleNavigate} />
               )}
 
-              {currentView === "problem-statements" && (
-                <ProblemStatementsContainer onNavigate={handleNavigate} />
-              )}
             </div>
           </div>
 

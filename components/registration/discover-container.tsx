@@ -19,7 +19,6 @@ import { AlertBanner } from "./alert-banner";
 interface TeamLookingForMembers {
   teamName: string;
   teamCode: string;
-  problemStatement: string;
   currentMembers: number;
   maxMembers: number;
   teamLead?: {
@@ -203,7 +202,6 @@ export function DiscoverContainer() {
                 const transformed = teamsData.data.teams.map((team: any) => ({
                   teamName: team.teamName,
                   teamCode: team.teamCode,
-                  problemStatement: team.appliedFor?.title || 'No problem statement selected',
                   currentMembers: team.currentMemberCount || 0,
                   maxMembers: team.maxMembers || 4,
                   teamLead: team.teamLead,
@@ -396,10 +394,10 @@ export function DiscoverContainer() {
     setSelectedTeamCode(teamCode);
     setIsLoadingTeam(true);
     setTeamError(null);
-    
+
     // First, try to use the basic data we already have from the looking-for-members endpoint
     const basicTeamData = teamsLookingForMembers.find(t => t.teamCode === teamCode);
-    
+
     // Try to fetch full team details (will fail if user is not a member)
     try {
       const token = await getToken();
@@ -560,7 +558,7 @@ export function DiscoverContainer() {
     setSelectedUserId(userId);
     setIsLoadingUser(true);
     setUserError(null);
-    
+
     try {
       const token = await getToken();
       if (!token) {
@@ -623,269 +621,266 @@ export function DiscoverContainer() {
 
           {user?.teamCode && !isTeamLead ? (
             <div className="flex flex-col items-center justify-center py-[60px] text-center">
-          <div className="bg-[rgba(34,197,94,0.1)] border border-[#22c55e]/30 rounded-lg p-8 max-w-2xl">
-            <h2 className="text-2xl font-bold text-[#22c55e] mb-4">You are already in a team!</h2>
-            <p className="text-gray-300 mb-6">
-              You are currently a member of team <span className="font-mono text-white bg-white/10 px-2 py-1 rounded">{user.teamCode}</span>.
-              <br />
-              Please leave your current team if you wish to join another one.
-            </p>
-            <Button onClick={() => router.push("/dashboard")} variant="primary">
-              Go to Team Dashboard
-            </Button>
-          </div>
+              <div className="bg-[rgba(34,197,94,0.1)] border border-[#22c55e]/30 rounded-lg p-8 max-w-2xl">
+                <h2 className="text-2xl font-bold text-[#22c55e] mb-4">You are already in a team!</h2>
+                <p className="text-gray-300 mb-6">
+                  You are currently a member of team <span className="font-mono text-white bg-white/10 px-2 py-1 rounded">{user.teamCode}</span>.
+                  <br />
+                  Please leave your current team if you wish to join another one.
+                </p>
+                <Button onClick={() => router.push("/dashboard")} variant="primary">
+                  Go to Team Dashboard
+                </Button>
+              </div>
             </div>
           ) : !userIsLooking && !isTeamLead && !userHasTeam && activeTab === "teams" ? (
             <div className="flex flex-col items-center justify-center py-[60px] text-center">
-          <div className="bg-[rgba(34,197,94,0.1)] border border-[#22c55e]/30 rounded-lg p-8 max-w-2xl">
-            <h2 className="text-2xl font-bold text-[#22c55e] mb-4">Enable "Public Profile" to Discover Teams</h2>
-            <p className="text-gray-300 mb-6">
-              You need to enable "Public Profile" in your profile settings to see teams looking for members.
-            </p>
-            <Button onClick={() => router.push("/dashboard/profile")} variant="primary">
-              Go to Profile Settings
-            </Button>
-          </div>
+              <div className="bg-[rgba(34,197,94,0.1)] border border-[#22c55e]/30 rounded-lg p-8 max-w-2xl">
+                <h2 className="text-2xl font-bold text-[#22c55e] mb-4">Enable "Public Profile" to Discover Teams</h2>
+                <p className="text-gray-300 mb-6">
+                  You need to enable "Public Profile" in your profile settings to see teams looking for members.
+                </p>
+                <Button onClick={() => router.push("/dashboard/profile")} variant="primary">
+                  Go to Profile Settings
+                </Button>
+              </div>
             </div>
           ) : (
-        <>
-          {!user?.teamCode && (
-            <AlertBanner
-              type="info"
-              message="Want to invite members? You need to create a team first to send invitations."
-              className="mb-6"
-            />
-          )}
-          {/* Privacy Notice - shown for both teams and participants tabs */}
-          <AlertBanner
-            type="warning"
-            message={
-              <div>
-                <strong>Privacy Notice:</strong> When you make your profile public, the following information from your profile will be publicly visible and discoverable by other participants: your name, bio, organisation, profile picture, resume, and all professional/social links (GitHub, LinkedIn.). Please ensure you've redacted any sensitive personal information (e.g., phone numbers, addresses, personal email addresses) from your resume before making your profile public.
-              </div>
-            }
-            className="mb-6"
-          />
-          <FormSection title={isTeamLead ? "Find Team Members" : "What are you looking for?"}>
-            <div className="flex flex-col gap-[24px]">
-              {/* Tab Navigation */}
-              <div className="flex gap-[12px]">
-                {/* Only user without team can see teams tab */}
-                {!isTeamLead && (
-                  <SectionTab
-                    active={activeTab === "teams"}
-                    onClick={() => setActiveTab("teams")}
-                    icon={Users}
-                    label="Teams"
-                  />
-                )}
-                <SectionTab
-                  active={activeTab === "participants"}
-                  onClick={() => setActiveTab("participants")}
-                  icon={User}
-                  label="Participants"
+            <>
+              {!user?.teamCode && (
+                <AlertBanner
+                  type="info"
+                  message="Want to invite members? You need to create a team first to send invitations."
+                  className="mb-6"
                 />
-              </div>
+              )}
+              {/* Privacy Notice - shown for both teams and participants tabs */}
+              <AlertBanner
+                type="warning"
+                message={
+                  <div>
+                    <strong>Privacy Notice:</strong> When you make your profile public, the following information from your profile will be publicly visible and discoverable by other participants: your name, bio, organisation, profile picture, resume, and all professional/social links (GitHub, LinkedIn, LeetCode, Kaggle, Devfolio, Portfolio, etc.). Please ensure you've redacted any sensitive personal information (e.g., phone numbers, addresses, personal email addresses) from your resume before making your profile public.
+                  </div>
+                }
+                className="mb-6"
+              />
+              <FormSection title={isTeamLead ? "Find Team Members" : "What are you looking for?"}>
+                <div className="flex flex-col gap-[24px]">
+                  {/* Tab Navigation */}
+                  <div className="flex gap-[12px]">
+                    {/* Only user without team can see teams tab */}
+                    {!isTeamLead && (
+                      <SectionTab
+                        active={activeTab === "teams"}
+                        onClick={() => setActiveTab("teams")}
+                        icon={Users}
+                        label="Teams"
+                      />
+                    )}
+                    <SectionTab
+                      active={activeTab === "participants"}
+                      onClick={() => setActiveTab("participants")}
+                      icon={User}
+                      label="Participants"
+                    />
+                  </div>
 
-              {/* Search Bar */}
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white opacity-60" />
-                <input
-                  type="text"
-                  placeholder={`Search ${activeTab === "teams" ? "teams" : "participants"}...`}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-[rgba(138,138,138,0.1)] border border-[rgba(255,255,255,0.2)] rounded-[12px] text-white placeholder-white/60 focus:outline-none focus:border-[#22c55e] transition-colors"
-                  style={{ fontFamily: 'var(--font-body)' }}
-                />
-              </div>
+                  {/* Search Bar */}
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white opacity-60" />
+                    <input
+                      type="text"
+                      placeholder={`Search ${activeTab === "teams" ? "teams" : "participants"}...`}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2 bg-[rgba(138,138,138,0.1)] border border-[rgba(255,255,255,0.2)] rounded-[12px] text-white placeholder-white/60 focus:outline-none focus:border-[#22c55e] transition-colors"
+                      style={{ fontFamily: 'var(--font-body)' }}
+                    />
+                  </div>
 
-              {/* Tab Content */}
-              {activeTab === "teams" && !isTeamLead ? (
-                <div>
-                  {isLoading ? (
-                    <div className="flex justify-center py-[40px]">
-                      <Spinner size="lg" />
-                    </div>
-                  ) : teamsLookingForMembers.length === 0 ? (
-                    <div className="text-white text-center py-[40px] opacity-70">
-                      {searchQuery.trim() ? "No teams match your search." : "No teams are currently looking for members."}
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-[16px]">
-                      {teamsLookingForMembers.map((team, idx) => (
-                        <div
-                          key={idx}
-                          className="transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[rgba(34,197,94,0.2)]"
-                        >
-                          <Card>
-                            <div
-                              className="flex items-start justify-between cursor-pointer"
-                              onClick={() => handleTeamClick(team.teamCode)}
-                            >
-                              <div className="flex-1">
-                                <div className="flex items-center gap-[12px] mb-[8px]">
-                                  <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white">{team.teamName}</h3>
-                                  {userRequests[team.teamCode] === 'pending' && (
-                                    <span className="px-[8px] py-[2px] bg-[rgba(255,235,59,0.2)] border border-[#ffeb3b] rounded-[6px] text-[12px] text-[#ffeb3b] font-medium">
-                                      Request Sent
-                                    </span>
-                                  )}
-                                  {userRequests[team.teamCode] === 'accepted' && (
-                                    <span className="px-[8px] py-[2px] bg-[rgba(76,175,80,0.2)] border border-[#4caf50] rounded-[6px] text-[12px] text-[#4caf50] font-medium">
-                                      Accepted
-                                    </span>
-                                  )}
-                                </div>
-                                <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70 mb-[8px]">
-                                  Problem: {team.problemStatement}
-                                </p>
-                                <div className="flex items-center gap-[12px]">
-                                  <span className="font-['Google_Sans_Flex',sans-serif] text-[12px] text-white opacity-60">
-                                    {team.currentMembers}/{team.maxMembers} members
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                          </Card>
+                  {/* Tab Content */}
+                  {activeTab === "teams" && !isTeamLead ? (
+                    <div>
+                      {isLoading ? (
+                        <div className="flex justify-center py-[40px]">
+                          <Spinner size="lg" />
                         </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {/* Teams Pagination Controls */}
-                  {teamsLookingForMembers.length > 0 && teamsPagination.totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-[16px] mt-[24px] pt-[16px] border-t border-[rgba(255,255,255,0.1)]">
-                      <Button
-                        variant="secondary"
-                        onClick={() => setTeamsPage(prev => Math.max(1, prev - 1))}
-                        disabled={teamsPage <= 1 || isLoading}
-                      >
-                        Previous
-                      </Button>
-                      <span className="text-[14px] text-white opacity-80" style={{ fontFamily: 'var(--font-body)' }}>
-                        Page {teamsPage} of {teamsPagination.totalPages}
-                      </span>
-                      <Button
-                        variant="secondary"
-                        onClick={() => setTeamsPage(prev => Math.min(teamsPagination.totalPages, prev + 1))}
-                        disabled={teamsPage >= teamsPagination.totalPages || isLoading}
-                      >
-                        Next
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div>
-                  {isLoading ? (
-                    <div className="flex justify-center py-[40px]">
-                      <Spinner size="lg" />
-                    </div>
-                  ) : participantsLookingForTeams.length === 0 ? (
-                    <div className="text-white text-center py-[40px] opacity-70">
-                      {searchQuery.trim() ? "No participants match your search." : "No participants are currently looking for teams."}
-                    </div>
-                  ) : (
-                    <div className="flex flex-col gap-[16px]">
-                      {participantsLookingForTeams.map((participant, idx) => (
-                        <div
-                          key={idx}
-                          className="transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[rgba(34,197,94,0.2)]"
-                        >
-                          <Card>
-                            <div className="flex items-start justify-between">
-                              <div
-                                className="flex-1 cursor-pointer"
-                                onClick={() => handleUserClick(participant.id)}
-                              >
-                                <div className="flex flex-col gap-[8px]">
-                                  <div className="flex items-start justify-between">
-                                    <div className="flex items-center gap-[12px]">
-                                      <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white">{participant.name}</h3>
-                                      {sentInvites.has(participant.id) && (
+                      ) : teamsLookingForMembers.length === 0 ? (
+                        <div className="text-white text-center py-[40px] opacity-70">
+                          {searchQuery.trim() ? "No teams match your search." : "No teams are currently looking for members."}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-[16px]">
+                          {teamsLookingForMembers.map((team, idx) => (
+                            <div
+                              key={idx}
+                              className="transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[rgba(34,197,94,0.2)]"
+                            >
+                              <Card>
+                                <div
+                                  className="flex items-start justify-between cursor-pointer"
+                                  onClick={() => handleTeamClick(team.teamCode)}
+                                >
+                                  <div className="flex-1">
+                                    <div className="flex items-center gap-[12px] mb-[8px]">
+                                      <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white">{team.teamName}</h3>
+                                      {userRequests[team.teamCode] === 'pending' && (
                                         <span className="px-[8px] py-[2px] bg-[rgba(255,235,59,0.2)] border border-[#ffeb3b] rounded-[6px] text-[12px] text-[#ffeb3b] font-medium">
-                                          Invite Sent
+                                          Request Sent
+                                        </span>
+                                      )}
+                                      {userRequests[team.teamCode] === 'accepted' && (
+                                        <span className="px-[8px] py-[2px] bg-[rgba(76,175,80,0.2)] border border-[#4caf50] rounded-[6px] text-[12px] text-[#4caf50] font-medium">
+                                          Accepted
                                         </span>
                                       )}
                                     </div>
-                                    {participant.university && (
-                                      <span className="font-['Google_Sans_Flex',sans-serif] text-[12px] text-white opacity-60">{participant.university}</span>
-                                    )}
+                                    <div className="flex items-center gap-[12px]">
+                                      <span className="font-['Google_Sans_Flex',sans-serif] text-[12px] text-white opacity-60">
+                                        {team.currentMembers}/{team.maxMembers} members
+                                      </span>
+                                    </div>
                                   </div>
-                                  <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70">
-                                    Skills: {participant.skills}
-                                  </p>
-                                  <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70">
-                                    Interests: {participant.interests}
-                                  </p>
                                 </div>
-                              </div>
-
-                              {/* Invite Button removed from here and moved to UserProfileModal */}
+                              </Card>
                             </div>
-                          </Card>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  )}
+                      )}
 
-                  {/* Participants Pagination Controls */}
-                  {participantsLookingForTeams.length > 0 && participantsPagination.totalPages > 1 && (
-                    <div className="flex items-center justify-center gap-[16px] mt-[24px] pt-[16px] border-t border-[rgba(255,255,255,0.1)]">
-                      <Button
-                        variant="secondary"
-                        onClick={() => setParticipantsPage(prev => Math.max(1, prev - 1))}
-                        disabled={participantsPage <= 1 || isLoading}
-                      >
-                        Previous
-                      </Button>
-                      <span className="text-[14px] text-white opacity-80" style={{ fontFamily: 'var(--font-body)' }}>
-                        Page {participantsPage} of {participantsPagination.totalPages}
-                      </span>
-                      <Button
-                        variant="secondary"
-                        onClick={() => setParticipantsPage(prev => Math.min(participantsPagination.totalPages, prev + 1))}
-                        disabled={participantsPage >= participantsPagination.totalPages || isLoading}
-                      >
-                        Next
-                      </Button>
+                      {/* Teams Pagination Controls */}
+                      {teamsLookingForMembers.length > 0 && teamsPagination.totalPages > 1 && (
+                        <div className="flex items-center justify-center gap-[16px] mt-[24px] pt-[16px] border-t border-[rgba(255,255,255,0.1)]">
+                          <Button
+                            variant="secondary"
+                            onClick={() => setTeamsPage(prev => Math.max(1, prev - 1))}
+                            disabled={teamsPage <= 1 || isLoading}
+                          >
+                            Previous
+                          </Button>
+                          <span className="text-[14px] text-white opacity-80" style={{ fontFamily: 'var(--font-body)' }}>
+                            Page {teamsPage} of {teamsPagination.totalPages}
+                          </span>
+                          <Button
+                            variant="secondary"
+                            onClick={() => setTeamsPage(prev => Math.min(teamsPagination.totalPages, prev + 1))}
+                            disabled={teamsPage >= teamsPagination.totalPages || isLoading}
+                          >
+                            Next
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div>
+                      {isLoading ? (
+                        <div className="flex justify-center py-[40px]">
+                          <Spinner size="lg" />
+                        </div>
+                      ) : participantsLookingForTeams.length === 0 ? (
+                        <div className="text-white text-center py-[40px] opacity-70">
+                          {searchQuery.trim() ? "No participants match your search." : "No participants are currently looking for teams."}
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-[16px]">
+                          {participantsLookingForTeams.map((participant, idx) => (
+                            <div
+                              key={idx}
+                              className="transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[rgba(34,197,94,0.2)]"
+                            >
+                              <Card>
+                                <div className="flex items-start justify-between">
+                                  <div
+                                    className="flex-1 cursor-pointer"
+                                    onClick={() => handleUserClick(participant.id)}
+                                  >
+                                    <div className="flex flex-col gap-[8px]">
+                                      <div className="flex items-start justify-between">
+                                        <div className="flex items-center gap-[12px]">
+                                          <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white">{participant.name}</h3>
+                                          {sentInvites.has(participant.id) && (
+                                            <span className="px-[8px] py-[2px] bg-[rgba(255,235,59,0.2)] border border-[#ffeb3b] rounded-[6px] text-[12px] text-[#ffeb3b] font-medium">
+                                              Invite Sent
+                                            </span>
+                                          )}
+                                        </div>
+                                        {participant.university && (
+                                          <span className="font-['Google_Sans_Flex',sans-serif] text-[12px] text-white opacity-60">{participant.university}</span>
+                                        )}
+                                      </div>
+                                      <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70">
+                                        Skills: {participant.skills}
+                                      </p>
+                                      <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70">
+                                        Interests: {participant.interests}
+                                      </p>
+                                    </div>
+                                  </div>
+
+                                  {/* Invite Button removed from here and moved to UserProfileModal */}
+                                </div>
+                              </Card>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* Participants Pagination Controls */}
+                      {participantsLookingForTeams.length > 0 && participantsPagination.totalPages > 1 && (
+                        <div className="flex items-center justify-center gap-[16px] mt-[24px] pt-[16px] border-t border-[rgba(255,255,255,0.1)]">
+                          <Button
+                            variant="secondary"
+                            onClick={() => setParticipantsPage(prev => Math.max(1, prev - 1))}
+                            disabled={participantsPage <= 1 || isLoading}
+                          >
+                            Previous
+                          </Button>
+                          <span className="text-[14px] text-white opacity-80" style={{ fontFamily: 'var(--font-body)' }}>
+                            Page {participantsPage} of {participantsPagination.totalPages}
+                          </span>
+                          <Button
+                            variant="secondary"
+                            onClick={() => setParticipantsPage(prev => Math.min(participantsPagination.totalPages, prev + 1))}
+                            disabled={participantsPage >= participantsPagination.totalPages || isLoading}
+                          >
+                            Next
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-              )}
-            </div>
-          </FormSection>
+              </FormSection>
 
-          {/* Team Details Modal */}
-          <TeamDetailsModal
-            isOpen={!!selectedTeamCode}
-            onClose={handleCloseTeamModal}
-            teamDetails={teamDetails}
-            isLoading={isLoadingTeam}
-            error={teamError}
-            onMemberClick={(userId: string) => handleUserClick(userId)}
-            requestStatus={selectedTeamCode ? userRequests[selectedTeamCode] : undefined}
-            onSendRequest={selectedTeamCode ? () => handleSendRequest(selectedTeamCode) : undefined}
-            isSendingRequest={selectedTeamCode ? sendingRequest === selectedTeamCode : false}
-          />
+              {/* Team Details Modal */}
+              <TeamDetailsModal
+                isOpen={!!selectedTeamCode}
+                onClose={handleCloseTeamModal}
+                teamDetails={teamDetails}
+                isLoading={isLoadingTeam}
+                error={teamError}
+                onMemberClick={(userId: string) => handleUserClick(userId)}
+                requestStatus={selectedTeamCode ? userRequests[selectedTeamCode] : undefined}
+                onSendRequest={selectedTeamCode ? () => handleSendRequest(selectedTeamCode) : undefined}
+                isSendingRequest={selectedTeamCode ? sendingRequest === selectedTeamCode : false}
+              />
 
-          {/* User Details Modal */}
-          <UserProfileModal
-            isOpen={!!selectedUserId}
-            onClose={handleCloseUserModal}
-            userDetails={userDetails}
-            isLoading={isLoadingUser}
-            onInvite={handleInviteUser}
-            isInviting={userDetails ? invitingUser === userDetails.uid : false}
-            isInvited={userDetails ? sentInvites.has(userDetails.uid) : false}
-            canInvite={isTeamLead && (!teamCapacity || teamCapacity.current < teamCapacity.max)}
-            showCreateTeamHint={!user?.teamCode}
-            error={userError}
-            openResumeInNewTab
-          />
-        </>
-      )}
+              {/* User Details Modal */}
+              <UserProfileModal
+                isOpen={!!selectedUserId}
+                onClose={handleCloseUserModal}
+                userDetails={userDetails}
+                isLoading={isLoadingUser}
+                onInvite={handleInviteUser}
+                isInviting={userDetails ? invitingUser === userDetails.uid : false}
+                isInvited={userDetails ? sentInvites.has(userDetails.uid) : false}
+                canInvite={isTeamLead && (!teamCapacity || teamCapacity.current < teamCapacity.max)}
+                showCreateTeamHint={!user?.teamCode}
+                error={userError}
+                openResumeInNewTab
+              />
+            </>
+          )}
         </>
       )}
     </div>

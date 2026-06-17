@@ -10,7 +10,7 @@ export const API_ENDPOINTS = {
   // ===== AUTHENTICATION =====
   register: '/api/registration',              // POST (FormData)
   login: '/api/user/login',                   // POST (JSON)
-  
+
   // ===== USER ENDPOINTS =====
   userProfile: '/api/user/profile',                    // GET, PUT
   lookingForTeam: '/api/user/looking-for-team',        // GET, PUT
@@ -26,15 +26,12 @@ export const API_ENDPOINTS = {
   respondToJoinRequest: (requestId: string) => `/api/team/join-request/${requestId}`,  // PUT
   leaveTeam: '/api/team/leave',                        // PUT
   removeMember: '/api/team/remove-member',             // PUT
-  uploadSubmission: '/api/team/upload-submission',     // POST
   submitApplication: '/api/team/submit-application',   // POST
-  updateSubmission: '/api/team/update-submission',     // PUT
   withdrawSubmission: '/api/team/withdraw-submission', // PUT
-  updateProblemStatement: '/api/team/update-problem-statement', // PUT
   deleteTeam: '/api/team/delete',                      // DELETE
   getTeam: (teamCode: string) => `/api/team/${teamCode}`,  // GET
   getTeamMembers: (teamCode: string) => `/api/team/${teamCode}/members`,  // GET (for users looking for teams)
-  
+
   // ===== ADMIN ENDPOINTS =====
   adminParticipants: '/api/admin/participants',        // GET
   adminParticipantDetails: (id: string) => `/api/admin/participants/${id}`,  // GET
@@ -45,9 +42,7 @@ export const API_ENDPOINTS = {
   adminAssignEvaluators: '/api/admin/evaluators/assign',  // PUT
   adminFinalizeTeams: '/api/admin/finalize-teams',     // PUT
   adminExport: '/api/admin/export',                    // GET
-  adminProblemStatements: '/api/admin/problem-statements',  // POST
-  adminUpdateProblemStatement: (id: string) => `/api/admin/problem-statements/${id}`,  // PUT
-  
+
   // ===== EVALUATOR ENDPOINTS =====
   evaluatorRegister: '/api/evaluator/register',
   evaluatorTeams: '/api/evaluator/teams',              // GET
@@ -56,9 +51,7 @@ export const API_ENDPOINTS = {
   evaluatorVote: '/api/evaluator/vote',        // PUT
   evaluatorUpdateEvaluation: (teamCode: string) => `/api/evaluator/evaluate/${teamCode}/update`,  // PUT
   adminPromoteUser: '/api/admin/users/promote',        // PUT
-  // ===== PROBLEM STATEMENT ENDPOINTS =====
-  problemStatements: '/api/problem-statements',        // GET
-  problemStatementDetails: (id: string) => `/api/problem-statements/${id}`,  // GET
+
 };
 
 /**

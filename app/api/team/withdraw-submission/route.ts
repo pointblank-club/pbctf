@@ -64,12 +64,6 @@ export async function PUT(request: NextRequest) {
     const updatedTeam = await Team.findOneAndUpdate(
       { teamCode },
       {
-        $unset: {
-          videoURL: "",
-          submissionPDF: "",
-          anyOtherLink: "",
-          submittedAt: "",
-        },
         $set: {
           teamStatus: 'pending',
         }

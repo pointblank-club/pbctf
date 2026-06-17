@@ -3,7 +3,6 @@ import { authenticateUser } from "@/lib/middleware/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
-import ProblemStatement from "@/models/ProblemStatement";
 
 export const dynamic = 'force-dynamic';
 
@@ -33,7 +32,7 @@ export async function GET(
     const isMember = team.teamMembers.some(
       (member: any) => member.uid === authResult.user.uid
     );
-    
+
     if (!isMember) {
       return NextResponse.json(
         { message: "Unauthorized: You are not a member of this team" },
@@ -44,14 +43,6 @@ export async function GET(
     const memberUids = team.teamMembers.map((m: any) => m.uid);
     const members = await User.find({ uid: { $in: memberUids } })
       .select('uid name email organisation profile_picture discord_username resume_link github_link linkedin_link');
-
-    let problemStatement = null;
-    if (team.appliedFor) {
-      const ps = await ProblemStatement.findById(team.appliedFor);
-      if (ps) {
-        problemStatement = { id: ps._id.toString(), title: ps.title };
-      }
-    }
 
     const teamLead = members.find(u => u.uid === team.teamLead);
 
@@ -92,10 +83,6 @@ export async function GET(
         memberCount: team.memberCount,
         teamStatus: team.teamStatus,
         isLooking: team.isLooking,
-        appliedFor: problemStatement,
-        videoURL: team.videoURL || null,
-        submissionPDF: team.submissionPDF || null,
-        anyOtherLink: team.anyOtherLink || null,
         isEvaluated: team.isEvaluated,
         isShortlisted: team.isShortlisted,
         evaluations: team.evaluations || [], // Include evaluations array

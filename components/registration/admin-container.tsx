@@ -36,12 +36,8 @@ interface AdminStats {
 interface Team {
   teamCode: string;
   teamName: string;
-  problemStatement: string;
   memberCount: number;
   status: string;
-  videoURL?: string;
-  submissionPDF?: string;
-  anyOtherLink?: string;
 }
 
 interface Participant {
@@ -120,12 +116,6 @@ export function AdminContainer() {
   const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isUserLoading, setIsUserLoading] = useState(false);
-
-  // Add PS Modal State
-  const [isAddPSModalOpen, setIsAddPSModalOpen] = useState(false);
-  const [newPsTitle, setNewPsTitle] = useState("");
-  const [newPsDescription, setNewPsDescription] = useState("");
-  const [isAddingPs, setIsAddingPs] = useState(false);
 
   // Confirmation Dialog State
   const [confirmation, setConfirmation] = useState<{
@@ -247,7 +237,6 @@ export function AdminContainer() {
         const mappedTeams: Team[] = teamsList.map((t: any) => ({
           teamCode: t.teamCode,
           teamName: t.teamName,
-          problemStatement: t.appliedFor?.title || "N/A",
           memberCount: t.memberCount,
           status: t.teamStatus
         }));
@@ -296,12 +285,8 @@ export function AdminContainer() {
         const mappedTeams: Team[] = teamsList.map((t: any) => ({
           teamCode: t.teamCode,
           teamName: t.teamName,
-          problemStatement: t.appliedFor?.title || "N/A",
           memberCount: t.memberCount,
           status: t.teamStatus,
-          videoURL: t.videoURL,
-          submissionPDF: t.submissionPDF,
-          anyOtherLink: t.anyOtherLink
         }));
         setSubmissions(mappedTeams);
         setSubmissionsTotalPages(data.data.pagination.totalPages);
@@ -374,7 +359,7 @@ export function AdminContainer() {
             } as SelectedTeam;
           })
         );
-        
+
         setSelectedTeams(teamsWithDetails);
         setSelectedTeamsTotalPages(data.data.pagination.totalPages);
       } else {
@@ -543,48 +528,6 @@ export function AdminContainer() {
     }
   };
 
-  const handleAddProblemStatement = async () => {
-    if (!newPsTitle.trim() || !newPsDescription.trim()) {
-      setAlert({ type: "error", message: "Please fill in all fields" });
-      setTimeout(() => setAlert(null), 3000);
-      return;
-    }
-
-    setIsAddingPs(true);
-    try {
-      const token = await getToken();
-      if (!token) return;
-
-      const response = await fetch(API_ENDPOINTS.adminProblemStatements, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: newPsTitle,
-          description: newPsDescription,
-        }),
-      });
-
-      if (response.ok) {
-        setAlert({ type: 'success', message: 'Problem statement added successfully' });
-        setTimeout(() => setAlert(null), 3000);
-        setIsAddPSModalOpen(false);
-        setNewPsTitle("");
-        setNewPsDescription("");
-      } else {
-        setAlert({ type: "error", message: "Failed to create problem statement" });
-        setTimeout(() => setAlert(null), 3000);
-      }
-    } catch (err) {
-      setAlert({ type: "error", message: "An error occurred" });
-      setTimeout(() => setAlert(null), 3000);
-    } finally {
-      setIsAddingPs(false);
-    }
-  };
-
   const renderPagination = (currentPage: number, totalPages: number, setPage: (page: number) => void) => {
     if (totalPages <= 1) return null;
 
@@ -640,7 +583,7 @@ export function AdminContainer() {
       )}
 
       <FormSection title="Platform Statistics">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-[16px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[16px]">
           <Card>
             <div className="flex flex-col items-center gap-[8px] text-center">
               <UserCircle className="w-8 h-8 text-[#22c55e]" />
@@ -680,13 +623,11 @@ export function AdminContainer() {
       </FormSection>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-6 h-auto">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
           <TabsTrigger value="users">Manage Users</TabsTrigger>
           <TabsTrigger value="teams">Manage Teams</TabsTrigger>
-          <TabsTrigger value="submissions">Submissions</TabsTrigger>
           <TabsTrigger value="selected-teams">Selected Teams</TabsTrigger>
           <TabsTrigger value="evaluators">Evaluators</TabsTrigger>
-          <TabsTrigger value="problems">Problem Statements</TabsTrigger>
         </TabsList>
 
         <TabsContent value="users" className="mt-6">
@@ -791,43 +732,8 @@ export function AdminContainer() {
                       <div className="flex-1">
                         <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white mb-[4px]">{team.teamName}</h3>
                         <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90 mb-[8px]">
-                          Problem: {team.problemStatement} • Status: {team.status}
+                          • Status: {team.status}
                         </p>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {team.videoURL && (
-                            <a
-                              href={team.videoURL}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 text-red-400 text-[12px] hover:bg-red-500/20 transition-colors border border-red-500/20"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>
-                              Video Pitch
-                            </a>
-                          )}
-                          {team.submissionPDF && (
-                            <a
-                              href={team.submissionPDF}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-[12px] hover:bg-blue-500/20 transition-colors border border-blue-500/20"
-                            >
-                              <FileText className="w-3 h-3" />
-                              Documentation
-                            </a>
-                          )}
-                          {team.anyOtherLink && (
-                            <a
-                              href={team.anyOtherLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[12px] hover:bg-emerald-500/20 transition-colors border border-emerald-500/20"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
-                              Project Link
-                            </a>
-                          )}
-                        </div>
                       </div>
                       <div className="flex gap-[8px] w-full sm:w-auto justify-end">
                         <Button variant="secondary" onClick={() => handleViewTeam(team.teamCode)}>
@@ -882,7 +788,7 @@ export function AdminContainer() {
                       <div className="flex-1">
                         <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white mb-[4px]">{team.teamName}</h3>
                         <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90 mb-[8px]">
-                          Problem: {team.problemStatement} • Members: {team.memberCount} • Status: {team.status}
+                          • Members: {team.memberCount} • Status: {team.status}
                         </p>
                       </div>
                       <div className="flex gap-[8px] w-full sm:w-auto justify-end">
@@ -944,7 +850,7 @@ export function AdminContainer() {
                   const memberRSVPsMap = new Map(
                     (team.memberRSVPs || []).map((rsvp: any) => [rsvp.uid, rsvp])
                   );
-        
+
                   return (
                     <Card key={team.teamCode}>
                       <div className="flex flex-col gap-4">
@@ -954,7 +860,7 @@ export function AdminContainer() {
                               {team.teamName}
                             </h3>
                             <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90 mb-[8px]">
-                              Problem: {team.problemStatement} • Members: {team.memberCount} • Status: {team.status}
+                              • Members: {team.memberCount} • Status: {team.status}
                             </p>
                             <div className="flex items-center gap-2 mt-2">
                               <span className="text-[12px] text-white opacity-70">
@@ -999,7 +905,7 @@ export function AdminContainer() {
                               {team.teamMembers.map((member) => {
                                 const rsvp = memberRSVPsMap.get(member.uid);
                                 const rsvpStatus = rsvp?.rsvpStatus || null;
-                                
+
                                 return (
                                   <div
                                     key={member.uid}
@@ -1060,15 +966,6 @@ export function AdminContainer() {
         <TabsContent value="evaluators" className="mt-6">
           <EvaluatorsTab />
         </TabsContent>
-
-        <TabsContent value="problems" className="mt-6">
-          <FormSection title="Manage Problem Statements">
-            <Button variant="primary" onClick={() => setIsAddPSModalOpen(true)}>
-              <Upload className="w-4 h-4" />
-              Add New Problem Statement
-            </Button>
-          </FormSection>
-        </TabsContent>
       </Tabs>
 
       <TeamDetailsModal
@@ -1087,45 +984,6 @@ export function AdminContainer() {
         isLoading={isUserLoading}
         openResumeInNewTab
       />
-
-      <Modal isOpen={isAddPSModalOpen} onClose={() => setIsAddPSModalOpen(false)} title="Add Problem Statement">
-        <div className="flex flex-col gap-[20px]">
-          <FormInput
-            label="Title"
-            placeholder="Enter problem statement title"
-            value={newPsTitle}
-            onChange={(e) => setNewPsTitle(e.target.value)}
-          />
-
-          <FormTextarea
-            label="Description"
-            placeholder="Enter detailed description..."
-            value={newPsDescription}
-            onChange={(e) => setNewPsDescription(e.target.value)}
-          />
-
-          <div className="flex gap-[12px] justify-end pt-[8px]">
-            <Button onClick={() => setIsAddPSModalOpen(false)} variant="secondary" disabled={isAddingPs}>
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                setConfirmation({
-                  isOpen: true,
-                  title: "Create Problem Statement",
-                  message: "Are you sure you want to create this problem statement? It will be visible to all users.",
-                  onConfirm: handleAddProblemStatement,
-                });
-              }}
-              variant="primary"
-              disabled={isAddingPs || !newPsTitle || !newPsDescription}
-            >
-              {isAddingPs && <Spinner size="sm" className="mr-2" />}
-              {isAddingPs ? 'Creating...' : 'Create Problem Statement'}
-            </Button>
-          </div>
-        </div>
-      </Modal>
 
       <ConfirmationDialog
         isOpen={confirmation.isOpen}

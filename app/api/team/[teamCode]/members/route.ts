@@ -3,7 +3,6 @@ import { authenticateUser } from "@/lib/middleware/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
-import ProblemStatement from "@/models/ProblemStatement";
 
 export const dynamic = 'force-dynamic';
 
@@ -56,18 +55,6 @@ export async function GET(
     const members = await User.find({ uid: { $in: memberUids } })
       .select('uid name email organisation profile_picture discord_username resume_link github_link linkedin_link leetcode_profile codeforces_link kaggle_link portfolio_link bio age');
 
-    let problemStatement = null;
-    if (team.appliedFor) {
-      const ps = await ProblemStatement.findById(team.appliedFor);
-      if (ps) {
-        problemStatement = {
-          id: ps._id.toString(),
-          title: ps.title,
-          description: ps.description || null,
-        };
-      }
-    }
-
     const formattedMembers = team.teamMembers.map((member: any) => {
       const userInfo = members.find(u => u.uid === member.uid);
       return {
@@ -110,7 +97,6 @@ export async function GET(
         },
         teamMembers: formattedMembers,
         memberCount: team.memberCount,
-        appliedFor: problemStatement,
         createdAt: team.createdAt instanceof Date ? team.createdAt.toISOString() : team.createdAt,
       },
     });

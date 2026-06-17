@@ -3,7 +3,6 @@ import { authenticateUser, createAuthErrorResponse, requireEmailVerified } from 
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
-import ProblemStatement from "@/models/ProblemStatement";
 import TeamJoinRequest from "@/models/TeamJoinRequest";
 
 // Configure route
@@ -33,16 +32,16 @@ function createErrorResponse(message: string, code: string, status: number, deta
 async function generateTeamCode(): Promise<string> {
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   const length = Math.floor(Math.random() * 3) + 6; // 6-8 characters
-  
+
   let attempts = 0;
   const maxAttempts = 10;
-  
+
   while (attempts < maxAttempts) {
     let code = '';
     for (let i = 0; i < length; i++) {
       code += characters.charAt(Math.floor(Math.random() * characters.length));
     }
-    
+
     // Check uniqueness
     const existingTeam = await Team.findOne({ teamCode: code });
     if (!existingTeam) {
@@ -50,7 +49,7 @@ async function generateTeamCode(): Promise<string> {
     }
     attempts++;
   }
-  
+
   throw new Error('Failed to generate unique team code');
 }
 
@@ -69,7 +68,7 @@ async function isTeamNameUnique(teamName: string): Promise<boolean> {
 export async function POST(request: NextRequest) {
   try {
     const authResult = await authenticateUser(request);
-    
+
     if (!authResult.success) {
       return createErrorResponse(authResult.error.message, 'auth_error', authResult.status);
     }
@@ -80,7 +79,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { teamName, appliedFor, isLooking = false } = body;
+    const { teamName, isLooking = false } = body;
 
     // Validation
     if (!teamName?.trim()) {
@@ -109,17 +108,6 @@ export async function POST(request: NextRequest) {
       return createErrorResponse("Team name already exists", 'team_name_exists', 409);
     }
 
-    // Validate problem statement if provided
-    if (appliedFor) {
-      const problemStatement = await ProblemStatement.findById(appliedFor);
-      if (!problemStatement) {
-        return createErrorResponse("Problem statement not found", 'ps_not_found', 404);
-      }
-      if (!problemStatement.isActive) {
-        return createErrorResponse("Problem statement is not active", 'ps_not_active', 400);
-      }
-    }
-
     // Generate unique team code
     const teamCode = await generateTeamCode();
 
@@ -136,7 +124,6 @@ export async function POST(request: NextRequest) {
       }],
       memberCount: 1,
       teamStatus: 'pending',
-      appliedFor: appliedFor || undefined,
     });
 
     await newTeam.save();
@@ -146,11 +133,6 @@ export async function POST(request: NextRequest) {
       { uid: authResult.user.uid },
       { teamCode, isLooking: false }
     );
-
-    // Increment problem statement team count if applicable
-    if (appliedFor) {
-      await ProblemStatement.findByIdAndUpdate(appliedFor, { $inc: { teamCount: 1 } });
-    }
 
     // Cancel all pending join requests and invitations for this user
     await TeamJoinRequest.updateMany(
@@ -176,7 +158,6 @@ export async function POST(request: NextRequest) {
           name: user.name,
           role: 'Team Lead',
         }],
-        appliedFor: appliedFor || null,
         isLooking: newTeam.isLooking,
       },
     }, { status: 201 });

@@ -11,7 +11,6 @@ interface TeamOverviewCardProps {
     teamCode: string;
     memberCount: number;
     maxMembers?: number;
-    problemStatement?: string;
   };
   isLead: boolean;
   status: "none" | "active" | "submitted" | "under-review" | "shortlisted" | "confirmed" | "declined";
@@ -98,18 +97,6 @@ export function TeamOverviewCard({ team, isLead, status }: TeamOverviewCardProps
               </div>
             </div>
           </div>
-
-          {/* Problem Statement */}
-          {team.problemStatement && (
-            <div className="flex flex-col gap-[4px] col-span-2">
-              <span className="text-[12px] text-white opacity-60 uppercase tracking-wider" style={{ fontFamily: 'var(--font-body)' }}>
-                Problem Statement
-              </span>
-              <span className="text-[14px] text-white" style={{ fontFamily: 'var(--font-body)' }}>
-                {team.problemStatement}
-              </span>
-            </div>
-          )}
 
           {/* Your Role */}
           <div className="flex flex-col gap-[4px]">

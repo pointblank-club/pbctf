@@ -76,25 +76,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if video pitch is uploaded
-    if (!team.videoURL) {
-      return NextResponse.json(
-        { message: "Video pitch is required before submission" },
-        { status: 400 }
-      );
-    }
-
-    if (!team.submissionPDF) {
-      return NextResponse.json(
-        { message: "PDF submission is required before submission" },
-        { status: 400 }
-      );
-    }
-
     // Update team status
     const updatedTeam = await Team.findOneAndUpdate(
       { teamCode },
-      { 
+      {
         teamStatus: 'submitted',
         submittedAt: new Date(),
         isLooking: false, // No longer looking for members after submission

@@ -28,10 +28,6 @@ interface Team {
     teamCode: string;
     teamName: string;
     memberCount: number;
-    appliedFor?: { id: string; title: string };
-    videoURL?: string;
-    submissionPDF?: string;
-    anyOtherLink?: string;
     isAssigned: boolean;
     assignedAt?: string;
     myEvaluation?: Evaluation;
@@ -72,8 +68,6 @@ export function EvaluatorContainer() {
 
     // Filter State
     const [selectedTiers, setSelectedTiers] = useState<Tier[]>([]);
-    const [problemStatements, setProblemStatements] = useState<{ id: string; title: string }[]>([]);
-    const [selectedPsIds, setSelectedPsIds] = useState<string[]>([]);
 
     const [searchQuery, setSearchQuery] = useState("");
     const [alert, setAlert] = useState<{ type: "success" | "error" | "warning"; message: string } | null>(null);
@@ -99,9 +93,6 @@ export function EvaluatorContainer() {
             let url = `${API_ENDPOINTS.evaluatorTeams}?page=${page}&limit=${limit}`;
 
             // Map tab to API type & filters
-            if (selectedPsIds.length > 0) {
-                url += `&psIds=${selectedPsIds.join(',')}`;
-            }
             if (selectedTiers.length > 0) {
                 url += `&tiers=${selectedTiers.join(',')}`;
             }
@@ -143,39 +134,14 @@ export function EvaluatorContainer() {
     // Reset page on tab/filter change
     useEffect(() => {
         setPage(1);
-    }, [activeTab, selectedTiers, selectedPsIds]);
+    }, [activeTab, selectedTiers]);
 
-    // Fetch Problem Statements
-    useEffect(() => {
-        const fetchPS = async () => {
-            const token = await getToken();
-            if (!token) return;
-            try {
-                const res = await fetch(`${API_ENDPOINTS.problemStatements}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.success && data.data && data.data.problemStatements) {
-                        setProblemStatements(data.data.problemStatements.map((ps: any) => ({ id: ps.id, title: ps.title })));
-                    }
-                }
-            } catch (e) {
-                console.error("Failed to fetch PS", e);
-            }
-        }
-        fetchPS();
-    }, [getToken]);
 
     // Fetch data
     useEffect(() => {
         fetchData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, activeTab, selectedTiers, selectedPsIds]);
-
-    const togglePs = (id: string) => {
-        setSelectedPsIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-    };
+    }, [page, activeTab, selectedTiers]);
 
     const toggleTier = (tier: Tier) => {
         setSelectedTiers(prev => prev.includes(tier) ? prev.filter(x => x !== tier) : [...prev, tier]);
@@ -387,23 +353,6 @@ export function EvaluatorContainer() {
                                 <span className="text-[10px] text-white/40 uppercase tracking-widest font-semibold" style={{ fontFamily: 'var(--font-body)' }}>
                                     Problem Statement
                                 </span>
-                                <div className="flex flex-wrap gap-2">
-                                    {problemStatements.map((ps) => {
-                                        const isSelected = selectedPsIds.includes(ps.id);
-                                        return (
-                                            <button
-                                                key={ps.id}
-                                                onClick={() => togglePs(ps.id)}
-                                                className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-all duration-200 text-left ${isSelected
-                                                    ? 'bg-[#22c55e]/10 text-[#22c55e] border-[#22c55e]/30 ring-1 ring-[#22c55e]/20'
-                                                    : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10 hover:text-white/60 hover:border-white/20'
-                                                    }`}
-                                            >
-                                                {ps.title}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
                             </div>
                         </div>
                     )}
@@ -450,9 +399,6 @@ export function EvaluatorContainer() {
                                             )}
                                         </div>
                                     </div>
-                                    <p className="text-sm text-white/60 line-clamp-2 min-h-[40px]" style={{ fontFamily: 'var(--font-body)' }}>
-                                        {team.appliedFor ? team.appliedFor.title : 'No specific problem statement'}
-                                    </p>
 
                                     <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between text-xs text-white/40">
                                         <span style={{ fontFamily: 'var(--font-body)' }}>Team Code: {team.teamCode}</span>
