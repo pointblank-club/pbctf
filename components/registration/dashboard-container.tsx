@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from "@/hooks/use-auth";
 import { API_ENDPOINTS } from "@/lib/api-config";
 import {
   Home,
@@ -99,35 +99,51 @@ export function DashboardContainer() {
   const [team, setTeam] = useState<Team | null>(null);
   const [profileCompleteness, setProfileCompleteness] = useState(0);
   const [missingFields, setMissingFields] = useState<string[]>([]);
-  const [rsvpStatus, setRsvpStatus] = useState<"pending" | "confirmed" | "declined">("pending");
+  const [rsvpStatus, setRsvpStatus] = useState<
+    "pending" | "confirmed" | "declined"
+  >("pending");
   const [isLoading, setIsLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [alert, setAlert] = useState<{ type: "success" | "error" | "warning" | "info"; message: string } | null>(null);
+  const [alert, setAlert] = useState<{
+    type: "success" | "error" | "warning" | "info";
+    message: string;
+  } | null>(null);
   const [deleteTeamDialogOpen, setDeleteTeamDialogOpen] = useState(false);
   const [leaveTeamDialogOpen, setLeaveTeamDialogOpen] = useState(false);
   const [invites, setInvites] = useState<any[]>([]);
   const [teamRequests, setTeamRequests] = useState<any[]>([]);
   const [isDeadlineExpired, setIsDeadlineExpired] = useState(false);
-  const [withdrawSubmissionDialogOpen, setWithdrawSubmissionDialogOpen] = useState(false);
+  const [withdrawSubmissionDialogOpen, setWithdrawSubmissionDialogOpen] =
+    useState(false);
   const [removeMemberDialogOpen, setRemoveMemberDialogOpen] = useState(false);
-  const [memberToRemove, setMemberToRemove] = useState<{ id: string; name: string } | null>(null);
-  const [transferOwnershipDialogOpen, setTransferOwnershipDialogOpen] = useState(false);
+  const [memberToRemove, setMemberToRemove] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const [transferOwnershipDialogOpen, setTransferOwnershipDialogOpen] =
+    useState(false);
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
   const [showVenueBanner, setShowVenueBanner] = useState(false);
 
-  const handleRespondToInvite = async (requestId: string, action: 'accept' | 'decline') => {
+  const handleRespondToInvite = async (
+    requestId: string,
+    action: "accept" | "decline",
+  ) => {
     try {
       const token = await getToken();
       if (!token) return;
 
-      const response = await fetch(API_ENDPOINTS.respondToJoinRequest(requestId), {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        API_ENDPOINTS.respondToJoinRequest(requestId),
+        {
+          method: "PUT",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ action }),
         },
-        body: JSON.stringify({ action }),
-      });
+      );
 
       const data = await response.json();
 
@@ -136,30 +152,33 @@ export function DashboardContainer() {
       }
 
       toast({
-        title: action === 'accept' ? "Invitation Accepted" : "Invitation Declined",
+        title:
+          action === "accept" ? "Invitation Accepted" : "Invitation Declined",
         description: data.message,
       });
 
       // Refresh data
-      setRefreshTrigger(prev => prev + 1);
-
+      setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
-      console.error('Error responding to invitation:', error);
+      console.error("Error responding to invitation:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to respond",
+        description:
+          error instanceof Error ? error.message : "Failed to respond",
       });
     }
   };
 
   useEffect(() => {
     // Check if welcome banner has been dismissed
-    const welcomeBannerDismissed = localStorage.getItem('zenith_welcome_banner_dismissed');
+    const welcomeBannerDismissed = localStorage.getItem(
+      "zenith_welcome_banner_dismissed",
+    );
     if (!welcomeBannerDismissed) {
       setShowWelcomeBanner(true);
     }
-    if (user && user.role === 'user') {
+    if (user && user.role === "user") {
       setShowVenueBanner(true);
     }
 
@@ -183,14 +202,14 @@ export function DashboardContainer() {
         // Fetch user profile from authenticated endpoint
         const userResponse = await fetch(API_ENDPOINTS.userProfile, {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         });
 
         // Fetch deadline status
         try {
-          const deadlineResponse = await fetch('/api/config/deadline');
+          const deadlineResponse = await fetch("/api/config/deadline");
           const deadlineData = await deadlineResponse.json();
           if (deadlineData.success && deadlineData.data) {
             setIsDeadlineExpired(deadlineData.data.isExpired);
@@ -200,7 +219,7 @@ export function DashboardContainer() {
           toast({
             variant: "destructive",
             title: "Warning",
-            description: "Failed to load deadline information."
+            description: "Failed to load deadline information.",
           });
         }
 
@@ -213,23 +232,23 @@ export function DashboardContainer() {
             // Calculate profile completeness based on ALL profile fields (excluding system fields)
             // Define all profile fields with their human-readable labels
             const profileFields = [
-              { key: 'name', label: 'Name' },
-              { key: 'email', label: 'Email' },
-              { key: 'phone', label: 'Phone' },
-              { key: 'discord_username', label: 'Discord' },
-              { key: 'age', label: 'Age' },
-              { key: 'organisation', label: 'Organisation' },
-              { key: 'bio', label: 'Bio' },
-              { key: 'profile_picture', label: 'Profile Picture' },
-              { key: 'resume_link', label: 'Resume' },
-              { key: 'github_link', label: 'GitHub' },
-              { key: 'linkedin_link', label: 'LinkedIn' },
-              { key: 'leetcode_profile', label: 'LeetCode' },
-              { key: 'codeforces_link', label: 'Codeforces' },
-              { key: 'kaggle_link', label: 'Kaggle' },
-              { key: 'devfolio_link', label: 'Devfolio' },
-              { key: 'portfolio_link', label: 'Portfolio' },
-              { key: 'ctf_profile', label: 'CTF Profile' },
+              { key: "name", label: "Name" },
+              { key: "email", label: "Email" },
+              { key: "phone", label: "Phone" },
+              { key: "discord_username", label: "Discord" },
+              { key: "age", label: "Age" },
+              { key: "organisation", label: "Organisation" },
+              { key: "bio", label: "Bio" },
+              { key: "profile_picture", label: "Profile Picture" },
+              { key: "resume_link", label: "Resume" },
+              { key: "github_link", label: "GitHub" },
+              { key: "linkedin_link", label: "LinkedIn" },
+              { key: "leetcode_profile", label: "LeetCode" },
+              { key: "codeforces_link", label: "Codeforces" },
+              { key: "kaggle_link", label: "Kaggle" },
+              { key: "devfolio_link", label: "Devfolio" },
+              { key: "portfolio_link", label: "Portfolio" },
+              { key: "ctf_profile", label: "CTF Profile" },
             ];
 
             let completed = 0;
@@ -238,14 +257,16 @@ export function DashboardContainer() {
             profileFields.forEach((field) => {
               const value = profileData[field.key];
               // Check if field exists and is not null/empty
-              if (value && value !== null && value !== '') {
+              if (value && value !== null && value !== "") {
                 completed++;
               } else {
                 missing.push(field.label);
               }
             });
 
-            const percentage = Math.round((completed / profileFields.length) * 100);
+            const percentage = Math.round(
+              (completed / profileFields.length) * 100,
+            );
             setProfileCompleteness(percentage);
             setMissingFields(missing);
 
@@ -253,29 +274,39 @@ export function DashboardContainer() {
             if (profileData.teamCode) {
               try {
                 // Fetch team data from the team endpoint
-                const teamResponse = await fetch(API_ENDPOINTS.getTeam(profileData.teamCode), {
-                  headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                  }
-                });
+                const teamResponse = await fetch(
+                  API_ENDPOINTS.getTeam(profileData.teamCode),
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                      "Content-Type": "application/json",
+                    },
+                  },
+                );
 
                 if (teamResponse.ok) {
                   const teamData = await teamResponse.json();
                   if (teamData.success && teamData.data) {
                     setTeam(teamData.data);
                     try {
-                      const rsvpResponse = await fetch('/api/user/rsvp-status', {
-                        headers: {
-                          'Authorization': `Bearer ${token}`,
-                          'Content-Type': 'application/json'
-                        }
-                      });
+                      const rsvpResponse = await fetch(
+                        "/api/user/rsvp-status",
+                        {
+                          headers: {
+                            Authorization: `Bearer ${token}`,
+                            "Content-Type": "application/json",
+                          },
+                        },
+                      );
                       if (rsvpResponse.ok) {
                         const rsvpData = await rsvpResponse.json();
                         if (rsvpData.success && rsvpData.data) {
                           if (rsvpData.data.userRSVP) {
-                            setRsvpStatus(rsvpData.data.userRSVP.rsvpStatus as "confirmed" | "declined");
+                            setRsvpStatus(
+                              rsvpData.data.userRSVP.rsvpStatus as
+                                | "confirmed"
+                                | "declined",
+                            );
                           } else {
                             setRsvpStatus("pending");
                           }
@@ -288,18 +319,35 @@ export function DashboardContainer() {
                     // Fetch team requests if lead
                     const teamInfo = teamData.data;
                     const teamCode = teamInfo.teamCode;
-                    if (teamInfo.teamLead === user.uid || (typeof teamInfo.teamLead === 'object' && teamInfo.teamLead.id === user.uid)) {
+                    if (
+                      teamInfo.teamLead === user.uid ||
+                      (typeof teamInfo.teamLead === "object" &&
+                        teamInfo.teamLead.id === user.uid)
+                    ) {
                       try {
-                        const requestsResponse = await fetch(`${API_ENDPOINTS.joinRequest}?teamCode=${teamCode}&type=team`, {
-                          headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Content-Type': 'application/json'
-                          }
-                        });
+                        const requestsResponse = await fetch(
+                          `${API_ENDPOINTS.joinRequest}?teamCode=${teamCode}&type=team`,
+                          {
+                            headers: {
+                              Authorization: `Bearer ${token}`,
+                              "Content-Type": "application/json",
+                            },
+                          },
+                        );
                         if (requestsResponse.ok) {
                           const requestsData = await requestsResponse.json();
-                          if (requestsData.success && requestsData.data && requestsData.data.requests) {
-                            setTeamRequests(requestsData.data.requests.filter((r: any) => r.type === 'request' && r.status === 'pending'));
+                          if (
+                            requestsData.success &&
+                            requestsData.data &&
+                            requestsData.data.requests
+                          ) {
+                            setTeamRequests(
+                              requestsData.data.requests.filter(
+                                (r: any) =>
+                                  r.type === "request" &&
+                                  r.status === "pending",
+                              ),
+                            );
                           }
                         }
                       } catch (error) {
@@ -307,7 +355,7 @@ export function DashboardContainer() {
                         toast({
                           variant: "destructive",
                           title: "Error",
-                          description: "Failed to load team join requests."
+                          description: "Failed to load team join requests.",
                         });
                       }
                     }
@@ -320,11 +368,11 @@ export function DashboardContainer() {
                   setRsvpStatus("pending");
                 }
               } catch (error) {
-                console.error('Error fetching team data:', error);
+                console.error("Error fetching team data:", error);
                 toast({
                   variant: "destructive",
                   title: "Error",
-                  description: "Failed to load team details."
+                  description: "Failed to load team details.",
                 });
                 setTeam(null);
                 setRsvpStatus("pending");
@@ -336,17 +384,28 @@ export function DashboardContainer() {
 
             // Always fetch invites (Team -> User) regardless of team status
             try {
-              const invitesResponse = await fetch(`${API_ENDPOINTS.joinRequest}?type=user`, {
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                  'Content-Type': 'application/json'
-                }
-              });
+              const invitesResponse = await fetch(
+                `${API_ENDPOINTS.joinRequest}?type=user`,
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                  },
+                },
+              );
 
               if (invitesResponse.ok) {
                 const invitesData = await invitesResponse.json();
-                if (invitesData.success && invitesData.data && invitesData.data.requests) {
-                  setInvites(invitesData.data.requests.filter((r: any) => r.type === 'invite' && r.status === 'pending'));
+                if (
+                  invitesData.success &&
+                  invitesData.data &&
+                  invitesData.data.requests
+                ) {
+                  setInvites(
+                    invitesData.data.requests.filter(
+                      (r: any) => r.type === "invite" && r.status === "pending",
+                    ),
+                  );
                 }
               }
             } catch (error) {
@@ -354,7 +413,7 @@ export function DashboardContainer() {
               toast({
                 variant: "destructive",
                 title: "Error",
-                description: "Failed to load team invitations."
+                description: "Failed to load team invitations.",
               });
             }
           }
@@ -364,7 +423,8 @@ export function DashboardContainer() {
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to load dashboard data. Please refresh the page."
+          description:
+            "Failed to load dashboard data. Please refresh the page.",
         });
       } finally {
         setIsLoading(false);
@@ -374,36 +434,60 @@ export function DashboardContainer() {
     fetchData();
   }, [user, isAuthenticated, router, refreshTrigger]);
 
-  const getTeamStatus = (): "none" | "active" | "submitted" | "under-review" | "shortlisted" | "confirmed" | "declined" => {
+  const getTeamStatus = ():
+    | "none"
+    | "active"
+    | "submitted"
+    | "under-review"
+    | "shortlisted"
+    | "confirmed"
+    | "declined" => {
     if (!team || !team.teamStatus) return "none";
-    const hasAcceptedEvaluation = team.evaluations?.some((evaluation: any) => 
-      evaluation.tier === 'accepted' || evaluation.tier === 'strongly_accepted'
+    const hasAcceptedEvaluation = team.evaluations?.some(
+      (evaluation: any) =>
+        evaluation.tier === "accepted" ||
+        evaluation.tier === "strongly_accepted",
     );
-    if (hasAcceptedEvaluation && team.teamStatus === 'submitted') {
-      return 'shortlisted';
+    if (hasAcceptedEvaluation && team.teamStatus === "submitted") {
+      return "shortlisted";
     }
-    
+
     // Map teamStatus from API to component status
-    const statusMap: Record<string, "none" | "active" | "submitted" | "under-review" | "shortlisted" | "confirmed" | "declined"> = {
-      'pending': 'active',
-      'submitted': 'submitted',
-      'withdrawn': 'none',
-      'shortlisted': 'shortlisted',
-      'rsvped': 'confirmed',
-      'rsvp_declined': 'declined',
+    const statusMap: Record<
+      string,
+      | "none"
+      | "active"
+      | "submitted"
+      | "under-review"
+      | "shortlisted"
+      | "confirmed"
+      | "declined"
+    > = {
+      pending: "active",
+      submitted: "submitted",
+      withdrawn: "none",
+      shortlisted: "shortlisted",
+      rsvped: "confirmed",
+      rsvp_declined: "declined",
     };
-    return statusMap[team.teamStatus] || 'active';
+    return statusMap[team.teamStatus] || "active";
   };
 
   const hasAcceptedEvaluations = (): boolean => {
-    return team?.evaluations?.some((evaluation: any) => 
-      evaluation.tier === 'accepted' || evaluation.tier === 'strongly_accepted'
-    ) ?? false;
+    return (
+      team?.evaluations?.some(
+        (evaluation: any) =>
+          evaluation.tier === "accepted" ||
+          evaluation.tier === "strongly_accepted",
+      ) ?? false
+    );
   };
 
   const hasRejectedEvaluationsOnly = (): boolean => {
     if (!team?.isEvaluated || !team?.evaluations) return false;
-    const hasRejected = team.evaluations.some((evaluation: any) => evaluation.tier === 'rejected');
+    const hasRejected = team.evaluations.some(
+      (evaluation: any) => evaluation.tier === "rejected",
+    );
     const hasAccepted = hasAcceptedEvaluations();
     return hasRejected && !hasAccepted;
   };
@@ -411,8 +495,10 @@ export function DashboardContainer() {
   const isTeamLead = (): boolean => {
     if (!team || !user) return false;
     // Check if user is the team lead by checking teamMembers array
-    const userMember = team.teamMembers?.find((member: any) => member.uid === user.uid);
-    return userMember?.role === 'Team Lead' || false;
+    const userMember = team.teamMembers?.find(
+      (member: any) => member.uid === user.uid,
+    );
+    return userMember?.role === "Team Lead" || false;
   };
 
   const handleRSVP = async (status: "confirmed" | "declined") => {
@@ -429,11 +515,11 @@ export function DashboardContainer() {
         return;
       }
 
-      const response = await fetch('/api/user/rsvp', {
-        method: 'PUT',
+      const response = await fetch("/api/user/rsvp", {
+        method: "PUT",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ rsvpStatus: status }),
       });
@@ -441,22 +527,25 @@ export function DashboardContainer() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to submit RSVP');
+        throw new Error(data.message || "Failed to submit RSVP");
       }
 
       setRsvpStatus(status);
       toast({
         title: status === "confirmed" ? "RSVP Confirmed" : "RSVP Declined",
-        description: data.message || `You have ${status === "confirmed" ? "confirmed" : "declined"} your attendance.`,
+        description:
+          data.message ||
+          `You have ${status === "confirmed" ? "confirmed" : "declined"} your attendance.`,
       });
 
-      setRefreshTrigger(prev => prev + 1);
+      setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
-      console.error('Error submitting RSVP:', error);
+      console.error("Error submitting RSVP:", error);
       toast({
         variant: "destructive",
         title: "Failed to submit RSVP",
-        description: error instanceof Error ? error.message : "Failed to submit RSVP",
+        description:
+          error instanceof Error ? error.message : "Failed to submit RSVP",
       });
     }
   };
@@ -472,7 +561,8 @@ export function DashboardContainer() {
       toast({
         variant: "destructive",
         title: "Cannot Delete Team",
-        description: "You must transfer ownership or remove other members before deleting the team.",
+        description:
+          "You must transfer ownership or remove other members before deleting the team.",
       });
       return;
     }
@@ -497,10 +587,10 @@ export function DashboardContainer() {
       }
 
       const response = await fetch(API_ENDPOINTS.deleteTeam, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           teamCode: team.teamCode,
@@ -510,7 +600,7 @@ export function DashboardContainer() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to delete team');
+        throw new Error(data.message || "Failed to delete team");
       }
 
       toast({
@@ -525,11 +615,12 @@ export function DashboardContainer() {
         window.location.reload(); // Refresh to update UI
       }, 1000);
     } catch (error) {
-      console.error('Error deleting team:', error);
+      console.error("Error deleting team:", error);
       toast({
         variant: "destructive",
         title: "Failed to delete team",
-        description: error instanceof Error ? error.message : "Failed to delete team",
+        description:
+          error instanceof Error ? error.message : "Failed to delete team",
       });
       setDeleteTeamDialogOpen(false);
     }
@@ -550,20 +641,20 @@ export function DashboardContainer() {
       }
 
       const response = await fetch(API_ENDPOINTS.leaveTeam, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          teamCode: team.teamCode
-        })
+          teamCode: team.teamCode,
+        }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to leave team');
+        throw new Error(data.message || "Failed to leave team");
       }
 
       toast({
@@ -576,13 +667,14 @@ export function DashboardContainer() {
       setTeam(null);
 
       // Trigger refresh to reload data
-      setRefreshTrigger(prev => prev + 1);
+      setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
-      console.error('Error leaving team:', error);
+      console.error("Error leaving team:", error);
       toast({
         variant: "destructive",
         title: "Failed to leave team",
-        description: error instanceof Error ? error.message : "Failed to leave team",
+        description:
+          error instanceof Error ? error.message : "Failed to leave team",
       });
       setLeaveTeamDialogOpen(false);
     }
@@ -606,10 +698,10 @@ export function DashboardContainer() {
       }
 
       const response = await fetch(API_ENDPOINTS.withdrawSubmission, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           teamCode: team.teamCode,
@@ -619,7 +711,7 @@ export function DashboardContainer() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to withdraw submission');
+        throw new Error(data.message || "Failed to withdraw submission");
       }
 
       setAlert({
@@ -631,9 +723,9 @@ export function DashboardContainer() {
       // Refresh team data
       const teamResponse = await fetch(API_ENDPOINTS.getTeam(team.teamCode), {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (teamResponse.ok) {
@@ -643,10 +735,13 @@ export function DashboardContainer() {
         }
       }
     } catch (error) {
-      console.error('Error withdrawing submission:', error);
+      console.error("Error withdrawing submission:", error);
       setAlert({
         type: "error",
-        message: error instanceof Error ? error.message : "Failed to withdraw submission",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to withdraw submission",
       });
       setTimeout(() => setAlert(null), 3000);
     }
@@ -665,30 +760,30 @@ export function DashboardContainer() {
       if (!token) return;
 
       const response = await fetch(API_ENDPOINTS.removeMember, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           teamCode: team.teamCode,
           memberId: memberToRemove.id,
-          setTheirLookingStatus: true
-        })
+          setTheirLookingStatus: true,
+        }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to remove member');
+        throw new Error(data.message || "Failed to remove member");
       }
 
       // Refresh team data
       const teamResponse = await fetch(API_ENDPOINTS.getTeam(team.teamCode), {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
       });
 
       if (teamResponse.ok) {
@@ -699,10 +794,11 @@ export function DashboardContainer() {
       }
       setRemoveMemberDialogOpen(false);
     } catch (error) {
-      console.error('Error removing member:', error);
+      console.error("Error removing member:", error);
       setAlert({
         type: "error",
-        message: error instanceof Error ? error.message : 'Failed to remove member',
+        message:
+          error instanceof Error ? error.message : "Failed to remove member",
       });
       setTimeout(() => setAlert(null), 3000);
       setRemoveMemberDialogOpen(false);
@@ -722,11 +818,11 @@ export function DashboardContainer() {
         return;
       }
 
-      const response = await fetch('/api/team/transfer-ownership', {
-        method: 'PUT',
+      const response = await fetch("/api/team/transfer-ownership", {
+        method: "PUT",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           teamCode: team.teamCode,
@@ -737,7 +833,7 @@ export function DashboardContainer() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to transfer ownership');
+        throw new Error(data.message || "Failed to transfer ownership");
       }
 
       toast({
@@ -746,26 +842,28 @@ export function DashboardContainer() {
       });
 
       setTransferOwnershipDialogOpen(false);
-      setRefreshTrigger(prev => prev + 1);
-
+      setRefreshTrigger((prev) => prev + 1);
     } catch (error) {
-      console.error('Error transferring ownership:', error);
+      console.error("Error transferring ownership:", error);
       toast({
         variant: "destructive",
         title: "Failed to transfer",
-        description: error instanceof Error ? error.message : "Failed to transfer ownership",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to transfer ownership",
       });
       setTransferOwnershipDialogOpen(false);
     }
   };
 
   const isAdmin = () => {
-    return user?.role === 'admin';
+    return user?.role === "admin";
   };
 
   const handleDismissWelcomeBanner = () => {
     setShowWelcomeBanner(false);
-    localStorage.setItem('zenith_welcome_banner_dismissed', 'true');
+    localStorage.setItem("zenith_welcome_banner_dismissed", "true");
   };
 
   if (isLoading) {
@@ -785,8 +883,8 @@ export function DashboardContainer() {
       {alert && <AlertBanner type={alert.type} message={alert.message} />}
 
       {/* Welcome Banner - Registration Success */}
-      {showWelcomeBanner && (
-        <div className="relative backdrop-blur-[2.5px] backdrop-filter bg-[rgba(255,77,0,0.15)] rounded-[15px] p-[20px] border border-[#ff4d00]">
+      {/* {showWelcomeBanner && (
+        <div className="relative backdrop-blur-[2.5px] backdrop-filter bg-[rgba(34,197,94,0.15)] rounded-[15px] p-[20px] border border-[#22c55e]">
           <button
             onClick={handleDismissWelcomeBanner}
             className="absolute top-4 right-4 text-white opacity-70 hover:opacity-100 transition-opacity"
@@ -797,7 +895,7 @@ export function DashboardContainer() {
           
           <div className="flex flex-col gap-[16px] pr-8">
             <div className="flex items-center gap-[12px]">
-              <CheckCircle className="w-6 h-6 text-[#ff4d00] flex-shrink-0" />
+              <CheckCircle className="w-6 h-6 text-[#22c55e] flex-shrink-0" />
               <h3 className="text-[20px] text-white font-semibold" style={{ fontFamily: 'var(--font-heading)' }}>
                 Registration Successful!
               </h3>
@@ -808,17 +906,17 @@ export function DashboardContainer() {
                 You're registered!
               </p>
               <p className="text-[14px] opacity-90 leading-[20px]">
-                All hackathon communication happens on Discord — announcements, networking and doubts.
+                All CTF communication happens on Discord — announcements, networking and doubts.
               </p>
               
               <div className="flex items-start gap-[8px] pt-[4px]">
-                <ArrowRight className="w-5 h-5 text-[#ff4d00] flex-shrink-0 mt-0.5" />
+                <ArrowRight className="w-5 h-5 text-[#22c55e] flex-shrink-0 mt-0.5" />
                 <div className="flex-1 space-y-[8px]">
                   <p className="text-[14px] opacity-90 leading-[20px]">
                     <span className="font-semibold">After joining the Discord server:</span>
                   </p>
                   <ul className="list-disc list-inside space-y-[4px] text-[13px] opacity-85 ml-2">
-                    <li>Go to <span className="text-[#ff4d00] font-semibold">#welcome-rules</span></li>
+                    <li>Go to <span className="text-[#22c55e] font-semibold">#welcome-rules</span></li>
                     <li>Click the green tick (✅) to accept the rules</li>
                     <li>This will unlock all channels for you</li>
                   </ul>
@@ -831,7 +929,7 @@ export function DashboardContainer() {
                 href="https://discord.gg/kqNUEVGmXA"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center bg-[#ff4d00] hover:bg-[#ff6600] text-white font-medium px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_0_15px_rgba(255,77,0,0.4)] hover:shadow-[0_0_20px_rgba(255,77,0,0.6)]"
+                className="inline-flex items-center justify-center bg-[#22c55e] hover:bg-[#4ade80] text-white font-medium px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_0_15px_rgba(34,197,94,0.4)] hover:shadow-[0_0_20px_rgba(34,197,94,0.6)]"
                 style={{ fontFamily: 'var(--font-body)' }}
               >
                 Join Discord
@@ -840,93 +938,20 @@ export function DashboardContainer() {
           </div>
         </div>
       )}
-      {showVenueBanner && user && user.role === 'user' && (
-        <div className="relative backdrop-blur-[2.5px] backdrop-filter bg-[rgba(255,77,0,0.15)] rounded-[15px] p-[20px] border border-[#ff4d00]">
-          <div className="flex flex-col gap-[16px]">
-            <div className="flex items-center justify-center">
-              <h3 className="text-[26px] text-white font-semibold" style={{ fontFamily: 'var(--font-heading)' }}>
-                 Venue Announcement 🎉
-              </h3>
-            </div>
-            
-            {/* Main Content: Text on Left, Images on Right */}
-            <div className="flex flex-col md:flex-row gap-[16px] items-start">
-              {/* Left Side - Text Content */}
-              <div className="flex-1 flex flex-col space-y-[16px] text-white" style={{ fontFamily: 'var(--font-body)' }}>
-                <p className="text-[28px] leading-[44px]">
-                  <span className="font-semibold text-[#ff4d00]">IndiQube South Summit</span>
-                </p>
-                
-                <div className="space-y-[16px] text-[14px] opacity-90 leading-[20px]">
-                  <p className="font-semibold text-[16px] text-white mb-2">How to reach?</p>
-                  
-                  <div className="flex items-start gap-[8px]">
-                    <MapPin className="w-4 h-4 text-[#ff4d00] flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold mb-1">Metro:</p>
-                      <p>Get down at <span className="text-[#ff4d00] font-semibold">South End Circle</span> and it's a 3 min walk from there.</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-[8px]">
-                    <MapPin className="w-4 h-4 text-[#ff4d00] flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold mb-1">Train:</p>
-                      <p>6 kilometers from <span className="text-[#ff4d00] font-semibold">KSR Railway Station</span>.</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-[8px]">
-                    <MapPin className="w-4 h-4 text-[#ff4d00] flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-semibold mb-1">Bus:</p>
-                      <p>6 kilometers from <span className="text-[#ff4d00] font-semibold">Majestic Bus Stand</span>.</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="pt-[4px]">
-                  <a
-                    href="https://maps.app.goo.gl/FFzoKB9xHtp5PUEe8"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 bg-[#ff4d00] hover:bg-[#ff6600] text-white font-medium px-6 py-3 rounded-xl transition-all duration-200 shadow-[0_0_15px_rgba(255,77,0,0.4)] hover:shadow-[0_0_20px_rgba(255,77,0,0.6)]"
-                    style={{ fontFamily: 'var(--font-body)' }}
-                  >
-                    <ExternalLink className="w-4 h-4" />
-                    Open in Google Maps
-                  </a>
-                </div>
-              </div>
-              
-              <div className="flex-shrink-0 w-full md:w-[300px] space-y-[12px]">
-                <div className="w-full rounded-xl overflow-hidden border border-white/10 shadow-lg">
-                  <img
-                    src="/images/ext.png"
-                    alt="IndiQube South Summit - Exterior"
-                    className="w-full h-auto object-cover"
-                    loading="lazy"
-                  />
-                </div>
-                <div className="w-full rounded-xl overflow-hidden border border-white/10 shadow-lg">
-                  <img
-                    src="/images/int.png"
-                    alt="IndiQube South Summit - Interior"
-                    className="w-full h-auto object-cover"
-                    loading="lazy"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+ */}
 
       {/* Header */}
       <div className="flex flex-col gap-[12px] items-center text-center">
-        <h1 className="text-[48px] text-white leading-[52px] tracking-[-1px]" style={{ fontFamily: 'var(--font-heading)' }}>
+        <h1
+          className="text-[48px] text-white leading-[52px] tracking-[-1px]"
+          style={{ fontFamily: "var(--font-heading)" }}
+        >
           Welcome, {user.name}!
         </h1>
-        <p className="text-[15.9px] text-white opacity-90 leading-[23.8px]" style={{ fontFamily: 'var(--font-body)' }}>
+        <p
+          className="text-[15.9px] text-white opacity-90 leading-[23.8px]"
+          style={{ fontFamily: "var(--font-body)" }}
+        >
           Manage your profile, team, and submissions from your dashboard.
         </p>
       </div>
@@ -937,20 +962,30 @@ export function DashboardContainer() {
           <Home className="w-4 h-4" />
           Dashboard
         </Button>
-        <Button onClick={() => router.push("/dashboard/profile")} variant="secondary">
+        <Button
+          onClick={() => router.push("/dashboard/profile")}
+          variant="secondary"
+        >
           <UserCircle className="w-4 h-4" />
           Profile
         </Button>
-        <Button onClick={() => router.push("/dashboard/team")} variant="secondary">
+        <Button
+          onClick={() => router.push("/dashboard/team")}
+          variant="secondary"
+        >
           <Users className="w-4 h-4" />
           Team
         </Button>
       </div>
 
       {/* Submission Deadline Timer */}
-      <DeadlineTimer 
-        teamStatus={team?.teamStatus} 
-        hasSubmitted={teamStatus === 'submitted' || teamStatus === 'shortlisted' || teamStatus === 'confirmed'}
+      <DeadlineTimer
+        teamStatus={team?.teamStatus}
+        hasSubmitted={
+          teamStatus === "submitted" ||
+          teamStatus === "shortlisted" ||
+          teamStatus === "confirmed"
+        }
         isEvaluated={team?.isEvaluated}
         evaluations={team?.evaluations}
         hasTeam={!!team}
@@ -964,23 +999,31 @@ export function DashboardContainer() {
         <div className="lg:col-span-2 flex flex-col gap-[24px]">
           {/* Team Status for Users Without a Team */}
           {teamStatus === "none" && (
-            <FormSection
-              title="Team Status"
-            >
+            <FormSection title="Team Status">
               <div className="flex flex-col gap-[16px]">
                 <AlertBanner
                   type="warning"
                   message="Important: Even if you want to participate alone, you still need to create a team to submit your project."
                 />
-                <p className="text-[14px] text-white opacity-80" style={{ fontFamily: 'var(--font-body)' }}>
-                  You're not part of a team yet. Create or join a team to participate in the hackathon.
+                <p
+                  className="text-[14px] text-white opacity-80"
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
+                  You're not part of a team yet. Create or join a team to
+                  participate in the CTF.
                 </p>
                 <div className="flex gap-[12px]">
-                  <Button onClick={() => router.push("/dashboard/team")} variant="primary">
+                  <Button
+                    onClick={() => router.push("/dashboard/team")}
+                    variant="primary"
+                  >
                     <Users className="w-4 h-4" />
                     Create / Join Team
                   </Button>
-                  <Button onClick={() => router.push("/dashboard/discover")} variant="secondary">
+                  <Button
+                    onClick={() => router.push("/dashboard/discover")}
+                    variant="secondary"
+                  >
                     <Search className="w-4 h-4" />
                     Discover Teams
                   </Button>
@@ -1016,74 +1059,90 @@ export function DashboardContainer() {
             />
           )}
 
-          {team && teamStatus === "submitted" && hasRejectedEvaluationsOnly() && (
-            <FormSection title="Team Status">
-              <div className="flex flex-col gap-[16px]">
-                <AlertBanner
-                  type="error"
-                  message="Unfortunately, your team was not selected for the next round. Thank you for participating!"
-                />
-                <div className="flex items-center gap-[12px] p-[16px] rounded-[12px] bg-[rgba(220,38,38,0.1)] border border-[rgba(220,38,38,0.2)]">
-                  <X className="w-6 h-6 text-red-400" />
-                  <div className="flex flex-col gap-[4px]">
-                    <span className="text-[16px] text-white font-medium" style={{ fontFamily: 'var(--font-body)' }}>
-                      Team Not Selected
-                    </span>
-                    <span className="text-[12px] text-white opacity-70" style={{ fontFamily: 'var(--font-body)' }}>
-                      Your submission has been evaluated but was not selected.
-                    </span>
+          {team &&
+            teamStatus === "submitted" &&
+            hasRejectedEvaluationsOnly() && (
+              <FormSection title="Team Status">
+                <div className="flex flex-col gap-[16px]">
+                  <AlertBanner
+                    type="error"
+                    message="Unfortunately, your team was not selected for the next round. Thank you for participating!"
+                  />
+                  <div className="flex items-center gap-[12px] p-[16px] rounded-[12px] bg-[rgba(220,38,38,0.1)] border border-[rgba(220,38,38,0.2)]">
+                    <X className="w-6 h-6 text-red-400" />
+                    <div className="flex flex-col gap-[4px]">
+                      <span
+                        className="text-[16px] text-white font-medium"
+                        style={{ fontFamily: "var(--font-body)" }}
+                      >
+                        Team Not Selected
+                      </span>
+                      <span
+                        className="text-[12px] text-white opacity-70"
+                        style={{ fontFamily: "var(--font-body)" }}
+                      >
+                        Your submission has been evaluated but was not selected.
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </FormSection>
-          )}
+              </FormSection>
+            )}
 
           {/* Show SubmissionStatusCard for submitted/under-review teams that are not selected (accepted) or rejected */}
-          {team && (teamStatus === "submitted" || teamStatus === "under-review") && !hasAcceptedEvaluations() && !hasRejectedEvaluationsOnly() && (
-            <SubmissionStatusCard
-              status={teamStatus as "submitted" | "under-review"}
-              rsvpStatus={rsvpStatus}
-              submittedAt={team.submittedAt}
-              onRSVP={handleRSVP}
-            />
-          )}
-          
-          {team && (teamStatus === "confirmed" || teamStatus === "declined") && (
-            <SubmissionStatusCard
-              status={teamStatus as "confirmed" | "declined"}
-              rsvpStatus={rsvpStatus}
-              submittedAt={team.submittedAt}
-              onRSVP={handleRSVP}
-            />
-          )}
+          {team &&
+            (teamStatus === "submitted" || teamStatus === "under-review") &&
+            !hasAcceptedEvaluations() &&
+            !hasRejectedEvaluationsOnly() && (
+              <SubmissionStatusCard
+                status={teamStatus as "submitted" | "under-review"}
+                rsvpStatus={rsvpStatus}
+                submittedAt={team.submittedAt}
+                onRSVP={handleRSVP}
+              />
+            )}
+
+          {team &&
+            (teamStatus === "confirmed" || teamStatus === "declined") && (
+              <SubmissionStatusCard
+                status={teamStatus as "confirmed" | "declined"}
+                rsvpStatus={rsvpStatus}
+                submittedAt={team.submittedAt}
+                onRSVP={handleRSVP}
+              />
+            )}
         </div>
 
         {/* Right Column - 1/3 width */}
         <div className="flex flex-col gap-[24px]">
           {/* Compact Profile Status */}
-          <FormSection
-            title="Profile Status"
-          >
+          <FormSection title="Profile Status">
             <div className="flex flex-col gap-[12px]">
               <div className="flex justify-between items-center">
-                <span className="text-[14px] text-white" style={{ fontFamily: 'var(--font-body)' }}>
+                <span
+                  className="text-[14px] text-white"
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
                   Completeness
                 </span>
-                <span className="text-[14px] text-white font-semibold" style={{ fontFamily: 'var(--font-body)' }}>
+                <span
+                  className="text-[14px] text-white font-semibold"
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
                   {profileCompleteness}%
                 </span>
               </div>
               <div className="w-full bg-[rgba(138,138,138,0.2)] rounded-full h-[8px] overflow-hidden">
                 <div
-                  className="bg-gradient-to-r from-[#ff4d00] to-[#ff8800] h-full transition-all duration-500"
+                  className="bg-gradient-to-r from-[#22c55e] to-[#4ade80] h-full transition-all duration-500"
                   style={{ width: `${profileCompleteness}%` }}
                 />
               </div>
               {profileCompleteness < 100 && (
                 <p
                   onClick={() => router.push("/dashboard/profile")}
-                  className="text-[12px] text-[#ff8800] opacity-80 cursor-pointer hover:opacity-100 transition-opacity break-words text-center"
-                  style={{ fontFamily: 'var(--font-body)' }}
+                  className="text-[12px] text-[#4ade80] opacity-80 cursor-pointer hover:opacity-100 transition-opacity break-words text-center"
+                  style={{ fontFamily: "var(--font-body)" }}
                 >
                   {missingFields.length} fields missing → Complete now
                 </p>
@@ -1117,22 +1176,33 @@ export function DashboardContainer() {
                     key={request.requestId}
                     className="flex flex-col gap-[8px] p-[12px] bg-[rgba(138,138,138,0.1)] rounded-[12px] border border-[rgba(255,255,255,0.1)] min-w-0 items-center text-center"
                   >
-                    <span className="text-[14px] text-white break-words" style={{ fontFamily: 'var(--font-body)' }}>
-                      <span className="font-semibold">{request.userName}</span> wants to join your team
+                    <span
+                      className="text-[14px] text-white break-words"
+                      style={{ fontFamily: "var(--font-body)" }}
+                    >
+                      <span className="font-semibold">{request.userName}</span>{" "}
+                      wants to join your team
                     </span>
-                    <span className="text-[12px] text-white opacity-50 break-all" style={{ fontFamily: 'var(--font-body)' }}>
+                    <span
+                      className="text-[12px] text-white opacity-50 break-all"
+                      style={{ fontFamily: "var(--font-body)" }}
+                    >
                       Email: {request.userEmail}
                     </span>
                     <div className="flex flex-wrap gap-[8px] w-full">
                       <Button
-                        onClick={() => handleRespondToInvite(request.requestId, 'accept')}
+                        onClick={() =>
+                          handleRespondToInvite(request.requestId, "accept")
+                        }
                         variant="primary"
                         className="flex-1 min-w-[100px]"
                       >
                         <Check className="w-4 h-4 mr-2" /> Accept
                       </Button>
                       <Button
-                        onClick={() => handleRespondToInvite(request.requestId, 'decline')}
+                        onClick={() =>
+                          handleRespondToInvite(request.requestId, "decline")
+                        }
                         variant="danger"
                         className="flex-1 min-w-[100px]"
                       >
@@ -1154,22 +1224,35 @@ export function DashboardContainer() {
                     key={invite.requestId}
                     className="flex flex-col gap-[8px] p-[12px] bg-[rgba(138,138,138,0.1)] rounded-[12px] border border-[rgba(255,255,255,0.1)] min-w-0 items-center text-center"
                   >
-                    <span className="text-[14px] text-white break-words" style={{ fontFamily: 'var(--font-body)' }}>
-                      Invited to join <span className="font-semibold">{invite.teamName || invite.teamCode}</span>
+                    <span
+                      className="text-[14px] text-white break-words"
+                      style={{ fontFamily: "var(--font-body)" }}
+                    >
+                      Invited to join{" "}
+                      <span className="font-semibold">
+                        {invite.teamName || invite.teamCode}
+                      </span>
                     </span>
-                    <span className="text-[12px] text-white opacity-50 break-all" style={{ fontFamily: 'var(--font-body)' }}>
+                    <span
+                      className="text-[12px] text-white opacity-50 break-all"
+                      style={{ fontFamily: "var(--font-body)" }}
+                    >
                       Code: <span className="font-mono">{invite.teamCode}</span>
                     </span>
                     <div className="flex flex-wrap gap-[8px] w-full">
                       <Button
-                        onClick={() => handleRespondToInvite(invite.requestId, 'accept')}
+                        onClick={() =>
+                          handleRespondToInvite(invite.requestId, "accept")
+                        }
                         variant="primary"
                         className="flex-1 min-w-[100px]"
                       >
                         <Check className="w-4 h-4 mr-2" /> Accept
                       </Button>
                       <Button
-                        onClick={() => handleRespondToInvite(invite.requestId, 'decline')}
+                        onClick={() =>
+                          handleRespondToInvite(invite.requestId, "decline")
+                        }
                         variant="danger"
                         className="flex-1 min-w-[100px]"
                       >
@@ -1187,24 +1270,38 @@ export function DashboardContainer() {
       {/* Commented out Quick Actions - now using QuickActionsCard */}
 
       {/* Delete Team Confirmation Dialog */}
-      <AlertDialog open={deleteTeamDialogOpen} onOpenChange={setDeleteTeamDialogOpen}>
+      <AlertDialog
+        open={deleteTeamDialogOpen}
+        onOpenChange={setDeleteTeamDialogOpen}
+      >
         <AlertDialogContent className="bg-[rgba(138,138,138,0.15)] backdrop-blur-[2.5px] border-[rgba(255,255,255,0.2)]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white" style={{ fontFamily: 'var(--font-heading)' }}>
+            <AlertDialogTitle
+              className="text-white"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
               Delete Team
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-white/80" style={{ fontFamily: 'var(--font-body)' }}>
-              Are you sure you want to delete the team "{team?.teamName}"? This action cannot be undone and all team data including members and submissions will be permanently removed.
+            <AlertDialogDescription
+              className="text-white/80"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
+              Are you sure you want to delete the team "{team?.teamName}"? This
+              action cannot be undone and all team data including members and
+              submissions will be permanently removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="text-white" style={{ fontFamily: 'var(--font-body)' }}>
+            <AlertDialogCancel
+              className="text-white"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={executeDeleteTeam}
-              className="bg-black/50 hover:bg-black/60 text-white border border-[#ff4d00]"
-              style={{ fontFamily: 'var(--font-body)' }}
+              className="bg-black/50 hover:bg-black/60 text-white border border-[#22c55e]"
+              style={{ fontFamily: "var(--font-body)" }}
             >
               Delete Team
             </AlertDialogAction>
@@ -1213,24 +1310,38 @@ export function DashboardContainer() {
       </AlertDialog>
 
       {/* Withdraw Submission Confirmation Dialog */}
-      <AlertDialog open={withdrawSubmissionDialogOpen} onOpenChange={setWithdrawSubmissionDialogOpen}>
+      <AlertDialog
+        open={withdrawSubmissionDialogOpen}
+        onOpenChange={setWithdrawSubmissionDialogOpen}
+      >
         <AlertDialogContent className="bg-[rgba(138,138,138,0.15)] backdrop-blur-[2.5px] border-[rgba(255,255,255,0.2)]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white" style={{ fontFamily: 'var(--font-heading)' }}>
+            <AlertDialogTitle
+              className="text-white"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
               Withdraw Submission
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-white/80" style={{ fontFamily: 'var(--font-body)' }}>
-              Are you sure you want to withdraw the submission for "{team?.teamName}"? All submission details (video, PDF, links) will be permanently deleted.
+            <AlertDialogDescription
+              className="text-white/80"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
+              Are you sure you want to withdraw the submission for "
+              {team?.teamName}"? All submission details (video, PDF, links) will
+              be permanently deleted.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="text-white" style={{ fontFamily: 'var(--font-body)' }}>
+            <AlertDialogCancel
+              className="text-white"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={executeWithdrawSubmission}
-              className="bg-black/50 hover:bg-black/60 text-white border border-[#ff4d00]"
-              style={{ fontFamily: 'var(--font-body)' }}
+              className="bg-black/50 hover:bg-black/60 text-white border border-[#22c55e]"
+              style={{ fontFamily: "var(--font-body)" }}
             >
               Withdraw Submission
             </AlertDialogAction>
@@ -1239,24 +1350,37 @@ export function DashboardContainer() {
       </AlertDialog>
 
       {/* Remove Member Confirmation Dialog */}
-      <AlertDialog open={removeMemberDialogOpen} onOpenChange={setRemoveMemberDialogOpen}>
+      <AlertDialog
+        open={removeMemberDialogOpen}
+        onOpenChange={setRemoveMemberDialogOpen}
+      >
         <AlertDialogContent className="bg-[rgba(138,138,138,0.15)] backdrop-blur-[2.5px] border-[rgba(255,255,255,0.2)]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white" style={{ fontFamily: 'var(--font-heading)' }}>
+            <AlertDialogTitle
+              className="text-white"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
               Remove Member
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-white/80" style={{ fontFamily: 'var(--font-body)' }}>
-              Are you sure you want to remove {memberToRemove?.name} from the team?
+            <AlertDialogDescription
+              className="text-white/80"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
+              Are you sure you want to remove {memberToRemove?.name} from the
+              team?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="text-white" style={{ fontFamily: 'var(--font-body)' }}>
+            <AlertDialogCancel
+              className="text-white"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={executeRemoveMember}
-              className="bg-black/50 hover:bg-black/60 text-white border border-[#ff4d00]"
-              style={{ fontFamily: 'var(--font-body)' }}
+              className="bg-black/50 hover:bg-black/60 text-white border border-[#22c55e]"
+              style={{ fontFamily: "var(--font-body)" }}
             >
               Remove Member
             </AlertDialogAction>
@@ -1265,24 +1389,37 @@ export function DashboardContainer() {
       </AlertDialog>
 
       {/* Leave Team Confirmation Dialog */}
-      <AlertDialog open={leaveTeamDialogOpen} onOpenChange={setLeaveTeamDialogOpen}>
+      <AlertDialog
+        open={leaveTeamDialogOpen}
+        onOpenChange={setLeaveTeamDialogOpen}
+      >
         <AlertDialogContent className="bg-[rgba(138,138,138,0.15)] backdrop-blur-[2.5px] border-[rgba(255,255,255,0.2)]">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white" style={{ fontFamily: 'var(--font-heading)' }}>
+            <AlertDialogTitle
+              className="text-white"
+              style={{ fontFamily: "var(--font-heading)" }}
+            >
               Leave Team
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-white/80" style={{ fontFamily: 'var(--font-body)' }}>
-              Are you sure you want to leave the team "{team?.teamName}"? This action cannot be undone.
+            <AlertDialogDescription
+              className="text-white/80"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
+              Are you sure you want to leave the team "{team?.teamName}"? This
+              action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="text-white" style={{ fontFamily: 'var(--font-body)' }}>
+            <AlertDialogCancel
+              className="text-white"
+              style={{ fontFamily: "var(--font-body)" }}
+            >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleLeaveTeam}
-              className="bg-black/50 hover:bg-black/60 text-white border border-[#ff4d00]"
-              style={{ fontFamily: 'var(--font-body)' }}
+              className="bg-black/50 hover:bg-black/60 text-white border border-[#22c55e]"
+              style={{ fontFamily: "var(--font-body)" }}
             >
               Leave Team
             </AlertDialogAction>
@@ -1303,4 +1440,3 @@ export function DashboardContainer() {
     </div>
   );
 }
-

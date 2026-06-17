@@ -110,7 +110,7 @@ export function ProblemStatementsContainer({ onNavigate }: ProblemStatementsCont
   return (
     <div className="flex flex-col gap-[32px] max-w-[900px] w-full">
       <div className="flex items-center justify-between">
-        <h1 className="font-['Instrument_Serif',sans-serif] text-[42px] text-white">
+        <h1 className="font-['Google_Sans_Flex',sans-serif] text-[42px] text-white">
           Problem Statements
         </h1>
         {!isAuthenticated && (
@@ -134,13 +134,13 @@ export function ProblemStatementsContainer({ onNavigate }: ProblemStatementsCont
                   <div className="flex flex-col gap-[12px]">
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <h3 className="font-['Inter',sans-serif] text-[18px] text-white mb-[8px]">{ps.title}</h3>
-                        <p className="font-['Inter',sans-serif] text-[14px] text-white opacity-70 mb-[12px]">
+                        <h3 className="font-['Google_Sans_Flex',sans-serif] text-[18px] text-white mb-[8px]">{ps.title}</h3>
+                        <p className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white opacity-70 mb-[12px]">
                           {ps.description}
                         </p>
                         <div className="flex items-center gap-[12px]">
                           {ps.category && (
-                            <span className="text-[13px] text-[#ff4d00] bg-[rgba(255,77,0,0.2)] px-[10px] py-[4px] rounded-[8px]">
+                            <span className="text-[13px] text-[#22c55e] bg-[rgba(34,197,94,0.2)] px-[10px] py-[4px] rounded-[8px]">
                               {ps.category}
                             </span>
                           )}

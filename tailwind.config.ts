@@ -23,7 +23,7 @@ const config: Config = {
         sm: 'calc(var(--radius) - 4px)',
       },
       colors: {
-        heading: '#1CF6FF',
+        heading: '#4ade80',
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {

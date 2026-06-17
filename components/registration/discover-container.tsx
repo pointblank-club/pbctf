@@ -623,8 +623,8 @@ export function DiscoverContainer() {
 
           {user?.teamCode && !isTeamLead ? (
             <div className="flex flex-col items-center justify-center py-[60px] text-center">
-          <div className="bg-[rgba(255,77,0,0.1)] border border-[#ff4d00]/30 rounded-lg p-8 max-w-2xl">
-            <h2 className="text-2xl font-bold text-[#ff4d00] mb-4">You are already in a team!</h2>
+          <div className="bg-[rgba(34,197,94,0.1)] border border-[#22c55e]/30 rounded-lg p-8 max-w-2xl">
+            <h2 className="text-2xl font-bold text-[#22c55e] mb-4">You are already in a team!</h2>
             <p className="text-gray-300 mb-6">
               You are currently a member of team <span className="font-mono text-white bg-white/10 px-2 py-1 rounded">{user.teamCode}</span>.
               <br />
@@ -637,8 +637,8 @@ export function DiscoverContainer() {
             </div>
           ) : !userIsLooking && !isTeamLead && !userHasTeam && activeTab === "teams" ? (
             <div className="flex flex-col items-center justify-center py-[60px] text-center">
-          <div className="bg-[rgba(255,77,0,0.1)] border border-[#ff4d00]/30 rounded-lg p-8 max-w-2xl">
-            <h2 className="text-2xl font-bold text-[#ff4d00] mb-4">Enable "Public Profile" to Discover Teams</h2>
+          <div className="bg-[rgba(34,197,94,0.1)] border border-[#22c55e]/30 rounded-lg p-8 max-w-2xl">
+            <h2 className="text-2xl font-bold text-[#22c55e] mb-4">Enable "Public Profile" to Discover Teams</h2>
             <p className="text-gray-300 mb-6">
               You need to enable "Public Profile" in your profile settings to see teams looking for members.
             </p>
@@ -695,7 +695,7 @@ export function DiscoverContainer() {
                   placeholder={`Search ${activeTab === "teams" ? "teams" : "participants"}...`}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-[rgba(138,138,138,0.1)] border border-[rgba(255,255,255,0.2)] rounded-[12px] text-white placeholder-white/60 focus:outline-none focus:border-[#ff4d00] transition-colors"
+                  className="w-full pl-10 pr-4 py-2 bg-[rgba(138,138,138,0.1)] border border-[rgba(255,255,255,0.2)] rounded-[12px] text-white placeholder-white/60 focus:outline-none focus:border-[#22c55e] transition-colors"
                   style={{ fontFamily: 'var(--font-body)' }}
                 />
               </div>
@@ -716,7 +716,7 @@ export function DiscoverContainer() {
                       {teamsLookingForMembers.map((team, idx) => (
                         <div
                           key={idx}
-                          className="transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[rgba(255,77,0,0.2)]"
+                          className="transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[rgba(34,197,94,0.2)]"
                         >
                           <Card>
                             <div
@@ -725,7 +725,7 @@ export function DiscoverContainer() {
                             >
                               <div className="flex-1">
                                 <div className="flex items-center gap-[12px] mb-[8px]">
-                                  <h3 className="font-['Inter',sans-serif] text-[16px] text-white">{team.teamName}</h3>
+                                  <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white">{team.teamName}</h3>
                                   {userRequests[team.teamCode] === 'pending' && (
                                     <span className="px-[8px] py-[2px] bg-[rgba(255,235,59,0.2)] border border-[#ffeb3b] rounded-[6px] text-[12px] text-[#ffeb3b] font-medium">
                                       Request Sent
@@ -737,11 +737,11 @@ export function DiscoverContainer() {
                                     </span>
                                   )}
                                 </div>
-                                <p className="font-['Inter',sans-serif] text-[13px] text-white opacity-70 mb-[8px]">
+                                <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70 mb-[8px]">
                                   Problem: {team.problemStatement}
                                 </p>
                                 <div className="flex items-center gap-[12px]">
-                                  <span className="font-['Inter',sans-serif] text-[12px] text-white opacity-60">
+                                  <span className="font-['Google_Sans_Flex',sans-serif] text-[12px] text-white opacity-60">
                                     {team.currentMembers}/{team.maxMembers} members
                                   </span>
                                 </div>
@@ -791,7 +791,7 @@ export function DiscoverContainer() {
                       {participantsLookingForTeams.map((participant, idx) => (
                         <div
                           key={idx}
-                          className="transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[rgba(255,77,0,0.2)]"
+                          className="transition-all duration-300 hover:scale-[1.02] hover:shadow-lg hover:shadow-[rgba(34,197,94,0.2)]"
                         >
                           <Card>
                             <div className="flex items-start justify-between">
@@ -802,7 +802,7 @@ export function DiscoverContainer() {
                                 <div className="flex flex-col gap-[8px]">
                                   <div className="flex items-start justify-between">
                                     <div className="flex items-center gap-[12px]">
-                                      <h3 className="font-['Inter',sans-serif] text-[16px] text-white">{participant.name}</h3>
+                                      <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white">{participant.name}</h3>
                                       {sentInvites.has(participant.id) && (
                                         <span className="px-[8px] py-[2px] bg-[rgba(255,235,59,0.2)] border border-[#ffeb3b] rounded-[6px] text-[12px] text-[#ffeb3b] font-medium">
                                           Invite Sent
@@ -810,13 +810,13 @@ export function DiscoverContainer() {
                                       )}
                                     </div>
                                     {participant.university && (
-                                      <span className="font-['Inter',sans-serif] text-[12px] text-white opacity-60">{participant.university}</span>
+                                      <span className="font-['Google_Sans_Flex',sans-serif] text-[12px] text-white opacity-60">{participant.university}</span>
                                     )}
                                   </div>
-                                  <p className="font-['Inter',sans-serif] text-[13px] text-white opacity-70">
+                                  <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70">
                                     Skills: {participant.skills}
                                   </p>
-                                  <p className="font-['Inter',sans-serif] text-[13px] text-white opacity-70">
+                                  <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70">
                                     Interests: {participant.interests}
                                   </p>
                                 </div>

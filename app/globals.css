@@ -21,12 +21,12 @@
 }
 
 /* Google Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Google+Sans+Flex:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans+Flex:wght@300;400;500;600;700&display=swap');
 
 :root {
   /* Background Colors */
-  --background: 0 0% 9%; /* #171717 in HSL */
-  --background-gradient: linear-gradient(90deg, rgb(23, 23, 23) 0%, rgb(23, 23, 23) 100%);
+  --background: 0 0% 4%; /* #0a0a0a in HSL */
+  --background-gradient: linear-gradient(90deg, rgb(10,10,10) 0%, rgb(10,10,10) 100%);
   
   /* Foreground Colors */
   --foreground: 0 0% 100%; /* #ffffff in HSL */
@@ -35,10 +35,10 @@
   --foreground-disabled: rgba(255, 255, 255, 0.3);
   
   /* Primary Colors */
-  --primary: #ff4d00;
-  --primary-hover: #ff8800;
-  --primary-light: rgba(255, 77, 0, 0.3);
-  --primary-shadow: rgba(255, 77, 0, 0.3);
+  --primary: #22c55e;
+  --primary-hover: #4ade80;
+  --primary-light: rgba(34,197,94, 0.3);
+  --primary-shadow: rgba(34,197,94, 0.3);
   
   /* Glassmorphism Colors */
   --glass-bg: rgba(138, 138, 138, 0.2);
@@ -51,8 +51,8 @@
   /* Status Colors */
   --success-bg: rgba(0, 200, 0, 0.2);
   --success-border: #00c800;
-  --warning-bg: rgba(255, 165, 0, 0.2);
-  --warning-border: #ffa500;
+  --warning-bg: rgba(234, 179, 8, 0.2);
+  --warning-border: #eab308;
   --error-bg: rgba(200, 0, 0, 0.2);
   --error-border: #c80000;
   --info-bg: rgba(138, 138, 138, 0.2);
@@ -73,19 +73,19 @@
   
   /* Border Colors */
   --border-default: rgba(255, 255, 255, 0.38);
-  --border-focus: #ff4d00;
+  --border-focus: #22c55e;
   --border-error: #ff4d4d;
   
   /* Shadow Colors */
-  --shadow-focus: 0px 0px 10px 0px rgba(255, 77, 0, 0.3);
+  --shadow-focus: 0px 0px 10px 0px rgba(34,197,94, 0.3);
   --shadow-inset: inset_0px_0px_8px_2px_rgba(138, 138, 138, 0.2);
   --shadow-inset-button: inset_0px_0px_6px_3px_rgba(138, 138, 138, 0.3);
-  --shadow-badge: 0px_3px_10px_0px_rgba(209, 63, 0, 0.5);
+  --shadow-badge: 0px_3px_10px_0px_rgba(22,163,74, 0.5);
   
   /* Fonts */
-  --font-heading: 'Instrument Serif', serif;
+  --font-heading: 'Google Sans Flex', sans-serif;
   --font-body: 'Google Sans Flex', sans-serif;
-  --font-mono: 'Google Sans Flex', monospace;
+  --font-mono: 'Google Sans Flex', sans-serif;
   
   /* Spacing */
   --radius-sm: 12px;

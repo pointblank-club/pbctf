@@ -19,17 +19,17 @@ export function StatusBadge({
       case "confirmed":
       case "shortlisted":
       case "accepted":
-        return "bg-[rgba(255,77,0,0.2)] border-[#ff4d00]";
+        return "bg-[rgba(34,197,94,0.2)] border-[#22c55e]";
       case "pending":
       case "active":
       case "under-review":
-        return "bg-[rgba(255,77,0,0.15)] border-[#ff8800]";
+        return "bg-[rgba(34,197,94,0.15)] border-[#4ade80]";
       case "submitted":
         return "bg-white/5 border-white/38";
       case "declined":
       case "rejected":
       case "rsvp_declined":
-        return "bg-black/50 border-[#ff4d00]";
+        return "bg-black/50 border-[#22c55e]";
       case "withdrawn":
         return "bg-white/5 border-white/20";
       default:

@@ -236,7 +236,7 @@ export default function AdminRegisterPage() {
 
   if (isLoading || isAuthenticated) {
     return (
-      <div className="min-h-screen w-full flex items-center justify-center bg-[#171717]">
+      <div className="min-h-screen w-full flex items-center justify-center bg-[#0a0a0a]">
         <Spinner size="lg" />
       </div>
     );
@@ -246,23 +246,23 @@ export default function AdminRegisterPage() {
     <div
       className="min-h-screen w-full flex flex-col items-start relative"
       style={{
-        backgroundImage: "linear-gradient(90deg, rgb(23, 23, 23) 0%, rgb(23, 23, 23) 100%)",
+        backgroundImage: "linear-gradient(90deg, rgb(10,10,10) 0%, rgb(10,10,10) 100%)",
       }}
     >
-      <div className="bg-[#171717] w-full relative flex-1">
+      <div className="bg-[#0a0a0a] w-full relative flex-1">
         <div
           className="flex flex-col items-center justify-center w-full min-h-screen pb-[80px] pt-[60px] px-[40px] relative"
           style={{
             backgroundImage:
-              "url('data:image/svg+xml;utf8,<svg viewBox=\\'0 0 1440 652\\' xmlns=\\'http://www.w3.org/2000/svg\\' preserveAspectRatio=\\'none\\'><rect x=\\'0\\' y=\\'0\\' height=\\'100%\\' width=\\'100%\\' fill=\\'url(%23grad)\\' opacity=\\'1\\'/><defs><radialGradient id=\\'grad\\' gradientUnits=\\'userSpaceOnUse\\' cx=\\'0\\' cy=\\'0\\' r=\\'10\\' gradientTransform=\\'matrix(31.68 0 0 22.168 0 174.74)\\'><stop stop-color=\\'rgba(62,32,19,1)\\' offset=\\'0.10445\\'/><stop stop-color=\\'rgba(62,32,19,0)\\' offset=\\'1\\'/></radialGradient></defs></svg>')",
+              "url('data:image/svg+xml;utf8,<svg viewBox=\\'0 0 1440 652\\' xmlns=\\'http://www.w3.org/2000/svg\\' preserveAspectRatio=\\'none\\'><rect x=\\'0\\' y=\\'0\\' height=\\'100%\\' width=\\'100%\\' fill=\\'url(%23grad)\\' opacity=\\'1\\'/><defs><radialGradient id=\\'grad\\' gradientUnits=\\'userSpaceOnUse\\' cx=\\'0\\' cy=\\'0\\' r=\\'10\\' gradientTransform=\\'matrix(31.68 0 0 22.168 0 174.74)\\'><stop stop-color=\\'rgba(34,197,94,0.28)\\' offset=\\'0.10445\\'/><stop stop-color=\\'rgba(34,197,94,0)\\' offset=\\'1\\'/></radialGradient></defs></svg>')",
           }}
         >
           <div className="max-w-[500px] w-full z-10 flex flex-col gap-[32px] items-center">
             <Card className="p-[32px] w-full">
               {/* Header */}
               <div className="flex flex-col items-center gap-[16px] mb-[32px]">
-                <div className="flex items-center justify-center w-[60px] h-[60px] rounded-full bg-[rgba(255,77,0,0.1)] border border-[rgba(255,77,0,0.3)]">
-                  <UserPlus className="w-[30px] h-[30px] text-[#ff4d00]" />
+                <div className="flex items-center justify-center w-[60px] h-[60px] rounded-full bg-[rgba(34,197,94,0.1)] border border-[rgba(34,197,94,0.3)]">
+                  <UserPlus className="w-[30px] h-[30px] text-[#22c55e]" />
                 </div>
                 <div className="text-center">
                   <h1 className="text-[28px] font-bold text-white mb-[8px]" style={{ fontFamily: 'var(--font-heading)' }}>
@@ -311,7 +311,7 @@ export default function AdminRegisterPage() {
 
                 <div className="flex flex-col gap-[8px] w-full">
                   <label className="text-[14px] text-white" style={{ fontFamily: 'var(--font-body)' }}>
-                    Password <span className="text-[#ff4d00]">*</span>
+                    Password <span className="text-[#22c55e]">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -323,9 +323,9 @@ export default function AdminRegisterPage() {
                       onBlur={() => handleFieldBlur("password")}
                       disabled={isSubmitting}
                       className={`backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.2)] border ${errors.password
-                          ? "border-[#ff4d00]"
+                          ? "border-[#22c55e]"
                           : "border-[rgba(255,255,255,0.38)]"
-                        } border-solid rounded-[15px] px-[18px] py-[12px] pr-[50px] text-white text-[14px] placeholder:text-[rgba(255,255,255,0.5)] focus:outline-none focus:border-[#ff4d00] focus:shadow-[0px_0px_10px_0px_rgba(255,77,0,0.3)] transition-all disabled:cursor-not-allowed w-full`}
+                        } border-solid rounded-[15px] px-[18px] py-[12px] pr-[50px] text-white text-[14px] placeholder:text-[rgba(255,255,255,0.5)] focus:outline-none focus:border-[#22c55e] focus:shadow-[0px_0px_10px_0px_rgba(34,197,94,0.3)] transition-all disabled:cursor-not-allowed w-full`}
                       style={{ fontFamily: 'var(--font-body)' }}
                     />
                     <button
@@ -338,7 +338,7 @@ export default function AdminRegisterPage() {
                     </button>
                   </div>
                   {errors.password && (
-                    <span className="text-[12px] text-[#ff4d00]" style={{ fontFamily: 'var(--font-body)' }}>
+                    <span className="text-[12px] text-[#22c55e]" style={{ fontFamily: 'var(--font-body)' }}>
                       {errors.password}
                     </span>
                   )}
@@ -346,7 +346,7 @@ export default function AdminRegisterPage() {
 
                 <div className="flex flex-col gap-[8px] w-full">
                   <label className="text-[14px] text-white" style={{ fontFamily: 'var(--font-body)' }}>
-                    Confirm Password <span className="text-[#ff4d00]">*</span>
+                    Confirm Password <span className="text-[#22c55e]">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -358,9 +358,9 @@ export default function AdminRegisterPage() {
                       onBlur={() => handleFieldBlur("confirmPassword")}
                       disabled={isSubmitting}
                       className={`backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.2)] border ${errors.confirmPassword
-                          ? "border-[#ff4d00]"
+                          ? "border-[#22c55e]"
                           : "border-[rgba(255,255,255,0.38)]"
-                        } border-solid rounded-[15px] px-[18px] py-[12px] pr-[50px] text-white text-[14px] placeholder:text-[rgba(255,255,255,0.5)] focus:outline-none focus:border-[#ff4d00] focus:shadow-[0px_0px_10px_0px_rgba(255,77,0,0.3)] transition-all disabled:cursor-not-allowed w-full`}
+                        } border-solid rounded-[15px] px-[18px] py-[12px] pr-[50px] text-white text-[14px] placeholder:text-[rgba(255,255,255,0.5)] focus:outline-none focus:border-[#22c55e] focus:shadow-[0px_0px_10px_0px_rgba(34,197,94,0.3)] transition-all disabled:cursor-not-allowed w-full`}
                       style={{ fontFamily: 'var(--font-body)' }}
                     />
                     <button
@@ -373,7 +373,7 @@ export default function AdminRegisterPage() {
                     </button>
                   </div>
                   {errors.confirmPassword && (
-                    <span className="text-[12px] text-[#ff4d00]" style={{ fontFamily: 'var(--font-body)' }}>
+                    <span className="text-[12px] text-[#22c55e]" style={{ fontFamily: 'var(--font-body)' }}>
                       {errors.confirmPassword}
                     </span>
                   )}
@@ -381,7 +381,7 @@ export default function AdminRegisterPage() {
 
                 <div className="flex flex-col gap-[8px] w-full">
                   <label className="text-[14px] text-white" style={{ fontFamily: 'var(--font-body)' }}>
-                    Admin Code <span className="text-[#ff4d00]">*</span>
+                    Admin Code <span className="text-[#22c55e]">*</span>
                   </label>
                   <div className="relative">
                     <input
@@ -393,9 +393,9 @@ export default function AdminRegisterPage() {
                       onBlur={() => handleFieldBlur("adminCode")}
                       disabled={isSubmitting}
                       className={`backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.2)] border ${errors.adminCode
-                          ? "border-[#ff4d00]"
+                          ? "border-[#22c55e]"
                           : "border-[rgba(255,255,255,0.38)]"
-                        } border-solid rounded-[15px] px-[18px] py-[12px] pr-[50px] text-white text-[14px] placeholder:text-[rgba(255,255,255,0.5)] focus:outline-none focus:border-[#ff4d00] focus:shadow-[0px_0px_10px_0px_rgba(255,77,0,0.3)] transition-all disabled:cursor-not-allowed w-full`}
+                        } border-solid rounded-[15px] px-[18px] py-[12px] pr-[50px] text-white text-[14px] placeholder:text-[rgba(255,255,255,0.5)] focus:outline-none focus:border-[#22c55e] focus:shadow-[0px_0px_10px_0px_rgba(34,197,94,0.3)] transition-all disabled:cursor-not-allowed w-full`}
                       style={{ fontFamily: 'var(--font-body)' }}
                     />
                     <button
@@ -408,7 +408,7 @@ export default function AdminRegisterPage() {
                     </button>
                   </div>
                   {errors.adminCode && (
-                    <span className="text-[12px] text-[#ff4d00]" style={{ fontFamily: 'var(--font-body)' }}>
+                    <span className="text-[12px] text-[#22c55e]" style={{ fontFamily: 'var(--font-body)' }}>
                       {errors.adminCode}
                     </span>
                   )}
@@ -447,7 +447,7 @@ export default function AdminRegisterPage() {
                 <p className="text-[14px] text-[rgba(255,255,255,0.7)] mb-[12px]" style={{ fontFamily: 'var(--font-body)' }}>
                   Already have an account?
                 </p>
-                <Link href="/login" className="inline-flex items-center gap-[8px] text-[#ff4d00] hover:text-[#ff6d20] transition-colors text-[14px] font-medium" style={{ fontFamily: 'var(--font-body)' }}>
+                <Link href="/login" className="inline-flex items-center gap-[8px] text-[#22c55e] hover:text-[#ff6d20] transition-colors text-[14px] font-medium" style={{ fontFamily: 'var(--font-body)' }}>
                   <LogIn className="w-[16px] h-[16px]" />
                   <span>Login</span>
                 </Link>

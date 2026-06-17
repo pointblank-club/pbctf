@@ -92,7 +92,7 @@ export function TeamOverviewCard({ team, isLead, status }: TeamOverviewCardProps
               {/* Progress bar */}
               <div className="flex-1 max-w-[80px] bg-[rgba(138,138,138,0.2)] rounded-full h-[6px] overflow-hidden">
                 <div
-                  className="bg-gradient-to-r from-[#ff4d00] to-[#ff8800] h-full transition-all duration-500"
+                  className="bg-gradient-to-r from-[#22c55e] to-[#4ade80] h-full transition-all duration-500"
                   style={{ width: `${(team.memberCount / maxMembers) * 100}%` }}
                 />
               </div>
@@ -116,7 +116,7 @@ export function TeamOverviewCard({ team, isLead, status }: TeamOverviewCardProps
             <span className="text-[12px] text-white opacity-60 uppercase tracking-wider" style={{ fontFamily: 'var(--font-body)' }}>
               Your Role
             </span>
-            <span className={`text-[14px] ${isLead ? 'text-[#ff4d00]' : 'text-white'} font-medium`} style={{ fontFamily: 'var(--font-body)' }}>
+            <span className={`text-[14px] ${isLead ? 'text-[#22c55e]' : 'text-white'} font-medium`} style={{ fontFamily: 'var(--font-body)' }}>
               {isLead ? "Team Lead" : "Member"}
             </span>
           </div>

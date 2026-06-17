@@ -282,7 +282,7 @@ export function TeamDetailView({ team, onBack, onEvaluationSuccess, onVoteSucces
                                             value={comment}
                                             onChange={(e) => setComment(e.target.value)}
                                             placeholder="Add your evaluation notes..."
-                                            className="w-full h-32 bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-[#ff4d00]/50"
+                                            className="w-full h-32 bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-[#22c55e]/50"
                                             style={{ fontFamily: 'var(--font-body)' }}
                                         />
                                     </div>
@@ -334,7 +334,7 @@ export function TeamDetailView({ team, onBack, onEvaluationSuccess, onVoteSucces
                                                 value={voteComment}
                                                 onChange={(e) => setVoteComment(e.target.value)}
                                                 placeholder="Share your thoughts..."
-                                                className="w-full h-24 bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-[#ff4d00]/50 mb-2"
+                                                className="w-full h-24 bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder:text-white/30 resize-none focus:outline-none focus:border-[#22c55e]/50 mb-2"
                                                 style={{ fontFamily: 'var(--font-body)' }}
                                                 disabled={!localVote}
                                             />
@@ -389,12 +389,12 @@ export function TeamDetailView({ team, onBack, onEvaluationSuccess, onVoteSucces
                                             <span className="text-sm font-bold text-white/70 group-hover:text-white">{member.name.charAt(0)}</span>
                                         </div>
                                         <div className="flex flex-col justify-center">
-                                            <span className="text-sm font-medium text-white group-hover:text-[#ff4d00] transition-colors line-clamp-1">{member.name}</span>
+                                            <span className="text-sm font-medium text-white group-hover:text-[#22c55e] transition-colors line-clamp-1">{member.name}</span>
                                             <span className="text-xs text-white/50 line-clamp-1">{member.organisation}</span>
                                         </div>
                                     </div>
                                     <span className={`text-[10px] uppercase px-2.5 py-1 rounded-full border ${member.role === 'Team Lead'
-                                        ? 'bg-[#ff4d00]/10 text-[#ff4d00] border-[#ff4d00]/20'
+                                        ? 'bg-[#22c55e]/10 text-[#22c55e] border-[#22c55e]/20'
                                         : 'bg-white/5 text-white/40 border-white/5'
                                         }`} style={{ fontFamily: 'var(--font-body)' }}>
                                         {member.role === 'Team Lead' ? 'Lead' : 'Member'}

@@ -122,7 +122,7 @@ export function UserProfileModal({
         </div>
       ) : error ? (
         <div className="text-white text-center py-[40px]">
-          <p className="text-[#ff4d00] mb-[8px]">Error loading user details</p>
+          <p className="text-[#22c55e] mb-[8px]">Error loading user details</p>
           <p className="text-white opacity-70 text-[14px]">{error}</p>
         </div>
       ) : userDetails ? (
@@ -140,23 +140,23 @@ export function UserProfileModal({
               </div>
             )}
             <div className="flex-1">
-              <h3 className="font-['Inter',sans-serif] text-[20px] text-white mb-[4px]">{userDetails.name}</h3>
+              <h3 className="font-['Google_Sans_Flex',sans-serif] text-[20px] text-white mb-[4px]">{userDetails.name}</h3>
               {userDetails.email && (
                 <div className="flex items-center gap-[8px] mb-[4px]">
                   <Mail className="w-4 h-4 text-white opacity-60" />
-                  <span className="font-['Inter',sans-serif] text-[14px] text-white opacity-70">{userDetails.email}</span>
+                  <span className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white opacity-70">{userDetails.email}</span>
                 </div>
               )}
               {userDetails.discord_username && (
                 <div className="flex items-center gap-[8px] mb-[4px]">
                   <MessageSquare className="w-4 h-4 text-white opacity-60" />
-                  <span className="font-['Inter',sans-serif] text-[14px] text-white opacity-70">{userDetails.discord_username}</span>
+                  <span className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white opacity-70">{userDetails.discord_username}</span>
                 </div>
               )}
               {userDetails.organisation && (
                 <div className="flex items-center gap-[8px]">
                   <Building className="w-4 h-4 text-white opacity-60" />
-                  <span className="font-['Inter',sans-serif] text-[14px] text-white opacity-70">{userDetails.organisation}</span>
+                  <span className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white opacity-70">{userDetails.organisation}</span>
                 </div>
               )}
             </div>
@@ -164,8 +164,8 @@ export function UserProfileModal({
 
           {userDetails.bio && (
             <div>
-              <h4 className="font-['Inter',sans-serif] text-[16px] text-white mb-[8px]">Bio</h4>
-              <p className="font-['Inter',sans-serif] text-[14px] text-white opacity-70">{userDetails.bio}</p>
+              <h4 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white mb-[8px]">Bio</h4>
+              <p className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white opacity-70">{userDetails.bio}</p>
             </div>
           )}
 
@@ -173,7 +173,7 @@ export function UserProfileModal({
             userDetails.leetcode_profile || userDetails.codeforces_link || userDetails.kaggle_link ||
             userDetails.devfolio_link || userDetails.portfolio_link || userDetails.ctf_profile) && (
             <div>
-              <h4 className="font-['Inter',sans-serif] text-[16px] text-white mb-[12px]">Links & Profiles</h4>
+              <h4 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white mb-[12px]">Links & Profiles</h4>
               <div className="flex flex-col gap-[8px]">
                 {userDetails.github_link && (
                   <a 
@@ -183,7 +183,7 @@ export function UserProfileModal({
                     className="flex items-center gap-[8px] p-[8px] bg-[rgba(138,138,138,0.1)] rounded-[8px] hover:bg-[rgba(138,138,138,0.2)] transition-colors"
                   >
                     <Github className="w-4 h-4 text-white opacity-70" />
-                    <span className="font-['Inter',sans-serif] text-[14px] text-white">GitHub</span>
+                    <span className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white">GitHub</span>
                     <ExternalLink className="w-3 h-3 text-white opacity-50 ml-auto" />
                   </a>
                 )}
@@ -195,7 +195,7 @@ export function UserProfileModal({
                     className="flex items-center gap-[8px] p-[8px] bg-[rgba(138,138,138,0.1)] rounded-[8px] hover:bg-[rgba(138,138,138,0.2)] transition-colors"
                   >
                     <Linkedin className="w-4 h-4 text-white opacity-70" />
-                    <span className="font-['Inter',sans-serif] text-[14px] text-white">LinkedIn</span>
+                    <span className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white">LinkedIn</span>
                     <ExternalLink className="w-3 h-3 text-white opacity-50 ml-auto" />
                   </a>
                 )}
@@ -205,7 +205,7 @@ export function UserProfileModal({
                     className="flex items-center gap-[8px] p-[8px] bg-[rgba(138,138,138,0.1)] rounded-[8px] hover:bg-[rgba(138,138,138,0.2)] transition-colors cursor-pointer w-full"
                   >
                     <FileText className="w-4 h-4 text-white opacity-70" />
-                    <span className="font-['Inter',sans-serif] text-[14px] text-white">Resume</span>
+                    <span className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white">Resume</span>
                     <ExternalLink className="w-3 h-3 text-white opacity-50 ml-auto" />
                   </button>
                 )}
@@ -216,7 +216,7 @@ export function UserProfileModal({
                     rel="noopener noreferrer"
                     className="flex items-center gap-[8px] p-[8px] bg-[rgba(138,138,138,0.1)] rounded-[8px] hover:bg-[rgba(138,138,138,0.2)] transition-colors"
                   >
-                    <span className="font-['Inter',sans-serif] text-[14px] text-white">LeetCode</span>
+                    <span className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white">LeetCode</span>
                     <ExternalLink className="w-3 h-3 text-white opacity-50 ml-auto" />
                   </a>
                 )}
@@ -227,7 +227,7 @@ export function UserProfileModal({
                     rel="noopener noreferrer"
                     className="flex items-center gap-[8px] p-[8px] bg-[rgba(138,138,138,0.1)] rounded-[8px] hover:bg-[rgba(138,138,138,0.2)] transition-colors"
                   >
-                    <span className="font-['Inter',sans-serif] text-[14px] text-white">Codeforces</span>
+                    <span className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white">Codeforces</span>
                     <ExternalLink className="w-3 h-3 text-white opacity-50 ml-auto" />
                   </a>
                 )}
@@ -238,7 +238,7 @@ export function UserProfileModal({
                     rel="noopener noreferrer"
                     className="flex items-center gap-[8px] p-[8px] bg-[rgba(138,138,138,0.1)] rounded-[8px] hover:bg-[rgba(138,138,138,0.2)] transition-colors"
                   >
-                    <span className="font-['Inter',sans-serif] text-[14px] text-white">Kaggle</span>
+                    <span className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white">Kaggle</span>
                     <ExternalLink className="w-3 h-3 text-white opacity-50 ml-auto" />
                   </a>
                 )}
@@ -249,7 +249,7 @@ export function UserProfileModal({
                     rel="noopener noreferrer"
                     className="flex items-center gap-[8px] p-[8px] bg-[rgba(138,138,138,0.1)] rounded-[8px] hover:bg-[rgba(138,138,138,0.2)] transition-colors"
                   >
-                    <span className="font-['Inter',sans-serif] text-[14px] text-white">Devfolio</span>
+                    <span className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white">Devfolio</span>
                     <ExternalLink className="w-3 h-3 text-white opacity-50 ml-auto" />
                   </a>
                 )}
@@ -260,7 +260,7 @@ export function UserProfileModal({
                     rel="noopener noreferrer"
                     className="flex items-center gap-[8px] p-[8px] bg-[rgba(138,138,138,0.1)] rounded-[8px] hover:bg-[rgba(138,138,138,0.2)] transition-colors"
                   >
-                    <span className="font-['Inter',sans-serif] text-[14px] text-white">Portfolio</span>
+                    <span className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white">Portfolio</span>
                     <ExternalLink className="w-3 h-3 text-white opacity-50 ml-auto" />
                   </a>
                 )}
@@ -271,7 +271,7 @@ export function UserProfileModal({
                     rel="noopener noreferrer"
                     className="flex items-center gap-[8px] p-[8px] bg-[rgba(138,138,138,0.1)] rounded-[8px] hover:bg-[rgba(138,138,138,0.2)] transition-colors"
                   >
-                    <span className="font-['Inter',sans-serif] text-[14px] text-white">CTF Profile</span>
+                    <span className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white">CTF Profile</span>
                     <ExternalLink className="w-3 h-3 text-white opacity-50 ml-auto" />
                   </a>
                 )}

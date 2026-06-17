@@ -27,7 +27,7 @@ export function Button({
       case "secondary":
         return "backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.3)] hover:bg-[rgba(138,138,138,0.4)] text-white border border-[rgba(255,255,255,0.38)]";
       case "danger":
-        return "bg-black/50 hover:bg-black/60 text-white border border-[#ff4d00]";
+        return "bg-black/50 hover:bg-black/60 text-white border border-[#22c55e]";
       default:
         return "";
     }

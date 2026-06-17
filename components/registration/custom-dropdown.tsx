@@ -28,9 +28,9 @@ export function CustomDropdown({ label, value, options, onChange, required }: Cu
 
     return (
         <div className="flex flex-col gap-[8px]" ref={dropdownRef}>
-            <label className="font-['Inter'] text-[14px] font-medium text-white flex items-center gap-1">
+            <label className="font-['Google_Sans_Flex',sans-serif] text-[14px] font-medium text-white flex items-center gap-1">
                 {label}
-                {required && <span className="text-[#FF4D00]">*</span>}
+                {required && <span className="text-[#22c55e]">*</span>}
             </label>
 
             <div className="relative">
@@ -40,7 +40,7 @@ export function CustomDropdown({ label, value, options, onChange, required }: Cu
                     className={cn(
                         "w-full flex items-center justify-between px-[16px] py-[12px] bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-[8px] text-left transition-all",
                         "hover:bg-[rgba(255,255,255,0.08)] hover:border-[rgba(255,255,255,0.2)]",
-                        isOpen && "border-[#FF4D00] ring-1 ring-[#FF4D00]/20"
+                        isOpen && "border-[#22c55e] ring-1 ring-[#22c55e]/20"
                     )}
                 >
                     <span className={cn("text-[14px]", value ? "text-white" : "text-white/40")}>
@@ -57,7 +57,7 @@ export function CustomDropdown({ label, value, options, onChange, required }: Cu
                                 type="button"
                                 className={cn(
                                     "w-full flex items-center justify-between px-[16px] py-[10px] text-[14px] text-white/80 hover:bg-[rgba(255,255,255,0.05)] hover:text-white transition-colors",
-                                    value === option && "bg-[rgba(255,77,0,0.1)] text-[#FF4D00]"
+                                    value === option && "bg-[rgba(34,197,94,0.1)] text-[#22c55e]"
                                 )}
                                 onClick={() => {
                                     onChange(option);
@@ -65,7 +65,7 @@ export function CustomDropdown({ label, value, options, onChange, required }: Cu
                                 }}
                             >
                                 {option}
-                                {value === option && <Check className="w-4 h-4 text-[#FF4D00]" />}
+                                {value === option && <Check className="w-4 h-4 text-[#22c55e]" />}
                             </button>
                         ))}
                     </div>

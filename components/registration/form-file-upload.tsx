@@ -62,10 +62,10 @@ export function FormFileUpload({
     <div className="flex flex-col gap-[8px] w-full">
       <label className="text-[14px] text-white" style={{ fontFamily: 'var(--font-body)' }}>
         {label}{" "}
-        {required && <span className="text-[#ff4d00]">*</span>}
+        {required && <span className="text-[#22c55e]">*</span>}
         <span className="text-[12px] text-white/60 ml-2">(Max {maxSizeMB}MB)</span>
       </label>
-      <div className="backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.2)] border border-[rgba(255,255,255,0.38)] border-solid rounded-[15px] px-[18px] py-[12px] cursor-pointer hover:border-[#ff4d00] transition-all relative">
+      <div className="backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.2)] border border-[rgba(255,255,255,0.38)] border-solid rounded-[15px] px-[18px] py-[12px] cursor-pointer hover:border-[#22c55e] transition-all relative">
         <input
           type="file"
           accept={accept}

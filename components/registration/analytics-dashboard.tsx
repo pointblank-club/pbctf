@@ -35,7 +35,7 @@ interface ShortlistedStats {
 
 
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8', '#82ca9d'];
+const COLORS = ['#22c55e', '#4ade80', '#16a34a', '#86efac', '#0088FE', '#8884d8'];
 
 
 
@@ -189,30 +189,30 @@ export function AnalyticsDashboard() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[16px]">
                     <Card>
                         <div className="flex flex-col items-center gap-[8px] text-center">
-                            <UserCircle className="w-8 h-8 text-[#ff4d00]" />
-                            <span className="font-['Inter',sans-serif] text-[24px] text-white">{stats.totalUsers}</span>
-                            <span className="font-['Inter',sans-serif] text-[13px] text-white opacity-90">Total Users</span>
+                            <UserCircle className="w-8 h-8 text-[#22c55e]" />
+                            <span className="font-['Google_Sans_Flex',sans-serif] text-[24px] text-white">{stats.totalUsers}</span>
+                            <span className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90">Total Users</span>
                         </div>
                     </Card>
                     <Card>
                         <div className="flex flex-col items-center gap-[8px] text-center">
-                            <Users className="w-8 h-8 text-[#ff4d00]" />
-                            <span className="font-['Inter',sans-serif] text-[24px] text-white">{stats.totalTeams}</span>
-                            <span className="font-['Inter',sans-serif] text-[13px] text-white opacity-90">Total Teams</span>
+                            <Users className="w-8 h-8 text-[#22c55e]" />
+                            <span className="font-['Google_Sans_Flex',sans-serif] text-[24px] text-white">{stats.totalTeams}</span>
+                            <span className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90">Total Teams</span>
                         </div>
                     </Card>
                     <Card>
                         <div className="flex flex-col items-center gap-[8px] text-center">
-                            <FileText className="w-8 h-8 text-[#ff4d00]" />
-                            <span className="font-['Inter',sans-serif] text-[24px] text-white">{stats.totalSubmissions}</span>
-                            <span className="font-['Inter',sans-serif] text-[13px] text-white opacity-90">Submissions</span>
+                            <FileText className="w-8 h-8 text-[#22c55e]" />
+                            <span className="font-['Google_Sans_Flex',sans-serif] text-[24px] text-white">{stats.totalSubmissions}</span>
+                            <span className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90">Submissions</span>
                         </div>
                     </Card>
                     <Card>
                         <div className="flex flex-col items-center gap-[8px] text-center">
-                            <CheckCircle className="w-8 h-8 text-[#ff4d00]" />
-                            <span className="font-['Inter',sans-serif] text-[24px] text-white">{stats.totalEvaluated}</span>
-                            <span className="font-['Inter',sans-serif] text-[13px] text-white opacity-90">Evaluated</span>
+                            <CheckCircle className="w-8 h-8 text-[#22c55e]" />
+                            <span className="font-['Google_Sans_Flex',sans-serif] text-[24px] text-white">{stats.totalEvaluated}</span>
+                            <span className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90">Evaluated</span>
                         </div>
                     </Card>
                 </div>
@@ -239,10 +239,10 @@ export function AnalyticsDashboard() {
                                             <XAxis dataKey="name" stroke="rgba(255,255,255,0.5)" />
                                             <YAxis stroke="rgba(255,255,255,0.5)" />
                                             <Tooltip
-                                                contentStyle={{ backgroundColor: '#171717', border: '1px solid rgba(255,255,255,0.1)' }}
+                                                contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)' }}
                                                 itemStyle={{ color: '#fff' }}
                                             />
-                                            <Line type="monotone" dataKey="users" stroke="#ff4d00" strokeWidth={2} />
+                                            <Line type="monotone" dataKey="users" stroke="#22c55e" strokeWidth={2} />
                                         </LineChart>
                                     </ResponsiveContainer>
                                 </div>
@@ -271,7 +271,7 @@ export function AnalyticsDashboard() {
                                                 ))}
                                             </Pie>
                                             <Tooltip
-                                                contentStyle={{ backgroundColor: '#171717', border: '1px solid rgba(255,255,255,0.1)' }}
+                                                contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)' }}
                                                 itemStyle={{ color: '#fff' }}
                                             />
                                             <Legend
@@ -299,10 +299,10 @@ export function AnalyticsDashboard() {
                                             <YAxis stroke="rgba(255,255,255,0.5)" />
                                             <Tooltip
                                                 cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                                                contentStyle={{ backgroundColor: '#171717', border: '1px solid rgba(255,255,255,0.1)' }}
+                                                contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)' }}
                                                 itemStyle={{ color: '#fff' }}
                                             />
-                                            <Bar dataKey="submissions" fill="#ff4d00" />
+                                            <Bar dataKey="submissions" fill="#22c55e" />
                                         </BarChart>
                                     </ResponsiveContainer>
                                 </div>
@@ -334,7 +334,7 @@ export function AnalyticsDashboard() {
                                                     ))}
                                                 </Pie>
                                                 <Tooltip
-                                                    contentStyle={{ backgroundColor: '#171717', border: '1px solid rgba(255,255,255,0.1)' }}
+                                                    contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)' }}
                                                     itemStyle={{ color: '#fff' }}
                                                 />
                                                 <Legend
@@ -363,23 +363,23 @@ export function AnalyticsDashboard() {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-[16px] mb-6">
                             <Card>
                                 <div className="flex flex-col items-center gap-[8px] text-center">
-                                    <Trophy className="w-8 h-8 text-[#ff4d00]" />
-                                    <span className="font-['Inter',sans-serif] text-[24px] text-white">{shortlistedStats.totalTeams}</span>
-                                    <span className="font-['Inter',sans-serif] text-[13px] text-white opacity-90">Teams Selected</span>
+                                    <Trophy className="w-8 h-8 text-[#22c55e]" />
+                                    <span className="font-['Google_Sans_Flex',sans-serif] text-[24px] text-white">{shortlistedStats.totalTeams}</span>
+                                    <span className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90">Teams Selected</span>
                                 </div>
                             </Card>
                             <Card>
                                 <div className="flex flex-col items-center gap-[8px] text-center">
-                                    <Users className="w-8 h-8 text-[#ff4d00]" />
-                                    <span className="font-['Inter',sans-serif] text-[24px] text-white">{shortlistedStats.totalParticipants}</span>
-                                    <span className="font-['Inter',sans-serif] text-[13px] text-white opacity-90">Total Participants</span>
+                                    <Users className="w-8 h-8 text-[#22c55e]" />
+                                    <span className="font-['Google_Sans_Flex',sans-serif] text-[24px] text-white">{shortlistedStats.totalParticipants}</span>
+                                    <span className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90">Total Participants</span>
                                 </div>
                             </Card>
                             <Card>
                                 <div className="flex flex-col items-center gap-[8px] text-center">
-                                    <FileText className="w-8 h-8 text-[#ff4d00]" />
-                                    <span className="font-['Inter',sans-serif] text-[24px] text-white">{Object.keys(shortlistedStats.psDistribution).length}</span>
-                                    <span className="font-['Inter',sans-serif] text-[13px] text-white opacity-90">Problem Statements</span>
+                                    <FileText className="w-8 h-8 text-[#22c55e]" />
+                                    <span className="font-['Google_Sans_Flex',sans-serif] text-[24px] text-white">{Object.keys(shortlistedStats.psDistribution).length}</span>
+                                    <span className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90">Problem Statements</span>
                                 </div>
                             </Card>
                         </div>
@@ -395,7 +395,7 @@ export function AnalyticsDashboard() {
                                     placeholder="Search teams by name, code, or leader..."
                                     value={shortlistedSearchQuery}
                                     onChange={(e) => setShortlistedSearchQuery(e.target.value)}
-                                    className="w-full pl-12 pr-4 py-3 bg-transparent text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#ff4d00]/50 transition-all text-sm"
+                                    className="w-full pl-12 pr-4 py-3 bg-transparent text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#22c55e]/50 transition-all text-sm"
                                 />
                             </div>
                         </div>
@@ -421,7 +421,7 @@ export function AnalyticsDashboard() {
                                                 <div
                                                     className="relative overflow-hidden rounded-[20px] p-[1px] transition-all duration-300 hover:-translate-y-2"
                                                     style={{
-                                                        background: `linear-gradient(135deg, rgba(255, 77, 0, 0.4), transparent 50%, rgba(255, 77, 0, 0.4))`,
+                                                        background: `linear-gradient(135deg, rgba(34,197,94, 0.4), transparent 50%, rgba(34,197,94, 0.4))`,
                                                     }}
                                                 >
                                                     {/* Inner card */}
@@ -430,7 +430,7 @@ export function AnalyticsDashboard() {
                                                         <div
                                                             className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
                                                             style={{
-                                                                background: `radial-gradient(circle at 50% 0%, rgba(255, 77, 0, 0.3), transparent 70%)`,
+                                                                background: `radial-gradient(circle at 50% 0%, rgba(34,197,94, 0.3), transparent 70%)`,
                                                             }}
                                                         />
 
@@ -446,8 +446,8 @@ export function AnalyticsDashboard() {
                                                                 <div
                                                                     className="w-12 h-12 rounded-xl flex items-center justify-center text-lg font-bold text-white shrink-0 transition-transform duration-300 group-hover:scale-110"
                                                                     style={{
-                                                                        background: `linear-gradient(135deg, rgba(255, 77, 0, 0.15), rgba(255, 77, 0, 0.4))`,
-                                                                        boxShadow: `0 4px 20px rgba(255, 77, 0, 0.3)`
+                                                                        background: `linear-gradient(135deg, rgba(34,197,94, 0.15), rgba(34,197,94, 0.4))`,
+                                                                        boxShadow: `0 4px 20px rgba(34,197,94, 0.3)`
                                                                     }}
                                                                 >
                                                                     {initials}
@@ -475,7 +475,7 @@ export function AnalyticsDashboard() {
                                                             {/* Problem Statement Badge */}
                                                             {team.appliedFor && (
                                                                 <div className="flex">
-                                                                    <span className="text-[10px] px-2 py-1 bg-[#ff4d00]/20 text-[#ff4d00] rounded-full border border-[#ff4d00]/30">
+                                                                    <span className="text-[10px] px-2 py-1 bg-[#22c55e]/20 text-[#22c55e] rounded-full border border-[#22c55e]/30">
                                                                         {team.appliedFor}
                                                                     </span>
                                                                 </div>
@@ -494,8 +494,8 @@ export function AnalyticsDashboard() {
                                                                 </div>
                                                                 {/* Finalist indicator */}
                                                                 <div className="flex items-center gap-1 ml-auto">
-                                                                    <Sparkles className="w-3.5 h-3.5 text-[#ff4d00]" />
-                                                                    <span className="text-[10px] text-[#ff4d00] uppercase tracking-wider font-medium">
+                                                                    <Sparkles className="w-3.5 h-3.5 text-[#22c55e]" />
+                                                                    <span className="text-[10px] text-[#22c55e] uppercase tracking-wider font-medium">
                                                                         Finalist
                                                                     </span>
                                                                 </div>
@@ -541,7 +541,7 @@ export function AnalyticsDashboard() {
                                                         {/* Decorative corner accent */}
                                                         <div
                                                             className="absolute -bottom-8 -right-8 w-24 h-24 rounded-full opacity-10 group-hover:opacity-20 transition-opacity duration-300"
-                                                            style={{ background: 'rgba(255, 77, 0, 0.4)' }}
+                                                            style={{ background: 'rgba(34,197,94, 0.4)' }}
                                                         />
                                                     </div>
                                                 </div>

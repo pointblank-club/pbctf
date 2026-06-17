@@ -195,7 +195,7 @@ export function AssignTeamsModal({
                         placeholder="Search teams by name or code..."
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-[8px] pl-9 pr-4 py-2 text-white text-[14px] focus:outline-none focus:border-[#ff4d00]"
+                        className="w-full bg-[rgba(255,255,255,0.05)] border border-[rgba(255,255,255,0.1)] rounded-[8px] pl-9 pr-4 py-2 text-white text-[14px] focus:outline-none focus:border-[#22c55e]"
                     />
                 </div>
 
@@ -214,7 +214,7 @@ export function AssignTeamsModal({
                                 key={team.teamCode}
                                 onClick={() => handleToggleTeam(team.teamCode)}
                                 className={`flex items-center justify-between p-3 rounded-[8px] border cursor-pointer transition-all ${selectedTeams.has(team.teamCode)
-                                    ? "bg-[rgba(255,77,0,0.1)] border-[#ff4d00]"
+                                    ? "bg-[rgba(34,197,94,0.1)] border-[#22c55e]"
                                     : "bg-[rgba(255,255,255,0.03)] border-transparent hover:bg-[rgba(255,255,255,0.05)]"
                                     }`}
                             >
@@ -230,7 +230,7 @@ export function AssignTeamsModal({
                                 </div>
                                 <div>
                                     {selectedTeams.has(team.teamCode) ? (
-                                        <CheckCircle className="w-5 h-5 text-[#ff4d00]" />
+                                        <CheckCircle className="w-5 h-5 text-[#22c55e]" />
                                     ) : (
                                         <Circle className="w-5 h-5 text-white/20" />
                                     )}

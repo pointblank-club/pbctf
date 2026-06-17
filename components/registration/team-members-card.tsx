@@ -49,7 +49,7 @@ export function TeamMembersCard({
     const colors = [
       "from-blue-500 to-purple-600",
       "from-green-500 to-teal-600",
-      "from-orange-500 to-red-600",
+      "from-emerald-500 to-green-600",
       "from-pink-500 to-rose-600",
       "from-indigo-500 to-blue-600",
     ];
@@ -99,7 +99,7 @@ export function TeamMembersCard({
                     {member.name}
                   </span>
                   {member.role === "Team Lead" && (
-                    <span className="text-[11px] text-[#ff4d00] bg-[rgba(255,77,0,0.15)] px-[8px] py-[2px] rounded-full font-medium">
+                    <span className="text-[11px] text-[#22c55e] bg-[rgba(34,197,94,0.15)] px-[8px] py-[2px] rounded-full font-medium">
                       Lead
                     </span>
                   )}

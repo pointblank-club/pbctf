@@ -15,13 +15,13 @@ export function AlertBanner({
   const getTypeClass = () => {
     switch (type) {
       case "success":
-        return "bg-[rgba(255,77,0,0.2)] border-[#ff4d00]";
+        return "bg-[rgba(34,197,94,0.2)] border-[#22c55e]";
       case "error":
-        return "bg-black/50 border-[#ff4d00]";
+        return "bg-black/50 border-[#22c55e]";
       case "warning":
-        return "bg-[rgba(255,77,0,0.15)] border-[#ff8800]";
+        return "bg-[rgba(34,197,94,0.15)] border-[#4ade80]";
       case "yellow":
-        return "bg-[rgba(255,77,0,0.15)] border-[#ff8800]";
+        return "bg-[rgba(34,197,94,0.15)] border-[#4ade80]";
       case "info":
         return "bg-white/5 border-white/38";
       default:

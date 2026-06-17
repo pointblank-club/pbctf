@@ -57,11 +57,11 @@ const statVariants = {
   }
 };
 
-// Theme accent color (orange)
+// Theme accent color (green)
 const accentColor = {
-  bg: 'rgba(255, 77, 0, 0.15)',
-  border: 'rgba(255, 77, 0, 0.4)',
-  glow: 'rgba(255, 77, 0, 0.3)'
+  bg: 'rgba(34,197,94, 0.15)',
+  border: 'rgba(34,197,94, 0.4)',
+  glow: 'rgba(34,197,94, 0.3)'
 };
 
 // Generate initials from team name
@@ -87,7 +87,7 @@ export default function ShortlistedPage() {
     <div
       className="min-h-screen w-full flex flex-col items-center relative overflow-x-hidden"
       style={{
-        backgroundImage: "linear-gradient(90deg, rgb(23, 23, 23) 0%, rgb(23, 23, 23) 100%)",
+        backgroundImage: "linear-gradient(90deg, rgb(10,10,10) 0%, rgb(10,10,10) 100%)",
       }}
     >
       {/* Background gradient overlay */}
@@ -127,8 +127,8 @@ export default function ShortlistedPage() {
           animate="visible"
         >
           {/* Badge */}
-          <div className="backdrop-blur-[2.5px] backdrop-filter bg-[rgba(255,255,255,0)] flex items-center justify-center px-4 py-2 rounded-[15px] shadow-[0px_3px_10px_0px_rgba(209,63,0,0.5)] relative">
-            <Trophy className="w-4 h-4 text-[#ff4d00] mr-2" />
+          <div className="backdrop-blur-[2.5px] backdrop-filter bg-[rgba(255,255,255,0)] flex items-center justify-center px-4 py-2 rounded-[15px] shadow-[0px_3px_10px_0px_rgba(22,163,74,0.5)] relative">
+            <Trophy className="w-4 h-4 text-[#22c55e] mr-2" />
             <p className="text-[14px] text-white leading-[16.8px]" style={{ fontFamily: 'var(--font-body)' }}>
               Shortlisted Teams
             </p>
@@ -139,7 +139,7 @@ export default function ShortlistedPage() {
 
           {/* Title */}
           <h1 
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight tracking-[-1px] drop-shadow-[0_0_30px_rgba(255,77,0,0.3)]"
+            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl text-white leading-tight tracking-[-1px] drop-shadow-[0_0_30px_rgba(34,197,94,0.3)]"
             style={{ fontFamily: 'var(--font-heading)' }}
           >
             Congratulations!
@@ -150,7 +150,7 @@ export default function ShortlistedPage() {
             className="text-base sm:text-lg text-white opacity-90 leading-relaxed max-w-[700px] px-4"
             style={{ fontFamily: 'var(--font-body)' }}
           >
-            We are thrilled to announce the 32 teams that have been shortlisted for the Zenith Hackathon Finals. 
+            We are thrilled to announce the 32 teams that have been shortlisted for the PBCTF 5.0 Finals.
             These exceptional teams stood out among hundreds of submissions with their innovative ideas and solutions.
           </p>
         </motion.div>
@@ -166,8 +166,8 @@ export default function ShortlistedPage() {
             variants={statVariants}
             className="backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.1)] rounded-[16px] p-4 sm:p-6 border border-[rgba(255,255,255,0.15)] text-center"
           >
-            <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[rgba(255,77,0,0.2)] border border-[#ff4d00] mx-auto mb-3">
-              <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-[#ff4d00]" />
+            <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[rgba(34,197,94,0.2)] border border-[#22c55e] mx-auto mb-3">
+              <Trophy className="w-5 h-5 sm:w-6 sm:h-6 text-[#22c55e]" />
             </div>
             <p className="text-3xl sm:text-4xl text-white font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
               {shortlistedTeams.length}
@@ -181,8 +181,8 @@ export default function ShortlistedPage() {
             variants={statVariants}
             className="backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.1)] rounded-[16px] p-4 sm:p-6 border border-[rgba(255,255,255,0.15)] text-center"
           >
-            <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[rgba(255,77,0,0.2)] border border-[#ff4d00] mx-auto mb-3">
-              <Users className="w-5 h-5 sm:w-6 sm:h-6 text-[#ff4d00]" />
+            <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[rgba(34,197,94,0.2)] border border-[#22c55e] mx-auto mb-3">
+              <Users className="w-5 h-5 sm:w-6 sm:h-6 text-[#22c55e]" />
             </div>
             <p className="text-3xl sm:text-4xl text-white font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
               {totalParticipants}
@@ -196,8 +196,8 @@ export default function ShortlistedPage() {
             variants={statVariants}
             className="backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.1)] rounded-[16px] p-4 sm:p-6 border border-[rgba(255,255,255,0.15)] text-center col-span-2 md:col-span-1"
           >
-            <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[rgba(255,77,0,0.2)] border border-[#ff4d00] mx-auto mb-3">
-              <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-[#ff4d00]" />
+            <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[rgba(34,197,94,0.2)] border border-[#22c55e] mx-auto mb-3">
+              <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-[#22c55e]" />
             </div>
             <p className="text-3xl sm:text-4xl text-white font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
               1000+
@@ -224,7 +224,7 @@ export default function ShortlistedPage() {
               placeholder="Search teams..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-12 pr-4 py-3 bg-transparent text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#ff4d00]/50 transition-all"
+              className="w-full pl-12 pr-4 py-3 bg-transparent text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-[#22c55e]/50 transition-all"
               style={{ fontFamily: 'var(--font-body)' }}
             />
           </div>
@@ -324,8 +324,8 @@ export default function ShortlistedPage() {
                         
                         {/* Sparkle indicator */}
                         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                          <Sparkles className="w-3.5 h-3.5 text-[#ff4d00]" />
-                          <span className="text-[10px] text-[#ff4d00] uppercase tracking-wider font-medium">
+                          <Sparkles className="w-3.5 h-3.5 text-[#22c55e]" />
+                          <span className="text-[10px] text-[#22c55e] uppercase tracking-wider font-medium">
                             Finalist
                           </span>
                         </div>

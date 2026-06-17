@@ -42,7 +42,7 @@ export function SpaceFooter() {
               <Image src={pblogo.src} alt="pblogo" className="-ml-2" width={65} height={65}/>
               <div className="inline-flex gap-2 items-center">
               <Mail size={"20"} /> 
-              <a href="mailto:zenith@pointblank.club" className="text-gray-400 text-lg">zenith@pointblank.club</a>
+              <a href="mailto:pbctf@pointblank.club" className="text-gray-400 text-lg">pbctf@pointblank.club</a>
               </div>
             </div>
           </div>

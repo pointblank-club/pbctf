@@ -38,10 +38,10 @@ const events: Event[] = [
     },
     {
       id: 4,
-      title: "HACKATHON",
-      category: "Tech",
-      description: "A 18-hour coding marathon where innovators build groundbreaking applications.",
-      fullDescription: "HACKATHON is the ultimate test of creativity and endurance for developers, engineers, and designers. Over 18 hours, participants collaborate in teams to develop innovative applications, tackle real-world problems, and present their solutions to a panel of judges. With categories spanning web development, AI, blockchain, and IoT, this event is a breeding ground for the next big tech breakthrough.",
+      title: "CAPTURE THE FLAG",
+      category: "Cybersecurity",
+      description: "An intense Capture the Flag competition where teams crack security challenges to capture flags.",
+      fullDescription: "CAPTURE THE FLAG is the ultimate test of skill and endurance for hackers and security enthusiasts. Teams race to solve challenges across categories like web exploitation, pwn (binary exploitation), reverse engineering, cryptography, and forensics. Each solved challenge captures a flag and scores points, with the top teams climbing the leaderboard to claim victory.",
       time: "Starts at 11PM",
       image: hackathon.src,
     }
@@ -64,7 +64,7 @@ const GlitchTitle = memo(({ glitchEffect }: { glitchEffect: boolean }) => {
         className={`text-5xl md:text-7xl font-dystopian font-bold text-center gradient-text
           ${glitchEffect ? 'glitch' : ''}`}
         style={{
-          textShadow: "0 0 20px rgba(0, 246, 255, 0.3), 0 0 40px rgba(0, 246, 255, 0.2), 0 0 60px rgba(0, 246, 255, 0.1)"
+          textShadow: "0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.2), 0 0 60px rgba(34, 197, 94, 0.1)"
         }}
         data-text="About the Events"
       >
@@ -74,14 +74,14 @@ const GlitchTitle = memo(({ glitchEffect }: { glitchEffect: boolean }) => {
       {glitchEffect && (
         <>
           <h2 
-            className="glitch-copy absolute top-0 left-0 w-full text-5xl md:text-7xl font-dystopian font-bold text-center text-[#ff00ff] opacity-70"
+            className="glitch-copy absolute top-0 left-0 w-full text-5xl md:text-7xl font-dystopian font-bold text-center text-[#16a34a] opacity-70"
             style={{ clipPath: 'polygon(0 0, 100% 0, 100% 45%, 0 45%)', transform: 'translate(-5px, -5px)' }}
             aria-hidden="true"
           >
             About the Events
           </h2>
           <h2 
-            className="glitch-copy absolute top-0 left-0 w-full text-5xl md:text-7xl font-dystopian font-bold text-center text-[#00ffff] opacity-70"
+            className="glitch-copy absolute top-0 left-0 w-full text-5xl md:text-7xl font-dystopian font-bold text-center text-[#4ade80] opacity-70"
             style={{ clipPath: 'polygon(0 60%, 100% 60%, 100% 100%, 0 100%)', transform: 'translate(5px, 5px)' }}
             aria-hidden="true"
           >

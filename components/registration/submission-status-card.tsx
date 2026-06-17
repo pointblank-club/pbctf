@@ -32,7 +32,7 @@ export function SubmissionStatusCard({
         return {
           icon: AlertCircle,
           color: "text-white",
-          bgColor: "bg-[rgba(255,77,0,0.15)]",
+          bgColor: "bg-[rgba(34,197,94,0.15)]",
           message: "Your project is under review by evaluators.",
           bannerType: "warning" as const,
         };
@@ -40,7 +40,7 @@ export function SubmissionStatusCard({
         return {
           icon: Award,
           color: "text-white",
-          bgColor: "bg-[rgba(255,77,0,0.2)]",
+          bgColor: "bg-[rgba(34,197,94,0.2)]",
           message: "🎉 Congratulations! Your team has been shortlisted!",
           bannerType: "success" as const,
         };
@@ -48,7 +48,7 @@ export function SubmissionStatusCard({
         return {
           icon: CheckCircle,
           color: "text-white",
-          bgColor: "bg-[rgba(255,77,0,0.2)]",
+          bgColor: "bg-[rgba(34,197,94,0.2)]",
           message: "✅ RSVP Confirmed! See you at the event!",
           bannerType: "success" as const,
         };

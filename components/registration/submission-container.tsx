@@ -489,7 +489,7 @@ export function SubmissionContainer() {
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleWithdrawSubmission}
-              className="bg-black/50 hover:bg-black/60 text-white border border-[#ff4d00]"
+              className="bg-black/50 hover:bg-black/60 text-white border border-[#22c55e]"
               style={{ fontFamily: 'var(--font-body)' }}
             >
               Withdraw

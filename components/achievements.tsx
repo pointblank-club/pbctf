@@ -22,28 +22,28 @@ const GlitchTitle = memo(({ glitchEffect }: { glitchEffect: boolean }) => {
         className={`text-5xl md:text-7xl font-dystopian font-bold mx-auto
           ${glitchEffect ? 'glitch' : ''}`}
         style={{
-          textShadow: "0 0 20px rgba(0, 246, 255, 0.3), 0 0 40px rgba(0, 246, 255, 0.2), 0 0 60px rgba(0, 246, 255, 0.1)"
+          textShadow: "0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.2), 0 0 60px rgba(34, 197, 94, 0.1)"
         }}
         data-text="Point Blank's Achievements"
       >
-        <span className="text-[#00FF7F] gradient-text-green">Point Blank's </span><span className="text-[#00f6ff] gradient-text">Achievements</span>
+        <span className="text-[#00FF7F] gradient-text-green">Point Blank's </span><span className="text-[#22c55e] gradient-text">Achievements</span>
       </motion.h2>
       
       {glitchEffect && (
         <>
           <h2 
-            className="glitch-copy absolute top-0 left-0 w-full text-5xl md:text-7xl font-dystopian font-bold text-[#ff00ff] opacity-70 text-center"
+            className="glitch-copy absolute top-0 left-0 w-full text-5xl md:text-7xl font-dystopian font-bold text-[#16a34a] opacity-70 text-center"
             style={{ clipPath: 'polygon(0 0, 100% 0, 100% 45%, 0 45%)', transform: 'translate(-5px, -5px)' }}
             aria-hidden="true"
           >
-            <span className="text-[#00FF7F]">Point Blank's </span><span className="text-[#ff00ff]">Achievements</span>
+            <span className="text-[#00FF7F]">Point Blank's </span><span className="text-[#16a34a]">Achievements</span>
           </h2>
           <h2 
-            className="glitch-copy absolute top-0 left-0 w-full text-5xl md:text-7xl font-dystopian font-bold text-[#00ffff] opacity-70 text-center"
+            className="glitch-copy absolute top-0 left-0 w-full text-5xl md:text-7xl font-dystopian font-bold text-[#4ade80] opacity-70 text-center"
             style={{ clipPath: 'polygon(0 60%, 100% 60%, 100% 100%, 0 100%)', transform: 'translate(5px, 5px)' }}
             aria-hidden="true"
           >
-            <span className="text-[#00FF7F]">Point Blank's </span><span className="text-[#00ffff]">Achievements</span>
+            <span className="text-[#00FF7F]">Point Blank's </span><span className="text-[#4ade80]">Achievements</span>
           </h2>
         </>
       )}
@@ -296,10 +296,10 @@ export function Achievements() {
                   onClick={() => handleCategorySelect(item.id)}
                   className={`flex items-center gap-2 whitespace-nowrap py-3 px-4 rounded-lg transition-all duration-300
                     ${selectedCategory === item.id 
-                      ? 'bg-[#2AD7DB]/10 text-[#2AD7DB] border-[#2AD7DB]' 
+                      ? 'bg-[#4ade80]/10 text-[#4ade80] border-[#4ade80]' 
                       : 'text-gray-400 hover:text-white border-gray-700'}`}
                 >
-                  <item.icon className={`w-4 h-4 ${selectedCategory === item.id ? 'text-[#2AD7DB]' : 'text-gray-400'}`} />
+                  <item.icon className={`w-4 h-4 ${selectedCategory === item.id ? 'text-[#4ade80]' : 'text-gray-400'}`} />
                   <span className="text-base font-medium">{item.label} ({achieversCount})</span>
                 </motion.button>
               );
@@ -328,11 +328,11 @@ export function Achievements() {
                         onClick={() => handleCategorySelect(item.id)}
                         className={`w-full px-4 py-4 rounded-lg transition-all duration-300 flex items-center
                           ${isActive 
-                            ? 'bg-gradient-to-r from-[#00f6ff]/10 to-[#2AD7DB]/5 text-white' 
+                            ? 'bg-gradient-to-r from-[#22c55e]/10 to-[#4ade80]/5 text-white' 
                             : 'hover:bg-white/5 text-gray-400'}`}
                       >
                         <div className={`w-10 h-10 rounded-full flex items-center justify-center mr-4 
-                          ${isActive ? 'bg-gradient-to-r from-[#00f6ff] to-[#2AD7DB]' : 'bg-gray-800'}`}>
+                          ${isActive ? 'bg-gradient-to-r from-[#22c55e] to-[#4ade80]' : 'bg-gray-800'}`}>
                           <item.icon className={`w-5 h-5 ${isActive ? 'text-black' : 'text-gray-400'}`} />
                         </div>
                         <div>
@@ -348,7 +348,7 @@ export function Achievements() {
                             initial={{ width: 0 }}
                             animate={{ width: `${progressValue}%` }}
                             transition={{ ease: "linear" }}
-                            className="h-full bg-gradient-to-r from-[#00f6ff] to-[#2AD7DB]"
+                            className="h-full bg-gradient-to-r from-[#22c55e] to-[#4ade80]"
                           />
                         </div>
                       )}

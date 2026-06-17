@@ -149,27 +149,27 @@ export default function AuthActionPage() {
 
     return (
         <div
-            className="min-h-screen w-full flex flex-col items-start relative font-['Inter',sans-serif]"
+            className="min-h-screen w-full flex flex-col items-start relative font-['Google_Sans_Flex',sans-serif]"
             style={{
-                backgroundImage: "linear-gradient(90deg, rgb(23, 23, 23) 0%, rgb(23, 23, 23) 100%)",
+                backgroundImage: "linear-gradient(90deg, rgb(10,10,10) 0%, rgb(10,10,10) 100%)",
             }}
         >
-            <div className="bg-[#171717] w-full relative flex-1">
+            <div className="bg-[#0a0a0a] w-full relative flex-1">
                 <div
                     className="flex flex-col items-center justify-center w-full min-h-screen pb-[80px] pt-[60px] px-[40px] relative"
                     style={{
                         backgroundImage:
-                            "url('data:image/svg+xml;utf8,<svg viewBox=\\'0 0 1440 652\\' xmlns=\\'http://www.w3.org/2000/svg\\' preserveAspectRatio=\\'none\\'><rect x=\\'0\\' y=\\'0\\' height=\\'100%\\' width=\\'100%\\' fill=\\'url(%23grad)\\' opacity=\\'1\\'/><defs><radialGradient id=\\'grad\\' gradientUnits=\\'userSpaceOnUse\\' cx=\\'0\\' cy=\\'0\\' r=\\'10\\' gradientTransform=\\'matrix(31.68 0 0 22.168 0 174.74)\\'><stop stop-color=\\'rgba(62,32,19,1)\\' offset=\\'0.10445\\'/><stop stop-color=\\'rgba(62,32,19,0)\\' offset=\\'1\\'/></radialGradient></defs></svg>')",
+                            "url('data:image/svg+xml;utf8,<svg viewBox=\\'0 0 1440 652\\' xmlns=\\'http://www.w3.org/2000/svg\\' preserveAspectRatio=\\'none\\'><rect x=\\'0\\' y=\\'0\\' height=\\'100%\\' width=\\'100%\\' fill=\\'url(%23grad)\\' opacity=\\'1\\'/><defs><radialGradient id=\\'grad\\' gradientUnits=\\'userSpaceOnUse\\' cx=\\'0\\' cy=\\'0\\' r=\\'10\\' gradientTransform=\\'matrix(31.68 0 0 22.168 0 174.74)\\'><stop stop-color=\\'rgba(34,197,94,0.28)\\' offset=\\'0.10445\\'/><stop stop-color=\\'rgba(34,197,94,0)\\' offset=\\'1\\'/></radialGradient></defs></svg>')",
                     }}
                 >
                     <div className="max-w-[600px] w-full z-10 flex flex-col gap-[32px] items-center">
                         {status === "loading" && (
                             <FormSection title="Verifying">
                                 <div className="flex flex-col gap-[20px] items-center text-center py-8">
-                                    <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-[#ff4d00]/10">
+                                    <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-[#22c55e]/10">
                                         <Spinner size="lg" />
                                     </div>
-                                    <p className="font-['Inter',sans-serif] text-[15.9px] text-white opacity-90 leading-[23.8px]">
+                                    <p className="font-['Google_Sans_Flex',sans-serif] text-[15.9px] text-white opacity-90 leading-[23.8px]">
                                         Processing your request...
                                     </p>
                                 </div>
@@ -180,13 +180,13 @@ export default function AuthActionPage() {
                             <FormSection title="Reset Password">
                                 <div className="w-full flex flex-col gap-[24px]">
                                     <div className="flex flex-col gap-[12px] items-center text-center">
-                                        <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-[#ff4d00]/10">
-                                            <KeyRound className="h-8 w-8 text-[#ff4d00]" />
+                                        <div className="mb-2 flex h-16 w-16 items-center justify-center rounded-full bg-[#22c55e]/10">
+                                            <KeyRound className="h-8 w-8 text-[#22c55e]" />
                                         </div>
-                                        <h1 className="font-['Instrument_Serif',sans-serif] text-[32px] text-white leading-[36px] tracking-[-1px]">
+                                        <h1 className="font-['Google_Sans_Flex',sans-serif] text-[32px] text-white leading-[36px] tracking-[-1px]">
                                             Set New Password
                                         </h1>
-                                        <p className="font-['Inter',sans-serif] text-[14px] text-white opacity-70">
+                                        <p className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white opacity-70">
                                             for {resetEmail}
                                         </p>
                                     </div>
@@ -226,14 +226,14 @@ export default function AuthActionPage() {
                         {status === "success" && (
                             <FormSection title={mode === "resetPassword" ? "Password Reset" : "Email Verified"}>
                                 <div className="flex flex-col gap-[20px] items-center text-center">
-                                    <div className="mb-2 flex h-20 w-20 items-center justify-center rounded-full bg-[rgba(255,77,0,0.2)] ring-2 ring-[#ff4d00]/30">
+                                    <div className="mb-2 flex h-20 w-20 items-center justify-center rounded-full bg-[rgba(34,197,94,0.2)] ring-2 ring-[#22c55e]/30">
                                         <CheckCircle2 className="h-12 w-12 text-white" />
                                     </div>
                                     <div className="flex flex-col gap-[12px]">
-                                        <h1 className="font-['Instrument_Serif',sans-serif] text-[36px] text-white leading-[40px] tracking-[-1px]">
+                                        <h1 className="font-['Google_Sans_Flex',sans-serif] text-[36px] text-white leading-[40px] tracking-[-1px]">
                                             Success!
                                         </h1>
-                                        <p className="font-['Inter',sans-serif] text-[15.9px] text-white opacity-90 leading-[23.8px]">
+                                        <p className="font-['Google_Sans_Flex',sans-serif] text-[15.9px] text-white opacity-90 leading-[23.8px]">
                                             {message}
                                         </p>
                                     </div>
@@ -241,7 +241,7 @@ export default function AuthActionPage() {
                                     {isRedirecting ? (
                                         <div className="flex flex-col gap-3 items-center mt-4">
                                             <Spinner size="md" />
-                                            <p className="font-['Inter',sans-serif] text-[14px] text-white opacity-70">
+                                            <p className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white opacity-70">
                                                 Redirecting to dashboard...
                                             </p>
                                         </div>
@@ -264,20 +264,20 @@ export default function AuthActionPage() {
                         {status === "error" && (
                             <FormSection title="Action Failed">
                                 <div className="flex flex-col gap-[20px] items-center text-center">
-                                    <div className="mb-2 flex h-20 w-20 items-center justify-center rounded-full bg-black/50 ring-2 ring-[#ff4d00]/30">
-                                        <XCircle className="h-12 w-12 text-[#ff4d00]" />
+                                    <div className="mb-2 flex h-20 w-20 items-center justify-center rounded-full bg-black/50 ring-2 ring-[#22c55e]/30">
+                                        <XCircle className="h-12 w-12 text-[#22c55e]" />
                                     </div>
                                     <div className="flex flex-col gap-[12px]">
-                                        <h1 className="font-['Instrument_Serif',sans-serif] text-[36px] text-white leading-[40px] tracking-[-1px]">
+                                        <h1 className="font-['Google_Sans_Flex',sans-serif] text-[36px] text-white leading-[40px] tracking-[-1px]">
                                             Verification Failed
                                         </h1>
-                                        <p className="font-['Inter',sans-serif] text-[15.9px] text-white opacity-90 leading-[23.8px]">
+                                        <p className="font-['Google_Sans_Flex',sans-serif] text-[15.9px] text-white opacity-90 leading-[23.8px]">
                                             {message}
                                         </p>
                                     </div>
 
                                     <div className="bg-white/5 p-4 rounded-lg mt-4">
-                                        <p className="font-['Inter',sans-serif] text-[13px] text-white opacity-60">
+                                        <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-60">
                                             If you continue to experience issues, please contact support or request a new link.
                                         </p>
                                     </div>

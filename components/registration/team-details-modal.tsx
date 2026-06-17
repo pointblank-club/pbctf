@@ -102,25 +102,25 @@ export function TeamDetailsModal({
           </div>
         ) : error ? (
           <div className="text-white text-center py-[40px]">
-            <p className="text-[#ff4d00] mb-[8px]">Error loading team details</p>
+            <p className="text-[#22c55e] mb-[8px]">Error loading team details</p>
             <p className="text-white opacity-70 text-[14px]">{error}</p>
           </div>
         ) : teamDetails && teamDetails.teamName ? (
           <div className="flex flex-col gap-[24px]">
             <div>
-              <h3 className="font-['Inter',sans-serif] text-[20px] text-white mb-[8px]">{teamDetails.teamName}</h3>
+              <h3 className="font-['Google_Sans_Flex',sans-serif] text-[20px] text-white mb-[8px]">{teamDetails.teamName}</h3>
               {teamDetails.appliedFor && (
-                <p className="font-['Inter',sans-serif] text-[14px] text-white opacity-70 mt-[4px]">
+                <p className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white opacity-70 mt-[4px]">
                   Problem Statement: {teamDetails.appliedFor.title}
                 </p>
               )}
-              <p className="font-['Inter',sans-serif] text-[14px] text-white opacity-70 mt-[4px]">
+              <p className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white opacity-70 mt-[4px]">
                 Members: {teamDetails.memberCount || (teamDetails.teamMembers?.length || 0)}/{teamDetails.maxMembers || 4}
               </p>
             </div>
 
             <div>
-              <h4 className="font-['Inter',sans-serif] text-[16px] text-white mb-[12px]">Team Lead</h4>
+              <h4 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white mb-[12px]">Team Lead</h4>
               <div 
                 className="p-[12px] bg-[rgba(138,138,138,0.1)] rounded-[8px] border border-[rgba(255,255,255,0.1)] cursor-pointer hover:bg-[rgba(138,138,138,0.2)] transition-colors"
                 onClick={(e) => {
@@ -133,9 +133,9 @@ export function TeamDetailsModal({
               >
                 <div className="flex items-center gap-[8px]">
                   <User className="w-4 h-4 text-white opacity-70" />
-                  <span className="font-['Inter',sans-serif] text-[14px] text-white">{teamDetails.teamLead.name}</span>
+                  <span className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white">{teamDetails.teamLead.name}</span>
                   {teamDetails.teamLead.email && (
-                    <span className="font-['Inter',sans-serif] text-[12px] text-white opacity-60 ml-auto">
+                    <span className="font-['Google_Sans_Flex',sans-serif] text-[12px] text-white opacity-60 ml-auto">
                       {teamDetails.teamLead.email}
                     </span>
                   )}
@@ -145,7 +145,7 @@ export function TeamDetailsModal({
 
             {teamDetails.teamMembers && teamDetails.teamMembers.length > 0 && (
               <div>
-                <h4 className="font-['Inter',sans-serif] text-[16px] text-white mb-[12px]">Team Members</h4>
+                <h4 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white mb-[12px]">Team Members</h4>
                 <div className="flex flex-col gap-[8px]">
                   {teamDetails.teamMembers
                     .filter(member => member.uid !== (teamDetails.teamLead.uid || teamDetails.teamLead.id))
@@ -160,12 +160,12 @@ export function TeamDetailsModal({
                     >
                       <div className="flex items-center gap-[8px]">
                         <User className="w-4 h-4 text-white opacity-70" />
-                        <span className="font-['Inter',sans-serif] text-[14px] text-white">{member.name}</span>
-                        <span className="font-['Inter',sans-serif] text-[12px] text-white opacity-60">
+                        <span className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white">{member.name}</span>
+                        <span className="font-['Google_Sans_Flex',sans-serif] text-[12px] text-white opacity-60">
                           ({member.role})
                         </span>
                         {member.email && (
-                          <span className="font-['Inter',sans-serif] text-[12px] text-white opacity-60 ml-auto">
+                          <span className="font-['Google_Sans_Flex',sans-serif] text-[12px] text-white opacity-60 ml-auto">
                             {member.email}
                           </span>
                         )}

@@ -16,8 +16,8 @@ export function Spinner({ className, size = "md", ...props }: SpinnerProps) {
   return (
     <div className={cn("flex justify-center items-center", className)} {...props}>
       <div className={cn("relative", sizeClasses[size])}>
-        <div className="absolute inset-0 rounded-full border-2 border-[#ff4d00]/20"></div>
-        <div className="absolute inset-0 rounded-full border-t-2 border-[#ff4d00] animate-spin"></div>
+        <div className="absolute inset-0 rounded-full border-2 border-[#22c55e]/20"></div>
+        <div className="absolute inset-0 rounded-full border-t-2 border-[#22c55e] animate-spin"></div>
       </div>
     </div>
   );

@@ -68,16 +68,16 @@ const EventTimer: React.FC<EventTimerProps> = ({ targetDate }) => {
               <div className={`${oxan.className} bg-heading bg-opacity-20 px-3 sm:px-5 py-2 sm:py-3 text-2xl md:text-2xl font-bold relative overflow-hidden`} 
                 style={{
                   clipPath: 'polygon(20% 0, 100% 0, 100% 80%, 80% 100%, 0 100%, 0 19%)',
-                  boxShadow: '0 0 10px #00f6ff, inset 0 0 10px #00f6ff',
-                  border: '1px solid #00f6ff',
-                  textShadow: '0 0 10px #00f6ff',
+                  boxShadow: '0 0 10px #22c55e, inset 0 0 10px #22c55e',
+                  border: '1px solid #22c55e',
+                  textShadow: '0 0 10px #22c55e',
                 }} 
                 suppressHydrationWarning
               >
                 {value}
                 <div className="absolute top-0 left-0 w-full h-full"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(0,246,255,0.2) 0%, rgba(0,246,255,0) 100%)',
+                    background: 'linear-gradient(135deg, rgba(34, 197, 94,0.2) 0%, rgba(34, 197, 94,0) 100%)',
                     clipPath: 'polygon(0 0, 100% 0, 90% 15%, 0 15%)'
                   }}
                 />

@@ -43,11 +43,11 @@ export function StickyAlert({
   const getTypeClass = () => {
     switch (type) {
       case "success":
-        return "bg-[rgba(255,77,0,0.3)] border-[#ff4d00]";
+        return "bg-[rgba(34,197,94,0.3)] border-[#22c55e]";
       case "error":
-        return "bg-black/60 border-[#ff4d00]";
+        return "bg-black/60 border-[#22c55e]";
       case "warning":
-        return "bg-[rgba(255,77,0,0.2)] border-[#ff8800]";
+        return "bg-[rgba(34,197,94,0.2)] border-[#4ade80]";
       default:
         return "bg-white/10 border-white/38";
     }
@@ -58,7 +58,7 @@ export function StickyAlert({
       case "success":
         return "text-white";
       case "error":
-        return "text-[#ff4d00]";
+        return "text-[#22c55e]";
       case "warning":
         return "text-white";
       default:
@@ -79,7 +79,7 @@ export function StickyAlert({
       >
         <AlertCircle className={`w-5 h-5 flex-shrink-0 ${getIconColor()}`} />
         <span
-          className="font-['Inter',sans-serif] text-[14px] text-white flex-1"
+          className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white flex-1"
           style={{ fontFamily: "var(--font-body)" }}
         >
           {message}

@@ -50,8 +50,8 @@ const timelineEvents = [
   // },
   {
     date: "Day 1 - 11:00 PM",
-    title: "Hackathon Begins",
-    description: "Official start of the hackathon project development.",
+    title: "CTF Begins",
+    description: "Official start of the Capture the Flag competition.",
   },
   // {
   //   date: "Day 2 - 12:00 PM",
@@ -103,7 +103,7 @@ const GlitchTitle = memo(({ glitchEffect }: { glitchEffect: boolean }) => {
         className={`text-5xl md:text-7xl font-dystopian font-bold text-center gradient-text
           ${glitchEffect ? 'glitch' : ''}`}
         style={{
-          textShadow: "0 0 20px rgba(0, 246, 255, 0.3), 0 0 40px rgba(0, 246, 255, 0.2), 0 0 60px rgba(0, 246, 255, 0.1)"
+          textShadow: "0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.2), 0 0 60px rgba(34, 197, 94, 0.1)"
         }}
         data-text="Event Timeline"
       >
@@ -113,14 +113,14 @@ const GlitchTitle = memo(({ glitchEffect }: { glitchEffect: boolean }) => {
       {glitchEffect && (
         <>
           <h2 
-            className="glitch-copy absolute top-0 left-0 w-full text-5xl md:text-7xl font-dystopian font-bold text-center text-[#ff00ff] opacity-70"
+            className="glitch-copy absolute top-0 left-0 w-full text-5xl md:text-7xl font-dystopian font-bold text-center text-[#16a34a] opacity-70"
             style={{ clipPath: 'polygon(0 0, 100% 0, 100% 45%, 0 45%)', transform: 'translate(-5px, -5px)' }}
             aria-hidden="true"
           >
             Event Timeline
           </h2>
           <h2 
-            className="glitch-copy absolute top-0 left-0 w-full text-5xl md:text-7xl font-dystopian font-bold text-center text-[#00ffff] opacity-70"
+            className="glitch-copy absolute top-0 left-0 w-full text-5xl md:text-7xl font-dystopian font-bold text-center text-[#4ade80] opacity-70"
             style={{ clipPath: 'polygon(0 60%, 100% 60%, 100% 100%, 0 100%)', transform: 'translate(5px, 5px)' }}
             aria-hidden="true"
           >

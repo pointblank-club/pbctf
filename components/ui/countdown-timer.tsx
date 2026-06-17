@@ -50,7 +50,7 @@ export default function CountdownTimer() {
       <Clock className="text-[#0ff] h-4 w-4" />
       <div className="text-white font-medium">
         Screening ends in:
-        <span className="ml-2 font-mono text-[#ff00ff]">
+        <span className="ml-2 font-mono text-[#16a34a]">
           {String(timeLeft.days).padStart(2, "0")}d :{String(timeLeft.hours).padStart(2, "0")}h :
           {String(timeLeft.minutes).padStart(2, "0")}m :{String(timeLeft.seconds).padStart(2, "0")}s
         </span>

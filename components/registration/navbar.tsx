@@ -22,7 +22,7 @@ export function NavBar({
   onNavigate,
 }: NavBarProps) {
   return (
-    <div className="bg-gradient-to-t from-[rgba(23,23,23,0)] to-[#171717] h-[78px] w-full sticky top-0 z-50">
+    <div className="bg-gradient-to-t from-[rgba(10,10,10,0)] to-[#0a0a0a] h-[78px] w-full sticky top-0 z-50">
       <div className="flex items-center justify-center size-full pt-[16px]">
         <div className="flex items-center justify-between px-4 md:px-[40px] max-w-[1200px] w-full">
           <div 
@@ -34,7 +34,7 @@ export function NavBar({
           {user ? (
             <div className="flex items-center gap-[12px]">
               <div className="text-[13px] text-white opacity-80" style={{ fontFamily: 'var(--font-body)' }}>
-                {user.name} {user.role === "admin" && <span className="text-[#ff4d00] capitalize">({user.role})</span>}
+                {user.name} {user.role === "admin" && <span className="text-[#22c55e] capitalize">({user.role})</span>}
               </div>
               <button
                 onClick={() => onNavigate && onNavigate('problem-statements')}

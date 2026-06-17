@@ -29,9 +29,9 @@ export function ConfirmationDialog({
     return (
         <Modal isOpen={isOpen} onClose={onClose} title="">
             <div className="flex flex-col items-center text-center gap-4 pt-2 pb-2">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${variant === 'danger' ? 'bg-red-500/10' : 'bg-[#ff4d00]/10'
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center ${variant === 'danger' ? 'bg-red-500/10' : 'bg-[#22c55e]/10'
                     }`}>
-                    <AlertTriangle className={`w-6 h-6 ${variant === 'danger' ? 'text-red-500' : 'text-[#ff4d00]'
+                    <AlertTriangle className={`w-6 h-6 ${variant === 'danger' ? 'text-red-500' : 'text-[#22c55e]'
                         }`} />
                 </div>
 

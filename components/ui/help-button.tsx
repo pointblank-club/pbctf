@@ -11,7 +11,7 @@ export function HelpButton() {
         <>
             <button
                 onClick={() => setIsOpen(true)}
-                className="fixed bottom-6 right-6 z-50 flex items-center gap-2 glass-effect hover:bg-white/10 text-white rounded-full px-5 py-3 shadow-[0_0_20px_rgba(255,77,0,0.2)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(255,77,0,0.3)] group"
+                className="fixed bottom-6 right-6 z-50 flex items-center gap-2 glass-effect hover:bg-white/10 text-white rounded-full px-5 py-3 shadow-[0_0_20px_rgba(34,197,94,0.2)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_30px_rgba(34,197,94,0.3)] group"
             >
                 <MessageCircleQuestion className="w-5 h-5 text-[var(--primary)] group-hover:rotate-12 transition-transform duration-300" />
                 <span className="font-medium pr-1">Need Help?</span>
@@ -37,7 +37,7 @@ export function HelpButton() {
                             href="https://discord.gg/kqNUEVGmXA"
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center bg-[var(--primary)] hover:brightness-110 text-white font-medium px-6 py-3 rounded-xl transition-all duration-200 w-full sm:w-auto shadow-[0_0_15px_rgba(255,77,0,0.4)] hover:shadow-[0_0_20px_rgba(255,77,0,0.6)]"
+                            className="inline-flex items-center justify-center bg-[var(--primary)] hover:brightness-110 text-white font-medium px-6 py-3 rounded-xl transition-all duration-200 w-full sm:w-auto shadow-[0_0_15px_rgba(34,197,94,0.4)] hover:shadow-[0_0_20px_rgba(34,197,94,0.6)]"
                         >
                             Join Discord Server
                         </a>

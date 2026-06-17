@@ -165,10 +165,10 @@ export function DeadlineTimer({ teamStatus, hasSubmitted = false, isEvaluated = 
           ) : hasAcceptedEvaluation ? (
             <Trophy className="w-5 h-5 text-[#ffd700]" />
           ) : (
-            <AlertTriangle className="w-5 h-5 text-[#ff4d00]" />
+            <AlertTriangle className="w-5 h-5 text-[#22c55e]" />
           )
         ) : isExpired ? (
-          <AlertTriangle className="w-5 h-5 text-[#ff4d00]" />
+          <AlertTriangle className="w-5 h-5 text-[#22c55e]" />
         ) : submitted ? (
           <CheckCircle2 className="w-5 h-5 text-white" />
         ) : (
@@ -181,9 +181,9 @@ export function DeadlineTimer({ teamStatus, hasSubmitted = false, isEvaluated = 
                 ? 'text-red-400'
                 : hasAcceptedEvaluation
                   ? 'text-green-400'
-                  : 'text-[#ff4d00]'
+                  : 'text-[#22c55e]'
               : isExpired
-                ? 'text-[#ff4d00]'
+                ? 'text-[#22c55e]'
                 : submitted
                   ? 'text-white'
                   : 'text-white'

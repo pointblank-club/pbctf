@@ -38,10 +38,10 @@ export function Gallery() {
           initial={{ 
             y: -50, 
             opacity: 0,
-            filter: "drop-shadow(0 0 15px rgba(0, 246, 255, 0.2))",
+            filter: "drop-shadow(0 0 15px rgba(34, 197, 94, 0.2))",
         }}
         animate={{
-            filter: "drop-shadow(0 0 20px rgba(0, 246, 255, 0.3))",
+            filter: "drop-shadow(0 0 20px rgba(34, 197, 94, 0.3))",
             transition: {
                 duration: 2,
               repeat: Infinity,
@@ -56,9 +56,9 @@ export function Gallery() {
         className="text-5xl md:text-7xl mb-7 md:mb-20 text-heading font-dystopian font-bold text-center gradient-text"
         style={{
             textShadow: [
-              "0 0 20px rgba(0, 246, 255, 0.3)",
-              "0 0 40px rgba(0, 246, 255, 0.2)",
-              "0 0 60px rgba(0, 246, 255, 0.1)",
+              "0 0 20px rgba(34, 197, 94, 0.3)",
+              "0 0 40px rgba(34, 197, 94, 0.2)",
+              "0 0 60px rgba(34, 197, 94, 0.1)",
             ].join(', ')
         }}
         >
@@ -70,10 +70,10 @@ export function Gallery() {
               key={index}
               className="group relative h-[300px] rounded-lg overflow-hidden"
               initial={{ 
-                  filter: "drop-shadow(0 0 10px rgba(0, 246, 255, 0.15))"
+                  filter: "drop-shadow(0 0 10px rgba(34, 197, 94, 0.15))"
                 }}
                 animate={{
-                    filter: "drop-shadow(0 0 10px rgba(0, 246, 255, 0.15))",
+                    filter: "drop-shadow(0 0 10px rgba(34, 197, 94, 0.15))",
                     transition: {
                         duration: 2,
                         repeat: Infinity,
@@ -81,7 +81,7 @@ export function Gallery() {
                     }
                 }}
                 whileHover={{
-                    filter: "drop-shadow(0 0 25px rgba(0, 246, 255, 0.4))",
+                    filter: "drop-shadow(0 0 25px rgba(34, 197, 94, 0.4))",
                 transition: { duration: 0.2 }
               }}
             >
@@ -102,9 +102,9 @@ export function Gallery() {
                   className="text-xl font-bold text-white mb-2 transform translate-y-4 group-hover:translate-y-0 opacity-0 group-hover:opacity-100 transition-all duration-300"
                   style={{
                       textShadow: [
-                          "0 0 20px rgba(0, 246, 255, 0.3), 0 0 40px rgba(0, 246, 255, 0.2)",
-                          "0 0 30px rgba(0, 246, 255, 0.5), 0 0 60px rgba(0, 246, 255, 0.3)",
-                          "0 0 20px rgba(0, 246, 255, 0.3), 0 0 40px rgba(0, 246, 255, 0.2)",
+                          "0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.2)",
+                          "0 0 30px rgba(34, 197, 94, 0.5), 0 0 60px rgba(34, 197, 94, 0.3)",
+                          "0 0 20px rgba(34, 197, 94, 0.3), 0 0 40px rgba(34, 197, 94, 0.2)",
                         ].join(', ')
                     }}
                     >

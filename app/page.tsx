@@ -11,7 +11,7 @@ export default function Home() {
   }, [router]);
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-[#171717]">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#0a0a0a]">
       <div className="text-white">Redirecting...</div>
     </div>
   );

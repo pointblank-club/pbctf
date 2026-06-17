@@ -27,28 +27,28 @@ export function Brief() {
     general: {
       questions: [
         {
-          question: "What is Zenith?",
-          answer: "Zenith is a flagship 36-hour tech contest organized by Point Blank. It brings together 200+ top programmers for CTF, hackathons, competitive programming, and a Kaggle competition."
+          question: "What is PBCTF 5.0?",
+          answer: "PBCTF 5.0 is a flagship Capture the Flag (CTF) cybersecurity competition organized by Point Blank. It brings together hackers and security enthusiasts to compete on challenges across web exploitation, pwn, reverse engineering, cryptography, and forensics."
         },
         // {
-        //   question: "When and where is Zenith happening?",
+        //   question: "When and where is PBCTF 5.0 happening?",
         //   answer: "The event is scheduled for April 27-28, 2025, with the venue to be announced soon. Please note that the dates are tentative."
         // },
         {
           question: "Who can Participate?",
-          answer: "Zenith is open to college students, professionals, and tech enthusiasts from across India. Some competitions may have specific eligibility criteria."
+          answer: "PBCTF 5.0 is open to college students, professionals, and security enthusiasts from across India. Some categories may have specific eligibility criteria."
         },
         {
           question: "Is there any participation fee?",
-          answer: "No, participation in Zenith is completely free."
+          answer: "No, participation in PBCTF 5.0 is completely free."
         },
         {
           question: "What kind of prizes can participants expect?",
           answer: "Prizes include cash rewards, goodies, certificates, and special surprises for the winners."
         },
         {
-          question: "What expenses does Zenith cover for participants?",
-          answer: "Zenith covers the registration fees for all participants, ensuring a seamless experience for attendees."
+          question: "What expenses does PBCTF 5.0 cover for participants?",
+          answer: "PBCTF 5.0 covers the registration fees for all participants, ensuring a seamless experience for attendees."
         },
         {
           question: "Are travel-related expenses reimbursable for participants?",
@@ -60,8 +60,8 @@ export function Brief() {
     events: {
       questions: [
         {
-          question: "What are the different contests in Zenith?",
-          answer: "Zenith features CTF for cybersecurity challenges, a Hackathon for software and AI innovation, Competitive Programming for algorithmic problem-solving, and a Kaggle Competition for AI/ML-based challenges."
+          question: "What are the different challenge categories in PBCTF 5.0?",
+          answer: "PBCTF 5.0 features challenges across web exploitation, pwn (binary exploitation), reverse engineering, cryptography, and forensics. Solve them to capture flags and score points on the leaderboard."
         },
         {
           question: "How do I register?",
@@ -93,7 +93,7 @@ export function Brief() {
       questions: [
         {
           question: "How can I contact the organizers?",
-          answer: "Reach out to us at zenith@pointblank.club or through our social media channels."
+          answer: "Reach out to us at pbctf@pointblank.club or through our social media channels."
         },
         {
           question: "What if I have technical issues during the event?",
@@ -135,7 +135,7 @@ export function Brief() {
             <motion.h1 
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
-              className="text-[6rem] sm:text-7xl xl:text-8xl text-center sm:text-left font-bold mb-8 tracking-wider font-dystopian text-[#2AD7DB]"
+              className="text-[6rem] sm:text-7xl xl:text-8xl text-center sm:text-left font-bold mb-8 tracking-wider font-dystopian text-[#4ade80]"
               style={{
               textShadow: "0 0 20px rgba(42,215,219,0.3), 0 0 40px rgba(42,215,219,0.2), 0 0 60px rgba(42,215,219,0.1)"
               }}
@@ -166,10 +166,10 @@ export function Brief() {
                   onClick={() => setSelectedSection(item.id)}
                   className={`flex items-center gap-2 whitespace-nowrap px-4 py-2 rounded-full transition-all duration-300
                     ${selectedSection === item.id 
-                      ? 'bg-[#2AD7DB]/10 text-[#2AD7DB] border-[#2AD7DB]' 
+                      ? 'bg-[#4ade80]/10 text-[#4ade80] border-[#4ade80]' 
                       : 'text-gray-400 hover:text-white border-gray-700'}`}
                 >
-                  <item.icon className={`w-5 h-5 ${selectedSection === item.id ? 'text-[#2AD7DB]' : 'text-gray-400'}`} />
+                  <item.icon className={`w-5 h-5 ${selectedSection === item.id ? 'text-[#4ade80]' : 'text-gray-400'}`} />
                   <span className="text-base font-medium">{item.label}</span>
                 </motion.button>
               ))}
@@ -191,10 +191,10 @@ export function Brief() {
                     className={`w-full text-left py-5 border-b-2 transition-all duration-300 
                       flex items-center gap-4 hover:pl-2
                       ${selectedSection === item.id 
-                        ? 'border-[#2AD7DB] text-[#2AD7DB]' 
+                        ? 'border-[#4ade80] text-[#4ade80]' 
                         : 'border-gray-700 text-gray-400 hover:text-white'}`}
                   >
-                    <item.icon className={`w-6 h-6 ${selectedSection === item.id ? 'text-[#2AD7DB]' : 'text-gray-400'}`} />
+                    <item.icon className={`w-6 h-6 ${selectedSection === item.id ? 'text-[#4ade80]' : 'text-gray-400'}`} />
                     <span className="text-xl tracking-wider font-medium">{item.label}</span>
                   </motion.button>
                 ))}
@@ -217,7 +217,7 @@ export function Brief() {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: index * 0.1 }}
                       key={index}
-                      className="border-b border-gray-700/50 rounded-lg bg-black/20 backdrop-blur-sm transition-all duration-300 hover:border-[#2AD7DB]/30 group"
+                      className="border-b border-gray-700/50 rounded-lg bg-black/20 backdrop-blur-sm transition-all duration-300 hover:border-[#4ade80]/30 group"
                       style={{
                         boxShadow: openQuestion === `${selectedSection}-${index}` 
                           ? '0 0 20px rgba(42,215,219,0.1)' 
@@ -226,7 +226,7 @@ export function Brief() {
                     >
                       <button
                         onClick={() => toggleQuestion(`${selectedSection}-${index}`)}
-                        className="w-full py-6 px-6 flex justify-between items-center text-left group-hover:text-[#2AD7DB] transition-colors"
+                        className="w-full py-6 px-6 flex justify-between items-center text-left group-hover:text-[#4ade80] transition-colors"
                       >
                         <span className="text-xl font-medium pr-8">{item.question}</span>
                         <motion.div
@@ -234,8 +234,8 @@ export function Brief() {
                           transition={{ duration: 0.2 }}
                           className={`transition-colors duration-300 ${
                             openQuestion === `${selectedSection}-${index}` 
-                              ? 'text-[#2AD7DB]' 
-                              : 'group-hover:text-[#2AD7DB]'
+                              ? 'text-[#4ade80]' 
+                              : 'group-hover:text-[#4ade80]'
                           }`}
                         >
                           <ChevronDown className="w-6 h-6" />
@@ -283,7 +283,7 @@ export function Brief() {
                   >
                     <button
                       onClick={() => toggleQuestion(`${selectedSection}-${index}`)}
-                      className="w-full py-6 px-6 flex justify-between items-center text-left hover:text-[#2AD7DB] transition-colors"
+                      className="w-full py-6 px-6 flex justify-between items-center text-left hover:text-[#4ade80] transition-colors"
                     >
                       <span className="text-xl font-medium pr-8">{item.question}</span>
                       <motion.div
@@ -291,8 +291,8 @@ export function Brief() {
                         transition={{ duration: 0.2 }}
                         className={`transition-colors duration-300 ${
                           openQuestion === `${selectedSection}-${index}` 
-                            ? 'text-[#2AD7DB]' 
-                            : 'group-hover:text-[#2AD7DB]'
+                            ? 'text-[#4ade80]' 
+                            : 'group-hover:text-[#4ade80]'
                         }`}
                       >
                         <ChevronDown className="w-6 h-6" />

@@ -269,7 +269,7 @@ export function EvaluatorContainer() {
                     Evaluator Dashboard
                 </h1>
                 <p className="text-[15.9px] text-white opacity-90 leading-[23.8px]" style={{ fontFamily: 'var(--font-body)' }}>
-                    Welcome back, {user?.name}. You have <span className="text-[#ff4d00] font-bold">{stats.pending}</span> teams pending evaluation.
+                    Welcome back, {user?.name}. You have <span className="text-[#22c55e] font-bold">{stats.pending}</span> teams pending evaluation.
                 </p>
             </div>
 
@@ -280,7 +280,7 @@ export function EvaluatorContainer() {
                     <div className="flex border-b border-white/10 overflow-x-auto">
                         <button
                             onClick={() => handleTabChange('pending')}
-                            className={`px-6 py-3 text-[14px] font-medium transition-all relative whitespace-nowrap ${activeTab === 'pending' ? 'text-[#ff4d00]' : 'text-white/60 hover:text-white'
+                            className={`px-6 py-3 text-[14px] font-medium transition-all relative whitespace-nowrap ${activeTab === 'pending' ? 'text-[#22c55e]' : 'text-white/60 hover:text-white'
                                 }`}
                             style={{ fontFamily: 'var(--font-body)' }}
                         >
@@ -288,16 +288,16 @@ export function EvaluatorContainer() {
                                 <LayoutGrid className="w-4 h-4" />
                                 My Pending
                                 {stats.pending > 0 && (
-                                    <span className="bg-[#ff4d00] text-white text-[10px] px-2 py-0.5 rounded-full">{stats.pending}</span>
+                                    <span className="bg-[#22c55e] text-white text-[10px] px-2 py-0.5 rounded-full">{stats.pending}</span>
                                 )}
                             </div>
                             {activeTab === 'pending' && (
-                                <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#ff4d00]" />
+                                <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#22c55e]" />
                             )}
                         </button>
                         <button
                             onClick={() => handleTabChange('evaluated')}
-                            className={`px-6 py-3 text-[14px] font-medium transition-all relative whitespace-nowrap ${activeTab === 'evaluated' ? 'text-[#ff4d00]' : 'text-white/60 hover:text-white'
+                            className={`px-6 py-3 text-[14px] font-medium transition-all relative whitespace-nowrap ${activeTab === 'evaluated' ? 'text-[#22c55e]' : 'text-white/60 hover:text-white'
                                 }`}
                             style={{ fontFamily: 'var(--font-body)' }}
                         >
@@ -306,12 +306,12 @@ export function EvaluatorContainer() {
                                 My Evaluated
                             </div>
                             {activeTab === 'evaluated' && (
-                                <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#ff4d00]" />
+                                <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#22c55e]" />
                             )}
                         </button>
                         <button
                             onClick={() => handleTabChange('all_submissions')}
-                            className={`px-6 py-3 text-[14px] font-medium transition-all relative whitespace-nowrap ${activeTab === 'all_submissions' ? 'text-[#ff4d00]' : 'text-white/60 hover:text-white'
+                            className={`px-6 py-3 text-[14px] font-medium transition-all relative whitespace-nowrap ${activeTab === 'all_submissions' ? 'text-[#22c55e]' : 'text-white/60 hover:text-white'
                                 }`}
                             style={{ fontFamily: 'var(--font-body)' }}
                         >
@@ -320,7 +320,7 @@ export function EvaluatorContainer() {
                                 All Submissions
                             </div>
                             {activeTab === 'all_submissions' && (
-                                <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#ff4d00]" />
+                                <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#22c55e]" />
                             )}
                         </button>
                     </div>
@@ -334,14 +334,14 @@ export function EvaluatorContainer() {
                                 placeholder="Search teams..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder:text-white/30 focus:outline-none focus:border-[#ff4d00]/50 transition-colors"
+                                className="w-full bg-white/5 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white placeholder:text-white/30 focus:outline-none focus:border-[#22c55e]/50 transition-colors"
                                 style={{ fontFamily: 'var(--font-body)' }}
                             />
                         </div>
                         <button
                             onClick={() => setShowFilters(prev => !prev)}
                             className={`p-2.5 rounded-lg border transition-all duration-200 ${showFilters
-                                ? 'bg-[#ff4d00]/10 border-[#ff4d00]/50 text-[#ff4d00]'
+                                ? 'bg-[#22c55e]/10 border-[#22c55e]/50 text-[#22c55e]'
                                 : 'bg-white/5 border-white/10 text-white/50 hover:text-white hover:border-white/20'}`}
                         >
                             <Layers className="w-5 h-5" />
@@ -395,7 +395,7 @@ export function EvaluatorContainer() {
                                                 key={ps.id}
                                                 onClick={() => togglePs(ps.id)}
                                                 className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-all duration-200 text-left ${isSelected
-                                                    ? 'bg-[#ff4d00]/10 text-[#ff4d00] border-[#ff4d00]/30 ring-1 ring-[#ff4d00]/20'
+                                                    ? 'bg-[#22c55e]/10 text-[#22c55e] border-[#22c55e]/30 ring-1 ring-[#22c55e]/20'
                                                     : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10 hover:text-white/60 hover:border-white/20'
                                                     }`}
                                             >
@@ -428,7 +428,7 @@ export function EvaluatorContainer() {
                                     className="group relative bg-white/5 border border-white/10 rounded-xl p-5 hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer flex flex-col gap-3"
                                 >
                                     <div className="flex justify-between items-start">
-                                        <h3 className="text-lg font-medium text-white group-hover:text-[#ff4d00] transition-colors line-clamp-1" style={{ fontFamily: 'var(--font-body)' }}>
+                                        <h3 className="text-lg font-medium text-white group-hover:text-[#22c55e] transition-colors line-clamp-1" style={{ fontFamily: 'var(--font-body)' }}>
                                             {team.teamName}
                                         </h3>
                                         <div className="flex items-center gap-2">

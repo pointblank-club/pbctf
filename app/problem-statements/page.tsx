@@ -65,7 +65,7 @@ export default function ProblemStatementsPage() {
 
     if (loading || (authLoading && !loading)) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#171717] text-white">
+            <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a] text-white">
                 <Spinner size="lg" />
             </div>
         );
@@ -73,7 +73,7 @@ export default function ProblemStatementsPage() {
 
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#171717]">
+            <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
                 <div className="text-center p-8 glass-effect rounded-lg max-w-md mx-4">
                     <h2 className="text-2xl font-bold text-red-500 mb-4 font-heading">Error</h2>
                     <p className="text-white/80">{error}</p>
@@ -86,7 +86,7 @@ export default function ProblemStatementsPage() {
         <div
             className="min-h-screen w-full flex flex-col items-start relative"
             style={{
-                backgroundImage: "linear-gradient(90deg, rgb(23, 23, 23) 0%, rgb(23, 23, 23) 100%)",
+                backgroundImage: "linear-gradient(90deg, rgb(10,10,10) 0%, rgb(10,10,10) 100%)",
             }}
         >
             <NavBar
@@ -105,7 +105,7 @@ export default function ProblemStatementsPage() {
                 }}
             />
 
-            <div className="bg-[#171717] w-full relative flex-1">
+            <div className="bg-[#0a0a0a] w-full relative flex-1">
                 <div
                     className="flex flex-col w-full min-h-screen pb-[80px] pt-[60px] px-[40px] relative"
                     style={{
@@ -125,7 +125,7 @@ export default function ProblemStatementsPage() {
                         )}
 
                         <div className="flex items-center justify-between mb-12">
-                            <h1 className="text-4xl md:text-6xl font-heading text-white drop-shadow-[0_0_15px_rgba(255,77,0,0.5)]">
+                            <h1 className="text-4xl md:text-6xl font-heading text-white drop-shadow-[0_0_15px_rgba(34,197,94,0.5)]">
                                 Problem Statements
                             </h1>
                             <Button onClick={() => router.push("/dashboard")} variant="secondary">
@@ -183,7 +183,7 @@ export default function ProblemStatementsPage() {
                                                         e.stopPropagation();
                                                         setSelectedProblemStatement(ps);
                                                     }}
-                                                    className="w-full mt-[8px] flex items-center justify-center gap-[6px] px-[12px] py-[6px] bg-[rgba(255,77,0,0.2)] hover:bg-[rgba(255,77,0,0.3)] border border-[rgba(255,77,0,0.4)] rounded-[8px] text-[13px] text-white transition-colors"
+                                                    className="w-full mt-[8px] flex items-center justify-center gap-[6px] px-[12px] py-[6px] bg-[rgba(34,197,94,0.2)] hover:bg-[rgba(34,197,94,0.3)] border border-[rgba(34,197,94,0.4)] rounded-[8px] text-[13px] text-white transition-colors"
                                                     style={{ fontFamily: 'var(--font-body)' }}
                                                 >
                                                     <span>Read More</span>

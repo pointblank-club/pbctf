@@ -143,10 +143,10 @@ export default function ProfileCard({ profile, onSelect, upvoteProfile, hasUpvot
             <Button
               variant="ghost"
               size="sm"
-              className={cn("flex items-center gap-1 text-gray-300", hasUpvoted && "text-[#ff00ff]")}
+              className={cn("flex items-center gap-1 text-gray-300", hasUpvoted && "text-[#16a34a]")}
               onClick={handleUpvote}
             >
-              <ThumbsUp size={16} className={hasUpvoted ? "fill-[#ff00ff]" : ""} />
+              <ThumbsUp size={16} className={hasUpvoted ? "fill-[#16a34a]" : ""} />
               <span>{profile.upvotes}</span>
             </Button>
           </div>

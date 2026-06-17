@@ -13,7 +13,7 @@ export function NavButtons({ disableFixedPositioning = false }) {
       <div className="flex flex-wrap justify-center gap-3 sm:gap-8">
         <Link href="/zenith">
           <button className="cybr-btn cybr-btn--primary">
-            Zenith
+            PBCTF 5.0
           </button>
         </Link>
         

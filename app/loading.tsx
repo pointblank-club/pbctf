@@ -1,28 +1,23 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Monoton } from 'next/font/google'
 import { Spinner } from '@/components/ui/spinner'
-
-const mon = Monoton({
-  weight: '400',
-  subsets: ['latin'],
-  display: 'swap'
-})
 
 export default function Loading() {
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center z-50 select-none">
       <div className="text-center">
-        <motion.h1 
-          className={`font-dystopian text-4xl md:text-7xl text-white`}
+        <motion.img
+          src="/images/pbctf-logo.svg"
+          alt="PBCTF 5.0"
+          className="w-[260px] md:w-[420px] mx-auto select-none"
           initial={{ opacity: 0.3 }}
           animate={{
             opacity: [0.3, 1, 0.3],
-            textShadow: [
-              "0 0 20px rgba(0, 246, 255, 0.3)",
-              "0 0 40px rgba(0, 246, 255, 0.6)",
-              "0 0 20px rgba(0, 246, 255, 0.3)",
+            filter: [
+              "drop-shadow(0 0 20px rgba(34,197,94,0.3))",
+              "drop-shadow(0 0 40px rgba(34,197,94,0.6))",
+              "drop-shadow(0 0 20px rgba(34,197,94,0.3))",
             ]
           }}
           transition={{
@@ -30,9 +25,7 @@ export default function Loading() {
             repeat: Infinity,
             ease: "linear"
           }}
-        >
-          ZENITH
-        </motion.h1>
+        />
         <div className="mt-8">
         <div className="mt-8">
           <Spinner size="xl" />

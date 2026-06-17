@@ -76,27 +76,27 @@ export function Hero(){
     <div className="container mx-auto h-full pt-60 flex flex-col justify-center items-center relative z-10">
       <div className="text-center">
         <div className="glow-wrapper">
-            <motion.h1 
-            className={`font-dystopian text-[6rem] md:text-[16rem] text-white relative z-10 select-none drop-shadow-lg`}
-            animate={{
-              textShadow: [
-              "0 0 25px rgba(255, 255, 255, 0.5), 0 0 50px rgba(255, 255, 255, 0.4), 0 0 75px rgba(255, 255, 255, 0.3)",
-              "0 0 40px rgba(255, 255, 255, 0.7), 0 0 70px rgba(255, 255, 255, 0.5), 0 0 90px rgba(255, 255, 255, 0.4)",
-              "0 0 25px rgba(255, 255, 255, 0.5), 0 0 50px rgba(255, 255, 255, 0.4), 0 0 75px rgba(255, 255, 255, 0.3)",
-              ]
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            >
-            ZENITH
-            </motion.h1>
+            <motion.img
+              src="/images/pbctf-logo.svg"
+              alt="PBCTF 5.0"
+              className="w-[85vw] max-w-[760px] mx-auto relative z-10 select-none"
+              animate={{
+                filter: [
+                  "drop-shadow(0 0 20px rgba(34,197,94,0.5)) drop-shadow(0 0 45px rgba(34,197,94,0.35))",
+                  "drop-shadow(0 0 35px rgba(34,197,94,0.8)) drop-shadow(0 0 70px rgba(34,197,94,0.5))",
+                  "drop-shadow(0 0 20px rgba(34,197,94,0.5)) drop-shadow(0 0 45px rgba(34,197,94,0.35))",
+                ]
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+            />
         </div>
         <p className={`${oxan.className} text-xs md:text-xl text-muted-foreground -mt-7 md:-mt-24 max-w-xs sm:max-w-3xl mx-auto`}>
-              A 36-hour Point Blank contest featuring CTF, a Kaggle competition,
-              Hackathon, and DSA —where teams compete in a relentless test of skill, strategy, and endurance!
+              A Point Blank Capture the Flag competition where teams compete across
+              CTF challenge categories —web, pwn, reverse engineering, crypto, and forensics— in a relentless test of skill, strategy, and endurance!
         </p>
         <div className="pt-96">
           {/* <EventTimer targetDate={new Date("2025-04-27T00:00:00").toISOString()} /> */}

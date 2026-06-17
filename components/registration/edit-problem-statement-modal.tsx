@@ -58,7 +58,7 @@ export function EditProblemStatementModal({
           <span className="text-[12px] text-white opacity-60 uppercase tracking-wider" style={{ fontFamily: 'var(--font-body)' }}>
             Current Selection
           </span>
-          <div className="p-[12px] bg-[rgba(255,77,0,0.1)] border border-[rgba(255,77,0,0.3)] rounded-[8px]">
+          <div className="p-[12px] bg-[rgba(34,197,94,0.1)] border border-[rgba(34,197,94,0.3)] rounded-[8px]">
             <span className="text-[14px] text-white" style={{ fontFamily: 'var(--font-body)' }}>
               {currentStatement}
             </span>
@@ -87,14 +87,14 @@ export function EditProblemStatementModal({
                     ${isCurrent 
                       ? 'border-[rgba(255,255,255,0.2)] bg-[rgba(138,138,138,0.05)] opacity-70 cursor-not-allowed'
                       : isSelected 
-                        ? 'border-[#ff4d00] bg-[rgba(255,77,0,0.12)] shadow-[0_0_15px_rgba(255,77,0,0.25)] cursor-pointer' 
+                        ? 'border-[#22c55e] bg-[rgba(34,197,94,0.12)] shadow-[0_0_15px_rgba(34,197,94,0.25)] cursor-pointer' 
                         : 'border-[rgba(255,255,255,0.15)] bg-[rgba(138,138,138,0.08)] hover:border-[rgba(255,255,255,0.25)] hover:bg-[rgba(138,138,138,0.12)] cursor-pointer'
                     }
                   `}
                 >
                   {/* Selection indicator */}
                   {isSelected && (
-                    <div className="absolute top-[10px] right-[10px] w-[20px] h-[20px] rounded-full bg-[#ff4d00] flex items-center justify-center">
+                    <div className="absolute top-[10px] right-[10px] w-[20px] h-[20px] rounded-full bg-[#22c55e] flex items-center justify-center">
                       <Check className="w-3 h-3 text-white" />
                     </div>
                   )}
@@ -122,7 +122,7 @@ export function EditProblemStatementModal({
                         e.stopPropagation();
                         setExpandedId(expandedId === ps.id ? null : ps.id);
                       }}
-                      className="mt-[6px] text-[11px] text-[#ff8800] hover:text-[#ff4d00] transition-colors"
+                      className="mt-[6px] text-[11px] text-[#4ade80] hover:text-[#22c55e] transition-colors"
                       style={{ fontFamily: 'var(--font-body)' }}
                     >
                       {expandedId === ps.id ? 'Show less' : 'Read more'}

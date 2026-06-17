@@ -157,11 +157,11 @@ export function EvaluatorsTab() {
                                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                                     <div className="flex items-center gap-4">
                                         <div className="w-12 h-12 rounded-full bg-[rgba(255,255,255,0.1)] flex items-center justify-center shrink-0">
-                                            <UserCog className="w-6 h-6 text-[#ff4d00]" />
+                                            <UserCog className="w-6 h-6 text-[#22c55e]" />
                                         </div>
                                         <div>
-                                            <h3 className="font-['Inter',sans-serif] text-[16px] text-white font-medium">{evaluator.name}</h3>
-                                            <p className="font-['Inter',sans-serif] text-[13px] text-white opacity-70 mb-1 break-all">{evaluator.email}</p>
+                                            <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white font-medium">{evaluator.name}</h3>
+                                            <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70 mb-1 break-all">{evaluator.email}</p>
                                             <div className="flex flex-wrap gap-3 text-[12px]">
                                                 <span className="text-white/60 flex items-center gap-1">
                                                     <LayoutGrid className="w-3 h-3" /> Assigned: {evaluator.assignedCount}
