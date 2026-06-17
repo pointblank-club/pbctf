@@ -99,7 +99,6 @@ export function AssignTeamsModal({
                         teamName: t.teamName,
                         isAssigned: !!t.evaluator,
                         assignedToName: t.evaluator?.name,
-                        // 
                     }));
 
                     if (pageNum === 1) {
@@ -219,7 +218,7 @@ export function AssignTeamsModal({
                             >
                                 <div className="flex flex-col">
                                     <span className="text-white text-[14px] font-medium">{team.teamName}</span>
-                                    <span className="text-white/60 text-[12px]">{team.teamName}</span>
+                                    <span className="text-white/60 text-[12px]">{team.teamCode}</span>
                                     {team.isAssigned && (
                                         <span className="text-amber-400 text-[11px] mt-1 flex items-center gap-1">
                                             <Users className="w-3 h-3" />

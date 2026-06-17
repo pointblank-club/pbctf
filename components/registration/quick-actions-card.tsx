@@ -1,6 +1,6 @@
 "use client";
 
-import { FileText, Edit, Search, Trash2, LogOut, Upload, Users, X } from "lucide-react";
+import { Search, Trash2, LogOut, X } from "lucide-react";
 import { FormSection } from "./form-section";
 import { Button } from "./button";
 
@@ -34,8 +34,6 @@ export function QuickActionsCard({
   isDeadlineExpired = false,
 }: QuickActionsCardProps) {
   const canSubmit = isLead && teamStatus === "active";
-  const canEditSubmission = isLead && teamStatus === "submitted" && !isEvaluated && !isShortlisted;
-  const canEdit = isLead;
   const canDiscover = isLead && memberCount < maxMembers;
   const canDelete = isLead &&
     teamStatus !== "submitted" &&
@@ -47,7 +45,7 @@ export function QuickActionsCard({
     teamStatus !== "confirmed";
   const canWithdraw = isLead && teamStatus === "submitted" && !isEvaluated && !isShortlisted;
 
-  const hasActions = canSubmit || canEditSubmission || canDiscover || canDelete || canLeave || canWithdraw;
+  const hasActions = canSubmit || canDiscover || canDelete || canLeave || canWithdraw;
 
   if (!hasActions) {
     return null;

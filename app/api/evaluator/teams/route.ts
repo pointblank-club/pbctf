@@ -102,12 +102,7 @@ export async function GET(request: NextRequest) {
             }
           }
         },
-        isSubmitted: {
-          $or: [
-            { $eq: ["$submittedAt", null] },
-            { $ne: ["$submittedAt", null] }
-          ]
-        }
+        isSubmitted: { $ne: ["$submittedAt", null] }
       }
     });
 

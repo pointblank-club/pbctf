@@ -66,6 +66,7 @@ export async function PUT(request: NextRequest) {
       {
         $set: {
           teamStatus: 'pending',
+          submittedAt: null,
         }
       },
       { new: true }
