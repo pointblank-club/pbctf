@@ -35,6 +35,7 @@ interface Team {
   teamName: string;
   memberCount: number;
   status: string;
+  isShortlisted: boolean;
 }
 
 interface Participant {
@@ -227,7 +228,8 @@ export function AdminContainer() {
           teamCode: t.teamCode,
           teamName: t.teamName,
           memberCount: t.memberCount,
-          status: t.teamStatus
+          status: t.teamStatus,
+          isShortlisted: Boolean(t.isShortlisted)
         }));
         setTeams(mappedTeams);
         setTeamsTotalPages(data.data.pagination.totalPages);
@@ -281,6 +283,7 @@ export function AdminContainer() {
                     teamName: t.teamName,
                     memberCount: t.memberCount,
                     status: t.teamStatus,
+                    isShortlisted: Boolean(t.isShortlisted),
                     memberRSVPs: detailData.data.memberRSVPs || [],
                     teamMembers: detailData.data.teamMembers || [],
                   };
@@ -294,6 +297,7 @@ export function AdminContainer() {
               teamName: t.teamName,
               memberCount: t.memberCount,
               status: t.teamStatus,
+              isShortlisted: Boolean(t.isShortlisted),
               memberRSVPs: [],
               teamMembers: [],
             } as SelectedTeam;
@@ -372,7 +376,7 @@ export function AdminContainer() {
     }
   };
 
-  const handleShortlistTeam = async (teamCode: string) => {
+  const handleToggleShortlistTeam = async (teamCode: string, shortlist: boolean) => {
     try {
       const token = await getToken();
       if (!token) return;
@@ -384,8 +388,8 @@ export function AdminContainer() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          teamStatus: 'shortlisted',
-          isShortlisted: true,
+          teamStatus: shortlist ? 'shortlisted' : 'pending',
+          isShortlisted: shortlist,
         }),
       });
 
@@ -393,7 +397,7 @@ export function AdminContainer() {
         setTeams(prev =>
           prev.map(team =>
             team.teamCode === teamCode
-              ? { ...team, status: 'shortlisted' }
+              ? { ...team, status: shortlist ? 'shortlisted' : 'pending', isShortlisted: shortlist }
               : team
           )
         );
@@ -403,14 +407,20 @@ export function AdminContainer() {
 
         setAlert({
           type: "success",
-          message: "Team shortlisted successfully!",
+          message: shortlist ? "Team shortlisted successfully!" : "Team removed from shortlist.",
+        });
+        setTimeout(() => setAlert(null), 3000);
+      } else {
+        setAlert({
+          type: "error",
+          message: shortlist ? "Failed to shortlist team" : "Failed to remove team from shortlist",
         });
         setTimeout(() => setAlert(null), 3000);
       }
     } catch (error) {
       setAlert({
         type: "error",
-        message: "Failed to shortlist team",
+        message: shortlist ? "Failed to shortlist team" : "Failed to remove team from shortlist",
       });
       setTimeout(() => setAlert(null), 3000);
     }
@@ -661,7 +671,15 @@ export function AdminContainer() {
                   <Card key={team.teamCode}>
                     <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                       <div className="flex-1">
-                        <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white mb-[4px]">{team.teamName}</h3>
+                        <div className="flex items-center gap-2 mb-[4px]">
+                          <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white">{team.teamName}</h3>
+                          {team.isShortlisted && (
+                            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#22c55e]/10 border border-[#22c55e]/20 text-[11px] text-[#22c55e] font-medium">
+                              <Star className="w-3 h-3 fill-current" />
+                              Shortlisted
+                            </span>
+                          )}
+                        </div>
                         <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90 mb-[8px]">
                           Members: {team.memberCount} • Status: {team.status}
                         </p>
@@ -671,19 +689,31 @@ export function AdminContainer() {
                           <Eye className="w-4 h-4" />
                           View
                         </Button>
-                        {team.status === 'submitted' || team.status === 'under-review' ? (
+                        {team.isShortlisted ? (
+                          <Button variant="secondary" onClick={() => {
+                            setConfirmation({
+                              isOpen: true,
+                              title: "Remove from Shortlist",
+                              message: `Are you sure you want to remove team "${team.teamName}" from the shortlist?`,
+                              onConfirm: () => handleToggleShortlistTeam(team.teamCode, false),
+                            });
+                          }}>
+                            <X className="w-4 h-4" />
+                            Unshortlist
+                          </Button>
+                        ) : (
                           <Button variant="primary" onClick={() => {
                             setConfirmation({
                               isOpen: true,
                               title: "Shortlist Team",
                               message: `Are you sure you want to shortlist team "${team.teamName}"? This will move them to the next round.`,
-                              onConfirm: () => handleShortlistTeam(team.teamCode),
+                              onConfirm: () => handleToggleShortlistTeam(team.teamCode, true),
                             });
                           }}>
                             <Star className="w-4 h-4" />
                             Shortlist
                           </Button>
-                        ) : null}
+                        )}
                       </div>
                     </div>
                   </Card>
