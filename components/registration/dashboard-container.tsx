@@ -1079,6 +1079,15 @@ export function DashboardContainer() {
 
           {team &&
             teamStatus === "submitted" &&
+            !team.isEvaluated && (
+              <AlertBanner
+                type="info"
+                message="Your team is under review"
+            />
+          )}
+
+          {team &&
+            teamStatus === "submitted" &&
             hasRejectedEvaluationsOnly() && (
               <FormSection title="Team Status">
                 <div className="flex flex-col gap-[16px]">
