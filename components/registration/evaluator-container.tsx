@@ -167,12 +167,28 @@ export function EvaluatorContainer() {
     }, [teams, activeTab, searchQuery]);
 
     const handleEvaluationSuccess = (teamCode: string, evaluation: Evaluation) => {
+        const team = teams.find(t => t.teamCode === teamCode);
+        const isUpdate = !!team?.myEvaluation;
+
         setTeams(prev => prev.map(t =>
-            t.teamCode === teamCode ? { ...t, myEvaluation: evaluation, evaluations: [...t.evaluations, evaluation] } : t
+            t.teamCode === teamCode ? {
+                ...t,
+                myEvaluation: evaluation,
+                // Replace this evaluator's existing evaluation rather than appending,
+                // mirroring the server which pulls the old one before pushing the new.
+                evaluations: [
+                    ...t.evaluations.filter(e => e.evaluatorId !== evaluation.evaluatorId),
+                    evaluation,
+                ],
+                isEvaluated: true,
+            } : t
         ));
-        setStats(prev => ({ ...prev, evaluated: prev.evaluated + 1, pending: prev.pending - 1 }));
+        // Only adjust counts the first time a team is evaluated; updates don't change them.
+        if (!isUpdate) {
+            setStats(prev => ({ ...prev, evaluated: prev.evaluated + 1, pending: prev.pending - 1 }));
+        }
         setSelectedTeam(null);
-        setAlert({ type: "success", message: "Evaluation submitted successfully!" });
+        setAlert({ type: "success", message: isUpdate ? "Evaluation updated successfully!" : "Evaluation submitted successfully!" });
         setTimeout(() => setAlert(null), 3000);
     };
 
