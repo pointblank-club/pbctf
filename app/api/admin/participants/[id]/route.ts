@@ -1,32 +1,42 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authenticateUser, requireAdmin, createAuthErrorResponse } from "@/lib/middleware/auth";
+import {
+  authenticateUser,
+  requireAdmin,
+  createAuthErrorResponse,
+} from "@/lib/middleware/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
 
-export const dynamic = 'force-dynamic';
+export const dynamic = "force-dynamic";
 
 function createSuccessResponse(message: string, data: any, status = 200) {
-  return NextResponse.json({
-    success: true,
-    message,
-    data,
-    timestamp: new Date().toISOString(),
-  }, { status });
+  return NextResponse.json(
+    {
+      success: true,
+      message,
+      data,
+      timestamp: new Date().toISOString(),
+    },
+    { status },
+  );
 }
 
 function createErrorResponse(message: string, code: string, status: number) {
-  return NextResponse.json({
-    success: false,
-    message,
-    error: { code, message },
-    timestamp: new Date().toISOString(),
-  }, { status });
+  return NextResponse.json(
+    {
+      success: false,
+      message,
+      error: { code, message },
+      timestamp: new Date().toISOString(),
+    },
+    { status },
+  );
 }
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: { id: string } },
 ) {
   try {
     const authResult = await authenticateUser(request);
@@ -53,7 +63,7 @@ export async function GET(
         teamInfo = {
           teamCode: team.teamCode,
           teamName: team.teamName,
-          role: team.teamLead === user.uid ? 'Team Lead' : 'Member',
+          role: team.teamLead === user.uid ? "Team Lead" : "Member",
           teamStatus: team.teamStatus,
         };
       }
@@ -70,12 +80,7 @@ export async function GET(
       bio: user.bio || null,
       resume_link: user.resume_link || null,
       profile_picture: user.profile_picture || null,
-      leetcode_profile: user.leetcode_profile || null,
       github_link: user.github_link || null,
-      linkedin_link: user.linkedin_link || null,
-      codeforces_link: user.codeforces_link || null,
-      kaggle_link: user.kaggle_link || null,
-      devfolio_link: user.devfolio_link || null,
       portfolio_link: user.portfolio_link || null,
       ctf_profile: user.ctf_profile || null,
       isLooking: user.isLooking,
@@ -85,11 +90,15 @@ export async function GET(
     });
   } catch (error: any) {
     console.error("Get participant error:", error);
-    
-    if (error.name === 'CastError') {
+
+    if (error.name === "CastError") {
       return createErrorResponse("Invalid participant ID", "INVALID_ID", 400);
     }
-    
-    return createErrorResponse("Failed to retrieve participant", "SERVER_ERROR", 500);
+
+    return createErrorResponse(
+      "Failed to retrieve participant",
+      "SERVER_ERROR",
+      500,
+    );
   }
 }

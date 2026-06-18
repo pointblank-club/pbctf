@@ -84,7 +84,6 @@ export function AssignTeamsModal({
                 limit: '50', // Chunk size
                 page: pageNum.toString(),
                 search: searchQuery,
-                isSubmitted: 'true',
                 excludeAssigned: 'true'
             });
 

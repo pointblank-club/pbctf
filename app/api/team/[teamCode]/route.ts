@@ -3,7 +3,6 @@ import { authenticateUser } from "@/lib/middleware/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
-import ProblemStatement from "@/models/ProblemStatement";
 
 export const dynamic = 'force-dynamic';
 
@@ -45,14 +44,6 @@ export async function GET(
     const members = await User.find({ uid: { $in: memberUids } })
       .select('uid name email organisation profile_picture discord_username resume_link github_link linkedin_link');
 
-    let problemStatement = null;
-    if (team.appliedFor) {
-      const ps = await ProblemStatement.findById(team.appliedFor);
-      if (ps) {
-        problemStatement = { id: ps._id.toString(), title: ps.title };
-      }
-    }
-
     const teamLead = members.find(u => u.uid === team.teamLead);
 
     const formattedMembers = team.teamMembers.map((member: any) => {
@@ -92,16 +83,11 @@ export async function GET(
         memberCount: team.memberCount,
         teamStatus: team.teamStatus,
         isLooking: team.isLooking,
-        appliedFor: problemStatement,
-        videoURL: team.videoURL || null,
-        submissionPDF: team.submissionPDF || null,
-        anyOtherLink: team.anyOtherLink || null,
         isEvaluated: team.isEvaluated,
         isShortlisted: team.isShortlisted,
         evaluations: team.evaluations || [], // Include evaluations array
         memberRSVPs: formattedRSVPs,
         createdAt: team.createdAt instanceof Date ? team.createdAt.toISOString() : team.createdAt,
-        submittedAt: team.submittedAt instanceof Date ? team.submittedAt.toISOString() : team.submittedAt || null,
       },
     });
   } catch (error: any) {

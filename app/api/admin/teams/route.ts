@@ -3,7 +3,6 @@ import { authenticateUser, requireAdmin, createAuthErrorResponse } from "@/lib/m
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
-import ProblemStatement from "@/models/ProblemStatement";
 import Evaluator from "@/models/Evaluator";
 
 export const dynamic = 'force-dynamic';
@@ -73,10 +72,6 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    if (searchParams.get('isSubmitted') === 'true') {
-      query.submittedAt = { $exists: true, $ne: null };
-    }
-
     if (search) {
       query.$or = [
         { teamName: { $regex: search, $options: 'i' } },
@@ -106,9 +101,8 @@ export async function GET(request: NextRequest) {
       Team.countDocuments(query),
     ]);
 
-    // Get team leads and problem statements
+    // Get team leads
     const teamLeadUids = teams.map(t => t.teamLead);
-    const problemIds = teams.map(t => t.appliedFor).filter((id): id is string => Boolean(id));
 
     // Get Assignments for these teams
     const pageTeamCodes = teams.map(t => t.teamCode);
@@ -124,14 +118,10 @@ export async function GET(request: NextRequest) {
       });
     });
 
-    const [teamLeads, problemStatements] = await Promise.all([
-      User.find({ uid: { $in: teamLeadUids } }).select('uid name email'),
-      ProblemStatement.find({ _id: { $in: problemIds } }).select('title'),
-    ]);
+    const teamLeads = await User.find({ uid: { $in: teamLeadUids } }).select('uid name email');
 
     // Get stats
-    const [submitted, shortlisted, evaluated, rsvpResult] = await Promise.all([
-      Team.countDocuments({ submittedAt: { $exists: true, $ne: null } }),
+    const [shortlisted, evaluated, rsvpResult] = await Promise.all([
       Team.countDocuments({ isShortlisted: true }),
       Team.countDocuments({ isEvaluated: true }),
       Team.aggregate([
@@ -145,7 +135,6 @@ export async function GET(request: NextRequest) {
 
     const formattedTeams = teams.map(team => {
       const lead = teamLeads.find(u => u.uid === team.teamLead);
-      const ps = problemStatements.find(p => p._id.toString() === team.appliedFor);
       const assignedEvaluator = assignmentMap.get(team.teamCode);
 
       return {
@@ -154,16 +143,11 @@ export async function GET(request: NextRequest) {
         teamLead: lead ? { id: lead._id.toString(), uid: lead.uid, name: lead.name, email: lead.email } : null,
         memberCount: team.memberCount,
         teamStatus: team.teamStatus,
-        appliedFor: ps ? { id: ps._id.toString(), title: ps.title } : null,
         isEvaluated: team.isEvaluated,
         evaluator: assignedEvaluator || null,
         isShortlisted: team.isShortlisted,
         evaluationCount: team.evaluations?.length || 0,
         createdAt: team.createdAt,
-        submittedAt: team.submittedAt || null,
-        videoURL: team.videoURL || null,
-        submissionPDF: team.submissionPDF || null,
-        anyOtherLink: team.anyOtherLink || null,
       };
     });
 
@@ -177,11 +161,10 @@ export async function GET(request: NextRequest) {
       },
       stats: {
         totalTeams,
-        submitted,
         shortlisted,
         rsvped,
         evaluated,
-        pending: totalTeams - submitted,
+        pending: totalTeams - evaluated,
       },
     });
   } catch (error: any) {

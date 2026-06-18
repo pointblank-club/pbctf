@@ -1,5 +1,5 @@
 import React from "react";
-import { LogOut, LogIn, FileText } from "lucide-react";
+import { LogOut, LogIn } from "lucide-react";
 import { Logo } from "./logo";
 import { Button } from "./button";
 
@@ -36,19 +36,6 @@ export function NavBar({
               <div className="text-[13px] text-white opacity-80" style={{ fontFamily: 'var(--font-body)' }}>
                 {user.name} {user.role === "admin" && <span className="text-[#22c55e] capitalize">({user.role})</span>}
               </div>
-              <button
-                onClick={() => onNavigate && onNavigate('problem-statements')}
-                className="backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.3)] flex items-center gap-[8px] justify-center overflow-clip px-[18px] py-[8px] rounded-[20px] relative cursor-pointer hover:bg-[rgba(138,138,138,0.4)] transition-all"
-              >
-                <FileText className="w-4 h-4" />
-                <p className="hidden sm:block text-[13.6px] text-white leading-[16.8px]" style={{ fontFamily: 'var(--font-body)' }}>
-                  Problem Statements
-                </p>
-                <div className="absolute inset-0 rounded-[20px]">
-                  <div className="absolute border border-[rgba(255,255,255,0.38)] border-solid inset-0 pointer-events-none rounded-[20px]" />
-                </div>
-                <div className="absolute inset-0 pointer-events-none shadow-[inset_0px_0px_6px_3px_rgba(138,138,138,0.3)] rounded-[20px]" />
-              </button>
               <button
                 onClick={onLogout}
                 className="backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.3)] flex items-center gap-[8px] justify-center overflow-clip px-[18px] py-[8px] rounded-[20px] relative cursor-pointer hover:bg-[rgba(138,138,138,0.4)] transition-all"

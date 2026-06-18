@@ -1,5 +1,5 @@
-import type { Profile } from "./types"
-import catpfp from "@/public/images/catpfp.jpeg"
+import type { Profile } from "./types";
+import catpfp from "@/public/images/catpfp.jpeg";
 
 export const profiles: Profile[] = [
   {
@@ -7,13 +7,9 @@ export const profiles: Profile[] = [
     name: "Alex Johnson",
     email: "alex.johnson@example.com",
     resume_link: "https://example.com/resume/alex",
-    leetcode_profile: "https://leetcode.com/alexj",
     github_link: "https://github.com/alexj",
     linkedin_link: "https://linkedin.com/in/alexj",
-    competitive_profiles: "https://codechef.com/users/alexj",
     ctf_profile: "https://ctftime.org/user/alexj",
-    kaggle_link: "https://kaggle.com/alexj",
-    devfolio_link: "https://devfolio.co/@alexj",
     portfolio_link: "https://alexj.dev",
     bio: "Full-stack developer with 5 years of experience. Passionate about building scalable web applications and solving complex problems.",
     age: 28,
@@ -21,18 +17,15 @@ export const profiles: Profile[] = [
     college_name: "MIT",
     upvotes: 42,
     uid: "",
-    college: ""
+    college: "",
   },
   {
     id: "2",
     name: "Samantha Lee",
     email: "samantha.lee@example.com",
     resume_link: "https://example.com/resume/samantha",
-    leetcode_profile: "https://leetcode.com/samlee",
     github_link: "https://github.com/samlee",
     linkedin_link: "https://linkedin.com/in/samlee",
-    competitive_profiles: "https://codeforces.com/profile/samlee",
-    kaggle_link: "https://kaggle.com/samlee",
     portfolio_link: "https://samlee.dev",
     bio: "Machine learning engineer specializing in computer vision and NLP. Published researcher with experience in both academic and industry settings.",
     age: 26,
@@ -40,7 +33,7 @@ export const profiles: Profile[] = [
     profile_picture: catpfp.src,
     upvotes: 38,
     uid: "",
-    college_name: ""
+    college_name: "",
   },
   {
     id: "3",
@@ -50,25 +43,21 @@ export const profiles: Profile[] = [
     github_link: "https://github.com/miguelr",
     linkedin_link: "https://linkedin.com/in/miguelr",
     ctf_profile: "https://ctftime.org/user/miguelr",
-    devfolio_link: "https://devfolio.co/@miguelr",
     bio: "Cybersecurity specialist and CTF enthusiast. Experienced in penetration testing, vulnerability assessment, and secure code review.",
     age: 31,
     college: "Georgia Tech",
     profile_picture: catpfp.src,
     upvotes: 65,
     uid: "",
-    college_name: ""
+    college_name: "",
   },
   {
     id: "4",
     name: "Priya Patel",
     email: "priya.patel@example.com",
     resume_link: "https://example.com/resume/priya",
-    leetcode_profile: "https://leetcode.com/priyap",
     github_link: "https://github.com/priyap",
     linkedin_link: "https://linkedin.com/in/priyap",
-    competitive_profiles: "https://codeforces.com/profile/priyap",
-    kaggle_link: "https://kaggle.com/priyap",
     portfolio_link: "https://priyap.dev",
     bio: "Backend developer with expertise in distributed systems and microservices architecture. Open source contributor and tech blogger.",
     age: 27,
@@ -76,17 +65,15 @@ export const profiles: Profile[] = [
     profile_picture: catpfp.src,
     upvotes: 51,
     uid: "",
-    college_name: ""
+    college_name: "",
   },
   {
     id: "5",
     name: "David Kim",
     email: "david.kim@example.com",
     resume_link: "https://example.com/resume/david",
-    leetcode_profile: "https://leetcode.com/davidk",
     github_link: "https://github.com/davidk",
     linkedin_link: "https://linkedin.com/in/davidk",
-    devfolio_link: "https://devfolio.co/@davidk",
     portfolio_link: "https://davidk.dev",
     bio: "Frontend developer and UI/UX enthusiast. Experienced in React, Vue, and Angular. Passionate about creating accessible and intuitive user interfaces.",
     age: 24,
@@ -94,7 +81,7 @@ export const profiles: Profile[] = [
     profile_picture: catpfp.src,
     upvotes: 29,
     uid: "",
-    college_name: ""
+    college_name: "",
   },
   {
     id: "6",
@@ -103,25 +90,21 @@ export const profiles: Profile[] = [
     resume_link: "https://example.com/resume/emma",
     github_link: "https://github.com/emmaw",
     linkedin_link: "https://linkedin.com/in/emmaw",
-    kaggle_link: "https://kaggle.com/emmaw",
-    devfolio_link: "https://devfolio.co/@emmaw",
     bio: "Data scientist with a background in statistics and economics. Experienced in predictive modeling, A/B testing, and data visualization.",
     age: 29,
     college: "Harvard University",
     profile_picture: catpfp.src,
     upvotes: 47,
     uid: "",
-    college_name: ""
+    college_name: "",
   },
   {
     id: "7",
     name: "Raj Sharma",
     email: "raj.sharma@example.com",
     resume_link: "https://example.com/resume/raj",
-    leetcode_profile: "https://leetcode.com/rajs",
     github_link: "https://github.com/rajs",
     linkedin_link: "https://linkedin.com/in/rajs",
-    competitive_profiles: "https://codeforces.com/profile/rajs",
     ctf_profile: "https://ctftime.org/user/rajs",
     portfolio_link: "https://rajs.dev",
     bio: "Competitive programmer and algorithm specialist. Multiple-time ICPC finalist with experience in high-performance computing and optimization.",
@@ -130,7 +113,7 @@ export const profiles: Profile[] = [
     profile_picture: catpfp.src,
     upvotes: 72,
     uid: "",
-    college_name: ""
+    college_name: "",
   },
   {
     id: "8",
@@ -139,7 +122,6 @@ export const profiles: Profile[] = [
     resume_link: "https://example.com/resume/olivia",
     github_link: "https://github.com/oliviac",
     linkedin_link: "https://linkedin.com/in/oliviac",
-    devfolio_link: "https://devfolio.co/@oliviac",
     portfolio_link: "https://oliviac.dev",
     bio: "Mobile app developer specializing in cross-platform solutions. Experienced in React Native, Flutter, and native iOS/Android development.",
     age: 26,
@@ -147,25 +129,22 @@ export const profiles: Profile[] = [
     profile_picture: catpfp.src,
     upvotes: 33,
     uid: "",
-    college_name: ""
+    college_name: "",
   },
   {
     id: "9",
     name: "James Taylor",
     email: "james.taylor@example.com",
     resume_link: "https://example.com/resume/james",
-    leetcode_profile: "https://leetcode.com/jamest",
     github_link: "https://github.com/jamest",
     linkedin_link: "https://linkedin.com/in/jamest",
     ctf_profile: "https://ctftime.org/user/jamest",
-    kaggle_link: "https://kaggle.com/jamest",
     bio: "DevOps engineer and cloud architect. Experienced in AWS, Azure, and GCP. Passionate about infrastructure as code and CI/CD pipelines.",
     age: 32,
     college: "University of Michigan",
     profile_picture: catpfp.src,
     upvotes: 56,
     uid: "",
-    college_name: ""
+    college_name: "",
   },
-]
-
+];

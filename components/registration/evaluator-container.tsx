@@ -28,10 +28,6 @@ interface Team {
     teamCode: string;
     teamName: string;
     memberCount: number;
-    appliedFor?: { id: string; title: string };
-    videoURL?: string;
-    submissionPDF?: string;
-    anyOtherLink?: string;
     isAssigned: boolean;
     assignedAt?: string;
     myEvaluation?: Evaluation;
@@ -44,7 +40,7 @@ interface Team {
     isEvaluated: boolean;
 }
 
-type Tab = 'pending' | 'evaluated' | 'all_submissions';
+type Tab = 'pending' | 'evaluated' | 'all_teams';
 type Tier = 'strongly_accepted' | 'accepted' | 'borderline' | 'rejected';
 
 // Skeleton Component for Team Card
@@ -72,8 +68,6 @@ export function EvaluatorContainer() {
 
     // Filter State
     const [selectedTiers, setSelectedTiers] = useState<Tier[]>([]);
-    const [problemStatements, setProblemStatements] = useState<{ id: string; title: string }[]>([]);
-    const [selectedPsIds, setSelectedPsIds] = useState<string[]>([]);
 
     const [searchQuery, setSearchQuery] = useState("");
     const [alert, setAlert] = useState<{ type: "success" | "error" | "warning"; message: string } | null>(null);
@@ -98,16 +92,13 @@ export function EvaluatorContainer() {
 
             let url = `${API_ENDPOINTS.evaluatorTeams}?page=${page}&limit=${limit}`;
 
-            // Map tab to API type & filters
-            if (selectedPsIds.length > 0) {
-                url += `&psIds=${selectedPsIds.join(',')}`;
-            }
             if (selectedTiers.length > 0) {
                 url += `&tiers=${selectedTiers.join(',')}`;
             }
 
-            if (activeTab === 'all_submissions') {
-                url += '&type=all_submissions&sort=votes&filter=submitted';
+            if (activeTab === 'all_teams') {
+                // Browse every team, sorted by community votes
+                url += '&type=all_teams&sort=votes';
             } else {
                 url += '&type=assigned';
                 // 'pending' and 'evaluated' are filtered client-side currently
@@ -143,39 +134,13 @@ export function EvaluatorContainer() {
     // Reset page on tab/filter change
     useEffect(() => {
         setPage(1);
-    }, [activeTab, selectedTiers, selectedPsIds]);
-
-    // Fetch Problem Statements
-    useEffect(() => {
-        const fetchPS = async () => {
-            const token = await getToken();
-            if (!token) return;
-            try {
-                const res = await fetch(`${API_ENDPOINTS.problemStatements}`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.success && data.data && data.data.problemStatements) {
-                        setProblemStatements(data.data.problemStatements.map((ps: any) => ({ id: ps.id, title: ps.title })));
-                    }
-                }
-            } catch (e) {
-                console.error("Failed to fetch PS", e);
-            }
-        }
-        fetchPS();
-    }, [getToken]);
+    }, [activeTab, selectedTiers]);
 
     // Fetch data
     useEffect(() => {
         fetchData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, activeTab, selectedTiers, selectedPsIds]);
-
-    const togglePs = (id: string) => {
-        setSelectedPsIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
-    };
+    }, [page, activeTab, selectedTiers]);
 
     const toggleTier = (tier: Tier) => {
         setSelectedTiers(prev => prev.includes(tier) ? prev.filter(x => x !== tier) : [...prev, tier]);
@@ -190,7 +155,6 @@ export function EvaluatorContainer() {
         } else if (activeTab === 'evaluated') {
             list = list.filter(t => !!t.myEvaluation);
         }
-        // All Submissions is pre-filtered by API
 
         if (searchQuery) {
             const q = searchQuery.toLowerCase();
@@ -203,12 +167,28 @@ export function EvaluatorContainer() {
     }, [teams, activeTab, searchQuery]);
 
     const handleEvaluationSuccess = (teamCode: string, evaluation: Evaluation) => {
+        const team = teams.find(t => t.teamCode === teamCode);
+        const isUpdate = !!team?.myEvaluation;
+
         setTeams(prev => prev.map(t =>
-            t.teamCode === teamCode ? { ...t, myEvaluation: evaluation, evaluations: [...t.evaluations, evaluation] } : t
+            t.teamCode === teamCode ? {
+                ...t,
+                myEvaluation: evaluation,
+                // Replace this evaluator's existing evaluation rather than appending,
+                // mirroring the server which pulls the old one before pushing the new.
+                evaluations: [
+                    ...t.evaluations.filter(e => e.evaluatorId !== evaluation.evaluatorId),
+                    evaluation,
+                ],
+                isEvaluated: true,
+            } : t
         ));
-        setStats(prev => ({ ...prev, evaluated: prev.evaluated + 1, pending: prev.pending - 1 }));
+        // Only adjust counts the first time a team is evaluated; updates don't change them.
+        if (!isUpdate) {
+            setStats(prev => ({ ...prev, evaluated: prev.evaluated + 1, pending: prev.pending - 1 }));
+        }
         setSelectedTeam(null);
-        setAlert({ type: "success", message: "Evaluation submitted successfully!" });
+        setAlert({ type: "success", message: isUpdate ? "Evaluation updated successfully!" : "Evaluation submitted successfully!" });
         setTimeout(() => setAlert(null), 3000);
     };
 
@@ -310,16 +290,16 @@ export function EvaluatorContainer() {
                             )}
                         </button>
                         <button
-                            onClick={() => handleTabChange('all_submissions')}
-                            className={`px-6 py-3 text-[14px] font-medium transition-all relative whitespace-nowrap ${activeTab === 'all_submissions' ? 'text-[#22c55e]' : 'text-white/60 hover:text-white'
+                            onClick={() => handleTabChange('all_teams')}
+                            className={`px-6 py-3 text-[14px] font-medium transition-all relative whitespace-nowrap ${activeTab === 'all_teams' ? 'text-[#22c55e]' : 'text-white/60 hover:text-white'
                                 }`}
                             style={{ fontFamily: 'var(--font-body)' }}
                         >
                             <div className="flex items-center gap-2">
                                 <Vote className="w-4 h-4" />
-                                All Submissions
+                                All Teams
                             </div>
-                            {activeTab === 'all_submissions' && (
+                            {activeTab === 'all_teams' && (
                                 <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#22c55e]" />
                             )}
                         </button>
@@ -379,32 +359,6 @@ export function EvaluatorContainer() {
                                     })}
                                 </div>
                             </div>
-
-                            <div className="h-[1px] w-full bg-white/5" />
-
-                            {/* Problem Statements */}
-                            <div className="flex flex-col gap-3">
-                                <span className="text-[10px] text-white/40 uppercase tracking-widest font-semibold" style={{ fontFamily: 'var(--font-body)' }}>
-                                    Problem Statement
-                                </span>
-                                <div className="flex flex-wrap gap-2">
-                                    {problemStatements.map((ps) => {
-                                        const isSelected = selectedPsIds.includes(ps.id);
-                                        return (
-                                            <button
-                                                key={ps.id}
-                                                onClick={() => togglePs(ps.id)}
-                                                className={`px-3 py-1.5 rounded-md text-xs font-medium border transition-all duration-200 text-left ${isSelected
-                                                    ? 'bg-[#22c55e]/10 text-[#22c55e] border-[#22c55e]/30 ring-1 ring-[#22c55e]/20'
-                                                    : 'bg-white/5 text-white/40 border-white/10 hover:bg-white/10 hover:text-white/60 hover:border-white/20'
-                                                    }`}
-                                            >
-                                                {ps.title}
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
                         </div>
                     )}
 
@@ -432,7 +386,7 @@ export function EvaluatorContainer() {
                                             {team.teamName}
                                         </h3>
                                         <div className="flex items-center gap-2">
-                                            {activeTab === 'all_submissions' && (
+                                            {activeTab === 'all_teams' && (
                                                 <div className="flex items-center gap-1.5 bg-white/5 px-2 py-1 rounded border border-white/5">
                                                     <div className="flex items-center gap-1 text-[10px] text-green-400">
                                                         <ThumbsUp className="w-3 h-3" /> {team.upvoteCount || 0}
@@ -450,9 +404,6 @@ export function EvaluatorContainer() {
                                             )}
                                         </div>
                                     </div>
-                                    <p className="text-sm text-white/60 line-clamp-2 min-h-[40px]" style={{ fontFamily: 'var(--font-body)' }}>
-                                        {team.appliedFor ? team.appliedFor.title : 'No specific problem statement'}
-                                    </p>
 
                                     <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between text-xs text-white/40">
                                         <span style={{ fontFamily: 'var(--font-body)' }}>Team Code: {team.teamCode}</span>
@@ -463,13 +414,6 @@ export function EvaluatorContainer() {
                                                         'bg-red-500/20 border-red-500/30 text-red-400'
                                                 }`} style={{ fontFamily: 'var(--font-body)' }}>
                                                 {team.myEvaluation.tier.replace('_', ' ')}
-                                            </span>
-                                        )}
-                                        {activeTab === 'all_submissions' && team.myVote && (
-                                            <span className={`px-2 py-0.5 rounded border ${team.myVote.vote === 'up' ? 'bg-green-500/20 border-green-500/30 text-green-400' :
-                                                'bg-red-500/20 border-red-500/30 text-red-400'
-                                                }`} style={{ fontFamily: 'var(--font-body)' }}>
-                                                voted {team.myVote.vote}
                                             </span>
                                         )}
                                         {/* Display Selection Status Tags */}

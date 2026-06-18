@@ -26,7 +26,6 @@ import { AlertBanner } from "./alert-banner";
 import { TeamOverviewCard } from "./team-overview-card";
 import { TeamMembersCard } from "./team-members-card";
 import { QuickActionsCard } from "./quick-actions-card";
-import { SubmissionStatusCard } from "./submission-status-card";
 import { DeadlineTimer } from "./deadline-timer";
 import { TransferOwnershipModal } from "./transfer-ownership-modal";
 import {
@@ -66,13 +65,6 @@ interface Team {
   memberCount: number;
   teamStatus: string;
   isLooking: boolean;
-  appliedFor?: {
-    id: string;
-    title: string;
-  } | null;
-  videoURL?: string;
-  submissionPDF?: string;
-  anyOtherLink?: string;
   isEvaluated?: boolean;
   evaluator?: {
     id: string;
@@ -90,7 +82,6 @@ interface Team {
     createdAt: Date | string;
   }>;
   createdAt?: Date;
-  submittedAt?: Date;
 }
 
 export function DashboardContainer() {
@@ -113,9 +104,6 @@ export function DashboardContainer() {
   const [leaveTeamDialogOpen, setLeaveTeamDialogOpen] = useState(false);
   const [invites, setInvites] = useState<any[]>([]);
   const [teamRequests, setTeamRequests] = useState<any[]>([]);
-  const [isDeadlineExpired, setIsDeadlineExpired] = useState(false);
-  const [withdrawSubmissionDialogOpen, setWithdrawSubmissionDialogOpen] =
-    useState(false);
   const [removeMemberDialogOpen, setRemoveMemberDialogOpen] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<{
     id: string;
@@ -206,30 +194,6 @@ export function DashboardContainer() {
           return;
         }
 
-        // Fetch user profile from authenticated endpoint
-        const userResponse = await fetch(API_ENDPOINTS.userProfile, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
-
-        // Fetch deadline status
-        try {
-          const deadlineResponse = await fetch("/api/config/deadline");
-          const deadlineData = await deadlineResponse.json();
-          if (deadlineData.success && deadlineData.data) {
-            setIsDeadlineExpired(deadlineData.data.isExpired);
-          }
-        } catch (error) {
-          console.error("Error fetching deadline:", error);
-          toast({
-            variant: "destructive",
-            title: "Warning",
-            description: "Failed to load deadline information.",
-          });
-        }
-
         // Fetch flag challenge status
         try {
           const flagResponse = await fetch("/api/user/flag", {
@@ -245,6 +209,14 @@ export function DashboardContainer() {
         } catch (error) {
           console.error("Error fetching flag challenge:", error);
         }
+
+        // Fetch user profile from authenticated endpoint
+        const userResponse = await fetch(API_ENDPOINTS.userProfile, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        });
 
         if (userResponse.ok) {
           const userData = await userResponse.json();
@@ -267,10 +239,6 @@ export function DashboardContainer() {
               { key: "resume_link", label: "Resume" },
               { key: "github_link", label: "GitHub" },
               { key: "linkedin_link", label: "LinkedIn" },
-              { key: "leetcode_profile", label: "LeetCode" },
-              { key: "codeforces_link", label: "Codeforces" },
-              { key: "kaggle_link", label: "Kaggle" },
-              { key: "devfolio_link", label: "Devfolio" },
               { key: "portfolio_link", label: "Portfolio" },
               { key: "ctf_profile", label: "CTF Profile" },
             ];
@@ -497,25 +465,6 @@ export function DashboardContainer() {
     return statusMap[team.teamStatus] || "active";
   };
 
-  const hasAcceptedEvaluations = (): boolean => {
-    return (
-      team?.evaluations?.some(
-        (evaluation: any) =>
-          evaluation.tier === "accepted" ||
-          evaluation.tier === "strongly_accepted",
-      ) ?? false
-    );
-  };
-
-  const hasRejectedEvaluationsOnly = (): boolean => {
-    if (!team?.isEvaluated || !team?.evaluations) return false;
-    const hasRejected = team.evaluations.some(
-      (evaluation: any) => evaluation.tier === "rejected",
-    );
-    const hasAccepted = hasAcceptedEvaluations();
-    return hasRejected && !hasAccepted;
-  };
-
   const isTeamLead = (): boolean => {
     if (!team || !user) return false;
     // Check if user is the team lead by checking teamMembers array
@@ -584,7 +533,6 @@ export function DashboardContainer() {
     try {
       const token = await getToken();
       if (!token) return;
-
       const response = await fetch("/api/user/flag", {
         method: "POST",
         headers: {
@@ -601,7 +549,8 @@ export function DashboardContainer() {
         setIsChallengeCardOpen(false);
         toast({
           title: "Challenge Solved!",
-          description: "Congratulations! You solved the challenge and removed your noob tag.",
+          description:
+            "Congratulations! You solved the challenge and removed your noob tag.",
         });
       } else {
         setFlagError(data.message || "Incorrect flag. Try again!");
@@ -744,73 +693,6 @@ export function DashboardContainer() {
     }
   };
 
-  const handleWithdrawSubmission = () => {
-    setWithdrawSubmissionDialogOpen(true);
-  };
-
-  const executeWithdrawSubmission = async () => {
-    if (!team || !user) return;
-
-    try {
-      const token = await getToken();
-      if (!token) {
-        setAlert({
-          type: "error",
-          message: "Authentication required",
-        });
-        return;
-      }
-
-      const response = await fetch(API_ENDPOINTS.withdrawSubmission, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          teamCode: team.teamCode,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to withdraw submission");
-      }
-
-      setAlert({
-        type: "success",
-        message: "Submission withdrawn successfully. You can now submit again.",
-      });
-      setTimeout(() => setAlert(null), 3000);
-
-      // Refresh team data
-      const teamResponse = await fetch(API_ENDPOINTS.getTeam(team.teamCode), {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (teamResponse.ok) {
-        const teamData = await teamResponse.json();
-        if (teamData.success && teamData.data) {
-          setTeam(teamData.data);
-        }
-      }
-    } catch (error) {
-      console.error("Error withdrawing submission:", error);
-      setAlert({
-        type: "error",
-        message:
-          error instanceof Error
-            ? error.message
-            : "Failed to withdraw submission",
-      });
-      setTimeout(() => setAlert(null), 3000);
-    }
-  };
-
   const handleRemoveMember = (memberId: string, memberName: string) => {
     setMemberToRemove({ id: memberId, name: memberName });
     setRemoveMemberDialogOpen(true);
@@ -948,7 +830,7 @@ export function DashboardContainer() {
 
       {/* Challenge Alert Banner */}
       {!hasSolvedChallenge ? (
-        <div 
+        <div
           onClick={() => setIsChallengeCardOpen(!isChallengeCardOpen)}
           className="cursor-pointer transition-all duration-300 hover:scale-[1.01]"
         >
@@ -1035,7 +917,7 @@ export function DashboardContainer() {
           className="text-[15.9px] text-white opacity-90 leading-[23.8px]"
           style={{ fontFamily: "var(--font-body)" }}
         >
-          Manage your profile, team, and submissions from your dashboard.
+          Manage your profile and team from your dashboard.
         </p>
       </div>
 
@@ -1061,16 +943,10 @@ export function DashboardContainer() {
         </Button>
       </div>
 
-      {/* Submission Deadline Timer */}
+      {/* Registration Deadline Timer */}
       <DeadlineTimer
         teamStatus={team?.teamStatus}
-        hasSubmitted={
-          teamStatus === "submitted" ||
-          teamStatus === "shortlisted" ||
-          teamStatus === "confirmed"
-        }
-        isEvaluated={team?.isEvaluated}
-        evaluations={team?.evaluations}
+        hasSubmitted={!!team}
         hasTeam={!!team}
         rsvpStatus={rsvpStatus}
         onRSVP={handleRSVP}
@@ -1085,17 +961,34 @@ export function DashboardContainer() {
             <FormSection title="Challenge: Don't be a Noob">
               <div className="flex flex-col gap-[16px]">
                 <div className="p-[16px] rounded-[12px] bg-white/5 border border-white/10 space-y-[12px]">
-                  <p className="text-[14.5px] leading-[22px] text-white/90" style={{ fontFamily: 'var(--font-body)' }}>
-                  Intelligence reports suggest that a sensitive artifact is being disclosed somewhere within the application. The leak appears to affect only the currently authenticated user. Find the exposed artifact .
+                  <p
+                    className="text-[14.5px] leading-[22px] text-white/90"
+                    style={{ fontFamily: "var(--font-body)" }}
+                  >
+                    Intelligence reports suggest that a sensitive artifact is
+                    being disclosed somewhere within the application. The leak
+                    appears to affect only the currently authenticated user.
+                    Find the exposed artifact .
                   </p>
-                  <p className="text-[14px] leading-[20px] text-[#22c55e] font-medium" style={{ fontFamily: 'var(--font-body)' }}>
-                    💡 <span className="underline">CTF Hint</span>: The application may reveal more information than it chooses to display to the user.
+                  <p
+                    className="text-[14px] leading-[20px] text-[#22c55e] font-medium"
+                    style={{ fontFamily: "var(--font-body)" }}
+                  >
+                    💡 <span className="underline">CTF Hint</span>: The
+                    application may reveal more information than it chooses to
+                    display to the user.
                   </p>
-                  <p className="text-[13px] text-white/60 leading-[18px]" style={{ fontFamily: 'var(--font-body)' }}>
+                  <p
+                    className="text-[13px] text-white/60 leading-[18px]"
+                    style={{ fontFamily: "var(--font-body)" }}
+                  >
                     Flag Format: <code>pbctf{`{...}`}</code>
                   </p>
                 </div>
-                <form onSubmit={handleSubmitFlag} className="flex gap-[12px] items-end">
+                <form
+                  onSubmit={handleSubmitFlag}
+                  className="flex gap-[12px] items-end"
+                >
                   <div className="flex-1">
                     <FormInput
                       label="Verify Flag"
@@ -1105,13 +998,22 @@ export function DashboardContainer() {
                       required
                     />
                   </div>
-                  <Button type="submit" variant="primary" disabled={isSubmittingFlag}>
-                    {isSubmittingFlag ? <Spinner size="sm" className="mr-2" /> : null}
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={isSubmittingFlag}
+                  >
+                    {isSubmittingFlag ? (
+                      <Spinner size="sm" className="mr-2" />
+                    ) : null}
                     Submit
                   </Button>
                 </form>
                 {flagError && (
-                  <p className="text-[13px] text-red-400 font-semibold" style={{ fontFamily: 'var(--font-body)' }}>
+                  <p
+                    className="text-[13px] text-red-400 font-semibold"
+                    style={{ fontFamily: "var(--font-body)" }}
+                  >
                     ❌ {flagError}
                   </p>
                 )}
@@ -1125,7 +1027,7 @@ export function DashboardContainer() {
               <div className="flex flex-col gap-[16px]">
                 <AlertBanner
                   type="warning"
-                  message="Important: Even if you want to participate alone, you still need to create a team to submit your project."
+                  message="Important: Even if you want to participate alone, you still need to create a team to take part in the CTF."
                 />
                 <p
                   className="text-[14px] text-white opacity-80"
@@ -1162,7 +1064,6 @@ export function DashboardContainer() {
                 teamCode: team.teamCode,
                 memberCount: team.memberCount,
                 maxMembers: 2,
-                problemStatement: team.appliedFor?.title,
               }}
               isLead={isTeamLead()}
               status={teamStatus}
@@ -1180,59 +1081,6 @@ export function DashboardContainer() {
               onTransferOwnership={() => setTransferOwnershipDialogOpen(true)}
             />
           )}
-
-          {team &&
-            teamStatus === "submitted" &&
-            hasRejectedEvaluationsOnly() && (
-              <FormSection title="Team Status">
-                <div className="flex flex-col gap-[16px]">
-                  <AlertBanner
-                    type="error"
-                    message="Unfortunately, your team was not selected for the next round. Thank you for participating!"
-                  />
-                  <div className="flex items-center gap-[12px] p-[16px] rounded-[12px] bg-[rgba(220,38,38,0.1)] border border-[rgba(220,38,38,0.2)]">
-                    <X className="w-6 h-6 text-red-400" />
-                    <div className="flex flex-col gap-[4px]">
-                      <span
-                        className="text-[16px] text-white font-medium"
-                        style={{ fontFamily: "var(--font-body)" }}
-                      >
-                        Team Not Selected
-                      </span>
-                      <span
-                        className="text-[12px] text-white opacity-70"
-                        style={{ fontFamily: "var(--font-body)" }}
-                      >
-                        Your submission has been evaluated but was not selected.
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </FormSection>
-            )}
-
-          {/* Show SubmissionStatusCard for submitted/under-review teams that are not selected (accepted) or rejected */}
-          {team &&
-            (teamStatus === "submitted" || teamStatus === "under-review") &&
-            !hasAcceptedEvaluations() &&
-            !hasRejectedEvaluationsOnly() && (
-              <SubmissionStatusCard
-                status={teamStatus as "submitted" | "under-review"}
-                rsvpStatus={rsvpStatus}
-                submittedAt={team.submittedAt}
-                onRSVP={handleRSVP}
-              />
-            )}
-
-          {team &&
-            (teamStatus === "confirmed" || teamStatus === "declined") && (
-              <SubmissionStatusCard
-                status={teamStatus as "confirmed" | "declined"}
-                rsvpStatus={rsvpStatus}
-                submittedAt={team.submittedAt}
-                onRSVP={handleRSVP}
-              />
-            )}
         </div>
 
         {/* Right Column - 1/3 width */}
@@ -1245,15 +1093,11 @@ export function DashboardContainer() {
             <QuickActionsCard
               isLead={isTeamLead()}
               teamStatus={teamStatus}
-              isEvaluated={team.isEvaluated}
-              isShortlisted={team.isShortlisted}
               memberCount={team.memberCount}
               maxMembers={2}
               onNavigate={(path) => router.push(path)}
               onDeleteTeam={checkDeleteTeamEligibility}
               onLeaveTeam={() => setLeaveTeamDialogOpen(true)}
-              onWithdrawSubmission={handleWithdrawSubmission}
-              isDeadlineExpired={isDeadlineExpired}
             />
           )}
 
@@ -1377,8 +1221,8 @@ export function DashboardContainer() {
               style={{ fontFamily: "var(--font-body)" }}
             >
               Are you sure you want to delete the team "{team?.teamName}"? This
-              action cannot be undone and all team data including members and
-              submissions will be permanently removed.
+              action cannot be undone and all team data including members will
+              be permanently removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1394,46 +1238,6 @@ export function DashboardContainer() {
               style={{ fontFamily: "var(--font-body)" }}
             >
               Delete Team
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Withdraw Submission Confirmation Dialog */}
-      <AlertDialog
-        open={withdrawSubmissionDialogOpen}
-        onOpenChange={setWithdrawSubmissionDialogOpen}
-      >
-        <AlertDialogContent className="bg-[rgba(138,138,138,0.15)] backdrop-blur-[2.5px] border-[rgba(255,255,255,0.2)]">
-          <AlertDialogHeader>
-            <AlertDialogTitle
-              className="text-white"
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
-              Withdraw Submission
-            </AlertDialogTitle>
-            <AlertDialogDescription
-              className="text-white/80"
-              style={{ fontFamily: "var(--font-body)" }}
-            >
-              Are you sure you want to withdraw the submission for "
-              {team?.teamName}"? All submission details (video, PDF, links) will
-              be permanently deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              className="text-white"
-              style={{ fontFamily: "var(--font-body)" }}
-            >
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={executeWithdrawSubmission}
-              className="bg-black/50 hover:bg-black/60 text-white border border-[#22c55e]"
-              style={{ fontFamily: "var(--font-body)" }}
-            >
-              Withdraw Submission
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -1529,12 +1333,11 @@ export function DashboardContainer() {
       )}
 
       {/* Hidden Flag Container in DOM */}
-      <div id="heyloo" className="hidden" data-howdy={dynamicFlag} style={{ display: 'none' }}></div>
+      <div data-howdy={dynamicFlag} />
 
       {/* Faint hint at the bottom for inspect challenge */}
       {!hasSolvedChallenge && dynamicFlag && (
-        <div className="text-[10px] text-white/5 select-all hover:text-white/20 transition-colors text-center mt-12 mb-6">
-        </div>
+        <div className="text-[10px] text-white/5 select-all hover:text-white/20 transition-colors text-center mt-12 mb-6"></div>
       )}
     </div>
   );

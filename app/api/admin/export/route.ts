@@ -3,7 +3,6 @@ import { authenticateUser, requireAdmin, createAuthErrorResponse } from "@/lib/m
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
-import ProblemStatement from "@/models/ProblemStatement";
 
 export const dynamic = 'force-dynamic';
 
@@ -81,14 +80,10 @@ export async function GET(request: NextRequest) {
           return { uid: m.uid, name: user?.name, email: user?.email, role: m.role };
         }),
         teamStatus: team.teamStatus,
-        appliedFor: team.appliedFor,
-        videoURL: team.videoURL,
-        submissionPDF: team.submissionPDF,
         isEvaluated: team.isEvaluated,
         evaluations: team.evaluations?.map((e: any) => e.tier),
         isShortlisted: team.isShortlisted,
         createdAt: team.createdAt,
-        submittedAt: team.submittedAt,
       }));
     }
 
@@ -112,17 +107,6 @@ export async function GET(request: NextRequest) {
         teamName: team.teamName,
         memberCount: team.memberCount,
         rsvpCompletedAt: team.rsvpCompletedAt,
-      }));
-    }
-
-    if (exportType === 'problemStatements' || exportType === 'all') {
-      const ps = await ProblemStatement.find();
-      exportData.problemStatements = ps.map(p => ({
-        id: p._id.toString(),
-        title: p.title,
-        description: p.description,
-        teamCount: p.teamCount,
-        isActive: p.isActive,
       }));
     }
 

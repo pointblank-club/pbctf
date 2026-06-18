@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { DotPattern } from "@/components/registration/dot-pattern";
 import { Button } from "@/components/registration/button";
 import { motion } from "framer-motion";
-import { Users, FileText, Trophy, ArrowLeft, Search, Sparkles } from "lucide-react";
+import { Users, Trophy, ArrowLeft, Search, Sparkles } from "lucide-react";
 import { shortlistedTeams, totalParticipants } from "@/data/shortlisted-teams";
 
 // Animation variants
@@ -151,13 +151,13 @@ export default function ShortlistedPage() {
             style={{ fontFamily: 'var(--font-body)' }}
           >
             We are thrilled to announce the 32 teams that have been shortlisted for the PBCTF 5.0 Finals.
-            These exceptional teams stood out among hundreds of submissions with their innovative ideas and solutions.
+            These exceptional teams stood out among hundreds of registrations with their skills and determination.
           </p>
         </motion.div>
 
         {/* Stats Section */}
         <motion.div
-          className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 mb-12 sm:mb-16 max-w-3xl mx-auto"
+          className="grid grid-cols-2 gap-4 sm:gap-6 mb-12 sm:mb-16 max-w-3xl mx-auto"
           initial="hidden"
           animate="visible"
           variants={containerVariants}
@@ -189,21 +189,6 @@ export default function ShortlistedPage() {
             </p>
             <p className="text-sm text-white opacity-70" style={{ fontFamily: 'var(--font-body)' }}>
               Participants
-            </p>
-          </motion.div>
-
-          <motion.div
-            variants={statVariants}
-            className="backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.1)] rounded-[16px] p-4 sm:p-6 border border-[rgba(255,255,255,0.15)] text-center col-span-2 md:col-span-1"
-          >
-            <div className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[rgba(34,197,94,0.2)] border border-[#22c55e] mx-auto mb-3">
-              <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-[#22c55e]" />
-            </div>
-            <p className="text-3xl sm:text-4xl text-white font-bold" style={{ fontFamily: 'var(--font-heading)' }}>
-              1000+
-            </p>
-            <p className="text-sm text-white opacity-70" style={{ fontFamily: 'var(--font-body)' }}>
-              Submissions Received
             </p>
           </motion.div>
         </motion.div>

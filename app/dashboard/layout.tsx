@@ -107,8 +107,6 @@ export default function DashboardLayout({
           } else if (view.startsWith("team?joinCode=")) {
             const joinCode = view.split("joinCode=")[1];
             router.push(`/dashboard/team?joinCode=${joinCode}`);
-          } else if (view === "problem-statements") {
-            router.push("/problem-statements");
           } else {
             router.push(`/dashboard/${view}`);
           }

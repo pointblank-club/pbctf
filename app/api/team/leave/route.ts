@@ -3,7 +3,6 @@ import { authenticateUser, createAuthErrorResponse, requireEmailVerified } from 
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
-import ProblemStatement from "@/models/ProblemStatement";
 import TeamJoinRequest from "@/models/TeamJoinRequest";
 
 export const dynamic = 'force-dynamic';
@@ -87,10 +86,6 @@ export async function PUT(request: NextRequest) {
       
       if (otherMembers.length === 0) {
         await Team.deleteOne({ teamCode: team.teamCode });
-        
-        if (team.appliedFor) {
-          await ProblemStatement.findByIdAndUpdate(team.appliedFor, { $inc: { teamCount: -1 } });
-        }
       } else {
         newTeamLead = otherMembers[0].uid;
         

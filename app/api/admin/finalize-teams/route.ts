@@ -45,10 +45,10 @@ export async function PUT(request: NextRequest) {
     if (teamCodes && Array.isArray(teamCodes) && teamCodes.length > 0) {
       teamsToShortlist = teamCodes;
     } else if (shortlistAll) {
-      const evaluatedTeams = await Team.find({ isEvaluated: true, teamStatus: 'submitted' });
+      const evaluatedTeams = await Team.find({ isEvaluated: true });
       teamsToShortlist = evaluatedTeams.map(t => t.teamCode);
     } else if (topN && typeof topN === 'number') {
-      const topTeams = await Team.find({ isEvaluated: true, teamStatus: 'submitted' })
+      const topTeams = await Team.find({ isEvaluated: true })
         .sort({ 'scores.total': -1 })
         .limit(topN);
       teamsToShortlist = topTeams.map(t => t.teamCode);

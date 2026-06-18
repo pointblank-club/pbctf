@@ -7,7 +7,6 @@ import { API_ENDPOINTS } from "@/lib/api-config";
 import {
   Home,
   Users,
-  Upload,
   X,
   Award,
   Check,
@@ -16,7 +15,6 @@ import {
   User,
   ExternalLink,
   Copy,
-  Edit,
   ChevronDown,
   ChevronUp,
 } from "lucide-react";
@@ -26,8 +24,6 @@ import { Button } from "./button";
 import { StatusBadge } from "./status-badge";
 import { AlertBanner } from "./alert-banner";
 import { UserProfileModal, UserDetails } from "./user-profile-modal";
-import { Modal } from "./modal";
-import { EditProblemStatementModal } from "./edit-problem-statement-modal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -56,7 +52,6 @@ interface Team {
   leadId: string;
   members: string[];
   teamMembers?: TeamMember[];
-  problemStatement: string;
   lookingForMembers: boolean;
   status:
     | "none"
@@ -69,12 +64,6 @@ interface Team {
     | "withdrawn";
 }
 
-interface ProblemStatement {
-  id: string;
-  title: string;
-  description?: string;
-}
-
 export function TeamContainer() {
   const { user, isAuthenticated, getToken } = useAuth();
   const router = useRouter();
@@ -82,7 +71,6 @@ export function TeamContainer() {
   const [team, setTeam] = useState<Team | null>(null);
   const [teamFormData, setTeamFormData] = useState({
     teamName: "",
-    problemStatement: "",
     lookingForMembers: false,
     joinCode: "",
   });
@@ -106,19 +94,11 @@ export function TeamContainer() {
   const [isLoadingRequests, setIsLoadingRequests] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const [problemStatements, setProblemStatements] = useState<
-    ProblemStatement[]
-  >([]);
-
   // User details modal state
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [isLoadingUser, setIsLoadingUser] = useState(false);
   const [userError, setUserError] = useState<string | null>(null);
-
-  // Problem statement modal state
-  const [selectedProblemStatement, setSelectedProblemStatement] =
-    useState<ProblemStatement | null>(null);
 
   // Confirmation dialog state
   const [deleteTeamDialogOpen, setDeleteTeamDialogOpen] = useState(false);
@@ -135,10 +115,6 @@ export function TeamContainer() {
   // Copy state for team code
   const [copied, setCopied] = useState(false);
 
-  // Edit problem statement modal state
-  const [editPsModalOpen, setEditPsModalOpen] = useState(false);
-  const [isUpdatingPs, setIsUpdatingPs] = useState(false);
-
   // Collapsible requests state
   const [requestsExpanded, setRequestsExpanded] = useState(false);
 
@@ -153,30 +129,6 @@ export function TeamContainer() {
     () => joinRequests.filter((r) => r.type === "invite"),
     [joinRequests],
   );
-
-  useEffect(() => {
-    // Fetch problem statements
-    const fetchProblemStatements = async () => {
-      try {
-        const response = await fetch("/api/problem-statements");
-        if (response.ok) {
-          const data = await response.json();
-          if (data.success && data.data && data.data.problemStatements) {
-            setProblemStatements(data.data.problemStatements);
-          }
-        }
-      } catch (error) {
-        console.error("Error fetching problem statements:", error);
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description:
-            "Failed to load problem statements. Please refresh the page.",
-        });
-      }
-    };
-    fetchProblemStatements();
-  }, []);
 
   useEffect(() => {
     if (!isAuthenticated || !user) {
@@ -236,7 +188,6 @@ export function TeamContainer() {
                       email: m.email,
                       role: m.role || "Member",
                     })) || [],
-                  problemStatement: teamInfo.appliedFor?.title || "",
                   lookingForMembers: teamInfo.isLooking || false,
                   status:
                     teamInfo.teamStatus === "pending"
@@ -452,8 +403,6 @@ export function TeamContainer() {
                 email: m.email,
                 role: m.role || "Member",
               })) || [],
-            problemStatement:
-              teamInfo.appliedFor?.title || "No problem statement selected",
             lookingForMembers: teamInfo.isLooking || false,
             status:
               teamInfo.teamStatus === "pending"
@@ -644,7 +593,6 @@ export function TeamContainer() {
                   email: m.email,
                   role: m.role || "Member",
                 })) || [],
-              problemStatement: teamInfo.appliedFor?.title || "",
               lookingForMembers: teamInfo.isLooking || false,
               status:
                 teamInfo.teamStatus === "pending"
@@ -779,55 +727,6 @@ export function TeamContainer() {
     }
   };
 
-  const handleUpdateProblemStatement = async (
-    problemStatementId: string,
-    title: string,
-  ) => {
-    if (!team) return;
-
-    setIsUpdatingPs(true);
-    try {
-      const token = await getToken();
-      if (!token) return;
-
-      const response = await fetch(API_ENDPOINTS.updateProblemStatement, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          teamCode: team.code,
-          problemStatementId,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to update problem statement");
-      }
-
-      setTeam({ ...team, problemStatement: title });
-      toast({
-        title: "Problem statement updated",
-        description: `Changed to: ${title}`,
-      });
-    } catch (error) {
-      console.error("Error updating problem statement:", error);
-      toast({
-        variant: "destructive",
-        title: "Failed to update",
-        description:
-          error instanceof Error
-            ? error.message
-            : "Could not update problem statement",
-      });
-    } finally {
-      setIsUpdatingPs(false);
-    }
-  };
-
   const handleCreateTeam = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -837,14 +736,8 @@ export function TeamContainer() {
       const token = await getToken();
 
       // Call API to create team
-      // Build payload
-      const selectedProblem = problemStatements.find(
-        (ps) => ps.title === teamFormData.problemStatement,
-      );
-
       const payload = {
         teamName: teamFormData.teamName,
-        appliedFor: selectedProblem ? selectedProblem.id : undefined,
         isLooking: teamFormData.lookingForMembers,
       };
 
@@ -895,7 +788,6 @@ export function TeamContainer() {
                   email: m.email,
                   role: m.role || "Member",
                 })) || [],
-              problemStatement: teamInfo.appliedFor?.title || "",
               lookingForMembers: teamInfo.isLooking || false,
               status:
                 teamInfo.teamStatus === "pending"
@@ -994,7 +886,6 @@ export function TeamContainer() {
                   email: m.email,
                   role: m.role || "Member",
                 })) || [],
-              problemStatement: teamInfo.appliedFor?.title || "",
               lookingForMembers: teamInfo.isLooking || false,
               status:
                 teamInfo.teamStatus === "pending"
@@ -1155,7 +1046,7 @@ export function TeamContainer() {
                 <Button
                   type="submit"
                   variant="primary"
-                  disabled={isSubmitting || !teamFormData.teamName.trim()}
+                  disabled={isSubmitting}
                 >
                   {isSubmitting ? (
                     <Spinner size="sm" className="mr-2" />
@@ -1215,10 +1106,8 @@ export function TeamContainer() {
             }
           >
             <div className="flex flex-col gap-[16px]">
-              {/* Two-column grid for Team Info + Problem Statement */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-[16px]">
-                {/* Team Info Card */}
-                <div className="backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.1)] rounded-[12px] p-[16px] border border-[rgba(255,255,255,0.15)]">
+              {/* Team Info Card */}
+              <div className="backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.1)] rounded-[12px] p-[16px] border border-[rgba(255,255,255,0.15)]">
                   <h3
                     className="text-[12px] uppercase tracking-wider text-white opacity-50 mb-[12px]"
                     style={{ fontFamily: "var(--font-body)" }}
@@ -1308,68 +1197,6 @@ export function TeamContainer() {
                   </div>
                 </div>
 
-                {/* Problem Statement Card */}
-                <div className="backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.1)] rounded-[12px] p-[16px] border border-[rgba(255,255,255,0.15)] flex flex-col">
-                  <div className="flex justify-between items-start mb-[8px]">
-                    <h3
-                      className="text-[12px] uppercase tracking-wider text-white opacity-50"
-                      style={{ fontFamily: "var(--font-body)" }}
-                    >
-                      Problem Statement
-                    </h3>
-                    {team.leadId === user.uid && team.status === "active" && (
-                      <button
-                        onClick={() => setEditPsModalOpen(true)}
-                        className="flex items-center gap-[4px] text-[11px] text-[#4ade80] hover:text-[#22c55e] transition-colors"
-                        style={{ fontFamily: "var(--font-body)" }}
-                      >
-                        <Edit className="w-3 h-3" />
-                        Change
-                      </button>
-                    )}
-                  </div>
-                  {team.problemStatement ? (
-                    <h4
-                      className="text-[15px] text-white font-semibold"
-                      style={{ fontFamily: "var(--font-body)" }}
-                    >
-                      {team.problemStatement}
-                    </h4>
-                  ) : (
-                    <p
-                      className="text-[14px] text-white opacity-60"
-                      style={{ fontFamily: "var(--font-body)" }}
-                    >
-                      No problem statement selected yet
-                    </p>
-                  )}
-                  {team.leadId === user.uid && team.problemStatement && (
-                    <p
-                      className="text-[12px] text-white opacity-50 mt-[8px]"
-                      style={{ fontFamily: "var(--font-body)" }}
-                    >
-                      {team.status === "active"
-                        ? "You can change this before submitting"
-                        : "Locked after submission"}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {team.status === "submitted" && (
-                <AlertBanner
-                  type="success"
-                  message="✅ Project submitted successfully!"
-                />
-              )}
-
-              {team.status === "under-review" && (
-                <AlertBanner
-                  type="warning"
-                  message="⏳ Your submission is being evaluated..."
-                />
-              )}
-
               {team.status === "shortlisted" && (
                 <AlertBanner
                   type="success"
@@ -1378,15 +1205,6 @@ export function TeamContainer() {
               )}
 
               <div className="flex gap-[12px]">
-                {team.leadId === user.uid && team.status === "active" && (
-                  <Button
-                    onClick={() => router.push("/dashboard/submission")}
-                    variant="primary"
-                  >
-                    <Upload className="w-4 h-4" />
-                    Submit Team
-                  </Button>
-                )}
                 {team.leadId === user.uid &&
                   team.status !== "submitted" &&
                   team.status !== "shortlisted" &&
@@ -1717,24 +1535,6 @@ export function TeamContainer() {
         openResumeInNewTab
       />
 
-      {/* Problem Statement Details Modal */}
-      <Modal
-        isOpen={!!selectedProblemStatement}
-        onClose={() => setSelectedProblemStatement(null)}
-        title={selectedProblemStatement?.title || "Problem Statement"}
-      >
-        <div className="flex flex-col gap-[16px]">
-          <div>
-            <p
-              className="text-[15px] text-white opacity-80 leading-relaxed whitespace-pre-wrap"
-              style={{ fontFamily: "var(--font-body)" }}
-            >
-              {selectedProblemStatement?.description || "description goes here"}
-            </p>
-          </div>
-        </div>
-      </Modal>
-
       {/* Delete Team Confirmation Dialog */}
       <AlertDialog
         open={deleteTeamDialogOpen}
@@ -1852,16 +1652,6 @@ export function TeamContainer() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      {/* Edit Problem Statement Modal */}
-      <EditProblemStatementModal
-        isOpen={editPsModalOpen}
-        onClose={() => setEditPsModalOpen(false)}
-        currentStatement={team?.problemStatement || ""}
-        problemStatements={problemStatements}
-        onSubmit={handleUpdateProblemStatement}
-        isLoading={isUpdatingPs}
-      />
     </div>
   );
 }

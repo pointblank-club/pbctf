@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from '@/hooks/use-auth';
-import { UserCircle, Users, FileText, CheckCircle, Trophy, Search, Sparkles, ExternalLink } from "lucide-react";
+import { UserCircle, Users, CheckCircle, Trophy, Search, Sparkles } from "lucide-react";
 import { FormSection } from "./form-section";
 import { Card } from "./card";
 import { StickyAlert } from "./sticky-alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 
 interface AdminStats {
     totalUsers: number;
     totalTeams: number;
-    totalSubmissions: number;
     totalEvaluated: number;
 }
 
@@ -19,10 +18,7 @@ interface ShortlistedTeam {
     teamCode: string;
     teamName: string;
     teamLead: string;
-    appliedFor?: string;
     memberCount: number;
-    submissionPdf?: string;
-    videoUrl?: string;
     status: string;
     createdAt: string;
 }
@@ -30,7 +26,6 @@ interface ShortlistedTeam {
 interface ShortlistedStats {
     totalTeams: number;
     totalParticipants: number;
-    psDistribution: Record<string, number>;
 }
 
 
@@ -49,21 +44,17 @@ export function AnalyticsDashboard() {
     const [stats, setStats] = useState<AdminStats>({
         totalUsers: 0,
         totalTeams: 0,
-        totalSubmissions: 0,
         totalEvaluated: 0,
     });
 
     const [registrationData, setRegistrationData] = useState<any[]>([]);
     const [teamStatusData, setTeamStatusData] = useState<any[]>([]);
-    const [submissionData, setSubmissionData] = useState<any[]>([]);
-    const [psDistributionData, setPsDistributionData] = useState<any[]>([]);
 
     // Shortlisted teams state
     const [shortlistedTeams, setShortlistedTeams] = useState<ShortlistedTeam[]>([]);
     const [shortlistedStats, setShortlistedStats] = useState<ShortlistedStats>({
         totalTeams: 0,
         totalParticipants: 0,
-        psDistribution: {},
     });
     const [shortlistedSearchQuery, setShortlistedSearchQuery] = useState('');
     const [shortlistedLoading, setShortlistedLoading] = useState(false);
@@ -90,7 +81,6 @@ export function AnalyticsDashboard() {
                         setStats({
                             totalUsers: result.data.totalUsers || 0,
                             totalTeams: result.data.totalTeams || 0,
-                            totalSubmissions: result.data.totalSubmissions || 0,
                             totalEvaluated: result.data.totalEvaluated || 0,
                         });
 
@@ -107,14 +97,6 @@ export function AnalyticsDashboard() {
 
                         if (result.data.teamDistribution) {
                             setTeamStatusData(result.data.teamDistribution);
-                        }
-
-                        if (result.data.submissionActivity) {
-                            setSubmissionData(result.data.submissionActivity);
-                        }
-
-                        if (result.data.psDistribution) {
-                            setPsDistributionData(result.data.psDistribution);
                         }
                     }
                 }
@@ -145,7 +127,6 @@ export function AnalyticsDashboard() {
                         setShortlistedStats(result.data.stats || {
                             totalTeams: 0,
                             totalParticipants: 0,
-                            psDistribution: {},
                         });
                     }
                 }
@@ -186,7 +167,7 @@ export function AnalyticsDashboard() {
             )}
 
             <FormSection title="Platform Statistics">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[16px]">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-[16px]">
                     <Card>
                         <div className="flex flex-col items-center gap-[8px] text-center">
                             <UserCircle className="w-8 h-8 text-[#22c55e]" />
@@ -199,13 +180,6 @@ export function AnalyticsDashboard() {
                             <Users className="w-8 h-8 text-[#22c55e]" />
                             <span className="font-['Google_Sans_Flex',sans-serif] text-[24px] text-white">{stats.totalTeams}</span>
                             <span className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90">Total Teams</span>
-                        </div>
-                    </Card>
-                    <Card>
-                        <div className="flex flex-col items-center gap-[8px] text-center">
-                            <FileText className="w-8 h-8 text-[#22c55e]" />
-                            <span className="font-['Google_Sans_Flex',sans-serif] text-[24px] text-white">{stats.totalSubmissions}</span>
-                            <span className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90">Submissions</span>
                         </div>
                     </Card>
                     <Card>
@@ -286,73 +260,6 @@ export function AnalyticsDashboard() {
                                 </div>
                             </Card>
 
-                            <Card>
-                                <div className="mb-4">
-                                    <h3 className="text-white font-medium mb-1">Submission Activity</h3>
-                                    <p className="text-white/60 text-sm">Submissions per hour (UTC)</p>
-                                </div>
-                                <div className="h-[300px] w-full">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <BarChart data={submissionData}>
-                                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" />
-                                            <XAxis dataKey="time" stroke="rgba(255,255,255,0.5)" />
-                                            <YAxis stroke="rgba(255,255,255,0.5)" />
-                                            <Tooltip
-                                                cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                                                contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)' }}
-                                                itemStyle={{ color: '#fff' }}
-                                            />
-                                            <Bar dataKey="submissions" fill="#22c55e" />
-                                        </BarChart>
-                                    </ResponsiveContainer>
-                                </div>
-                            </Card>
-
-                            <Card>
-                                <div className="mb-4">
-                                    <h3 className="text-white font-medium mb-1">Submissions by Problem Statement</h3>
-                                    <p className="text-white/60 text-sm">Distribution across problem statements</p>
-                                </div>
-                                <div className="h-[300px] w-full">
-                                    {psDistributionData.length > 0 ? (
-                                        <ResponsiveContainer width="100%" height="100%">
-                                            <PieChart>
-                                                <Pie
-                                                    data={psDistributionData}
-                                                    cx="50%"
-                                                    cy="50%"
-                                                    innerRadius={60}
-                                                    outerRadius={80}
-                                                    fill="#8884d8"
-                                                    paddingAngle={2}
-                                                    dataKey="value"
-                                                    label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
-                                                    labelLine={true}
-                                                >
-                                                    {psDistributionData.map((entry, index) => (
-                                                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                                    ))}
-                                                </Pie>
-                                                <Tooltip
-                                                    contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)' }}
-                                                    itemStyle={{ color: '#fff' }}
-                                                />
-                                                <Legend
-                                                    layout="vertical"
-                                                    verticalAlign="middle"
-                                                    align="right"
-                                                    iconType="circle"
-                                                    wrapperStyle={{ fontSize: '10px', color: 'rgba(255,255,255,0.7)', maxWidth: '120px', lineHeight: '14px' }}
-                                                />
-                                            </PieChart>
-                                        </ResponsiveContainer>
-                                    ) : (
-                                        <div className="h-full w-full flex items-center justify-center text-white/50">
-                                            No submission data available
-                                        </div>
-                                    )}
-                                </div>
-                            </Card>
                         </div>
                     </FormSection>
                 </TabsContent>
@@ -360,7 +267,7 @@ export function AnalyticsDashboard() {
                 <TabsContent value="shortlisted" className="mt-6">
                     <FormSection title="Shortlisted Teams">
                         {/* Stats Cards */}
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-[16px] mb-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-[16px] mb-6">
                             <Card>
                                 <div className="flex flex-col items-center gap-[8px] text-center">
                                     <Trophy className="w-8 h-8 text-[#22c55e]" />
@@ -373,13 +280,6 @@ export function AnalyticsDashboard() {
                                     <Users className="w-8 h-8 text-[#22c55e]" />
                                     <span className="font-['Google_Sans_Flex',sans-serif] text-[24px] text-white">{shortlistedStats.totalParticipants}</span>
                                     <span className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90">Total Participants</span>
-                                </div>
-                            </Card>
-                            <Card>
-                                <div className="flex flex-col items-center gap-[8px] text-center">
-                                    <FileText className="w-8 h-8 text-[#22c55e]" />
-                                    <span className="font-['Google_Sans_Flex',sans-serif] text-[24px] text-white">{Object.keys(shortlistedStats.psDistribution).length}</span>
-                                    <span className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90">Problem Statements</span>
                                 </div>
                             </Card>
                         </div>
@@ -472,15 +372,6 @@ export function AnalyticsDashboard() {
                                                                 </div>
                                                             </div>
 
-                                                            {/* Problem Statement Badge */}
-                                                            {team.appliedFor && (
-                                                                <div className="flex">
-                                                                    <span className="text-[10px] px-2 py-1 bg-[#22c55e]/20 text-[#22c55e] rounded-full border border-[#22c55e]/30">
-                                                                        {team.appliedFor}
-                                                                    </span>
-                                                                </div>
-                                                            )}
-
                                                             {/* Team Code & Member count row */}
                                                             <div className="flex items-center gap-3">
                                                                 <span className="text-xs text-white/40 font-mono">
@@ -499,42 +390,6 @@ export function AnalyticsDashboard() {
                                                                         Finalist
                                                                     </span>
                                                                 </div>
-                                                            </div>
-
-                                                            {/* Submission Links - Always visible buttons */}
-                                                            <div className="flex flex-col gap-2 pt-3 border-t border-white/10">
-                                                                {team.submissionPdf ? (
-                                                                    <a
-                                                                        href={team.submissionPdf}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 backdrop-blur-[2.5px] bg-[rgba(138,138,138,0.3)] hover:bg-[rgba(138,138,138,0.4)] border border-[rgba(255,255,255,0.38)] rounded-[12px] text-white text-xs font-medium transition-all"
-                                                                    >
-                                                                        <FileText className="w-3.5 h-3.5" />
-                                                                        View PDF
-                                                                    </a>
-                                                                ) : (
-                                                                    <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-[rgba(138,138,138,0.2)] border border-[rgba(255,255,255,0.1)] rounded-[12px] text-[rgba(255,255,255,0.3)] text-xs cursor-not-allowed">
-                                                                        <FileText className="w-3.5 h-3.5" />
-                                                                        No PDF
-                                                                    </div>
-                                                                )}
-                                                                {team.videoUrl ? (
-                                                                    <a
-                                                                        href={team.videoUrl}
-                                                                        target="_blank"
-                                                                        rel="noopener noreferrer"
-                                                                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-[rgba(255,255,255,0.85)] hover:bg-[rgba(255,255,255,0.95)] rounded-[12px] text-black text-xs font-medium transition-all"
-                                                                    >
-                                                                        <ExternalLink className="w-3.5 h-3.5" />
-                                                                        View Video
-                                                                    </a>
-                                                                ) : (
-                                                                    <div className="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 bg-[rgba(138,138,138,0.2)] border border-[rgba(255,255,255,0.1)] rounded-[12px] text-[rgba(255,255,255,0.3)] text-xs cursor-not-allowed">
-                                                                        <ExternalLink className="w-3.5 h-3.5" />
-                                                                        No Video
-                                                                    </div>
-                                                                )}
                                                             </div>
                                                         </div>
 

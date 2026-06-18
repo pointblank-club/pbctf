@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from '@/hooks/use-auth';
 import { API_ENDPOINTS } from "@/lib/api-config";
-import { UserCircle, Users, FileText, CheckCircle, Search, Download, Eye, Star, Upload, ChevronDown, ChevronUp, Check, X, Clock, CalendarCheck } from "lucide-react";
+import { UserCircle, Users, CheckCircle, Search, Download, Eye, Star, ChevronDown, ChevronUp, Check, X, Clock, CalendarCheck } from "lucide-react";
 import { FormSection } from "./form-section";
 import { FormInput } from "./form-input";
 import { Button } from "./button";
@@ -10,8 +10,6 @@ import { StickyAlert } from "./sticky-alert";
 import { Spinner } from "@/components/ui/spinner";
 import { TeamDetailsModal, TeamDetails } from "./team-details-modal";
 import { UserProfileModal, UserDetails } from "./user-profile-modal";
-import { Modal } from "./modal";
-import { FormTextarea } from "./form-textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EvaluatorsTab } from "./evaluators-tab";
 import { ConfirmationDialog } from "./confirmation-dialog";
@@ -28,7 +26,6 @@ import {
 interface AdminStats {
   totalUsers: number;
   totalTeams: number;
-  totalSubmissions: number;
   totalEvaluated: number;
   rsvped: number;
 }
@@ -36,12 +33,9 @@ interface AdminStats {
 interface Team {
   teamCode: string;
   teamName: string;
-  problemStatement: string;
   memberCount: number;
   status: string;
-  videoURL?: string;
-  submissionPDF?: string;
-  anyOtherLink?: string;
+  isShortlisted: boolean;
 }
 
 interface Participant {
@@ -60,7 +54,6 @@ export function AdminContainer() {
   const [stats, setStats] = useState<AdminStats>({
     totalUsers: 0,
     totalTeams: 0,
-    totalSubmissions: 0,
     totalEvaluated: 0,
     rsvped: 0,
   });
@@ -84,12 +77,6 @@ export function AdminContainer() {
   const [teamsSearch, setTeamsSearch] = useState("");
   const [isTeamsLoading, setIsTeamsLoading] = useState(false);
 
-  // Submissions State
-  const [submissions, setSubmissions] = useState<Team[]>([]);
-  const [submissionsPage, setSubmissionsPage] = useState(1);
-  const [submissionsTotalPages, setSubmissionsTotalPages] = useState(1);
-  const [submissionsSearch, setSubmissionsSearch] = useState("");
-  const [isSubmissionsLoading, setIsSubmissionsLoading] = useState(false);
   interface SelectedTeam extends Team {
     memberRSVPs?: Array<{
       uid: string;
@@ -120,12 +107,6 @@ export function AdminContainer() {
   const [selectedUser, setSelectedUser] = useState<UserDetails | null>(null);
   const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [isUserLoading, setIsUserLoading] = useState(false);
-
-  // Add PS Modal State
-  const [isAddPSModalOpen, setIsAddPSModalOpen] = useState(false);
-  const [newPsTitle, setNewPsTitle] = useState("");
-  const [newPsDescription, setNewPsDescription] = useState("");
-  const [isAddingPs, setIsAddingPs] = useState(false);
 
   // Confirmation Dialog State
   const [confirmation, setConfirmation] = useState<{
@@ -170,7 +151,6 @@ export function AdminContainer() {
           setStats({
             totalUsers: usersData.data?.stats?.totalParticipants || 0,
             totalTeams: teamsData.data?.stats?.totalTeams || 0,
-            totalSubmissions: teamsData.data?.stats?.submitted || 0,
             totalEvaluated: teamsData.data?.stats?.evaluated || 0,
             rsvped: teamsData.data?.stats?.rsvped || 0,
           });
@@ -247,9 +227,9 @@ export function AdminContainer() {
         const mappedTeams: Team[] = teamsList.map((t: any) => ({
           teamCode: t.teamCode,
           teamName: t.teamName,
-          problemStatement: t.appliedFor?.title || "N/A",
           memberCount: t.memberCount,
-          status: t.teamStatus
+          status: t.teamStatus,
+          isShortlisted: Boolean(t.isShortlisted)
         }));
         setTeams(mappedTeams);
         setTeamsTotalPages(data.data.pagination.totalPages);
@@ -272,57 +252,6 @@ export function AdminContainer() {
     }
   }, [teamsPage, teamsSearch, activeTab, getToken]);
 
-  // Fetch Submissions
-  const fetchSubmissions = async () => {
-    setIsSubmissionsLoading(true);
-    try {
-      const token = await getToken();
-      if (!token) return;
-
-      const queryParams = new URLSearchParams({
-        page: submissionsPage.toString(),
-        limit: '10',
-        search: submissionsSearch,
-        isSubmitted: 'true'
-      });
-
-      const response = await fetch(`${API_ENDPOINTS.adminTeams}?${queryParams}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const teamsList = data.data.teams || [];
-        const mappedTeams: Team[] = teamsList.map((t: any) => ({
-          teamCode: t.teamCode,
-          teamName: t.teamName,
-          problemStatement: t.appliedFor?.title || "N/A",
-          memberCount: t.memberCount,
-          status: t.teamStatus,
-          videoURL: t.videoURL,
-          submissionPDF: t.submissionPDF,
-          anyOtherLink: t.anyOtherLink
-        }));
-        setSubmissions(mappedTeams);
-        setSubmissionsTotalPages(data.data.pagination.totalPages);
-      } else {
-        setAlert({ type: "error", message: "Failed to fetch submissions" });
-      }
-    } catch (error) {
-      setAlert({ type: "error", message: "Error fetching submissions" });
-    } finally {
-      setIsSubmissionsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (activeTab === 'submissions') {
-      const timeoutId = setTimeout(() => {
-        fetchSubmissions();
-      }, 300);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [submissionsPage, submissionsSearch, activeTab, getToken]);
   const fetchSelectedTeams = async () => {
     setIsSelectedTeamsLoading(true);
     try {
@@ -352,9 +281,9 @@ export function AdminContainer() {
                   return {
                     teamCode: t.teamCode,
                     teamName: t.teamName,
-                    problemStatement: t.appliedFor?.title || "N/A",
                     memberCount: t.memberCount,
                     status: t.teamStatus,
+                    isShortlisted: Boolean(t.isShortlisted),
                     memberRSVPs: detailData.data.memberRSVPs || [],
                     teamMembers: detailData.data.teamMembers || [],
                   };
@@ -366,9 +295,9 @@ export function AdminContainer() {
             return {
               teamCode: t.teamCode,
               teamName: t.teamName,
-              problemStatement: t.appliedFor?.title || "N/A",
               memberCount: t.memberCount,
               status: t.teamStatus,
+              isShortlisted: Boolean(t.isShortlisted),
               memberRSVPs: [],
               teamMembers: [],
             } as SelectedTeam;
@@ -408,14 +337,12 @@ export function AdminContainer() {
     });
   };
 
-  const handleExport = async (type: 'users' | 'teams' | 'submissions') => {
+  const handleExport = async (type: 'users' | 'teams') => {
     try {
       const token = await getToken();
       if (!token) return;
 
-      const queryParams = type === 'submissions' ? '?isSubmitted=true' : '';
-
-      const response = await fetch(`${API_ENDPOINTS.adminExport}${queryParams}`, {
+      const response = await fetch(`${API_ENDPOINTS.adminExport}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -449,7 +376,7 @@ export function AdminContainer() {
     }
   };
 
-  const handleShortlistTeam = async (teamCode: string) => {
+  const handleToggleShortlistTeam = async (teamCode: string, shortlist: boolean) => {
     try {
       const token = await getToken();
       if (!token) return;
@@ -461,8 +388,8 @@ export function AdminContainer() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          teamStatus: 'shortlisted',
-          isShortlisted: true,
+          teamStatus: shortlist ? 'shortlisted' : 'pending',
+          isShortlisted: shortlist,
         }),
       });
 
@@ -470,7 +397,7 @@ export function AdminContainer() {
         setTeams(prev =>
           prev.map(team =>
             team.teamCode === teamCode
-              ? { ...team, status: 'shortlisted' }
+              ? { ...team, status: shortlist ? 'shortlisted' : 'pending', isShortlisted: shortlist }
               : team
           )
         );
@@ -480,14 +407,20 @@ export function AdminContainer() {
 
         setAlert({
           type: "success",
-          message: "Team shortlisted successfully!",
+          message: shortlist ? "Team shortlisted successfully!" : "Team removed from shortlist.",
+        });
+        setTimeout(() => setAlert(null), 3000);
+      } else {
+        setAlert({
+          type: "error",
+          message: shortlist ? "Failed to shortlist team" : "Failed to remove team from shortlist",
         });
         setTimeout(() => setAlert(null), 3000);
       }
     } catch (error) {
       setAlert({
         type: "error",
-        message: "Failed to shortlist team",
+        message: shortlist ? "Failed to shortlist team" : "Failed to remove team from shortlist",
       });
       setTimeout(() => setAlert(null), 3000);
     }
@@ -540,48 +473,6 @@ export function AdminContainer() {
       setTimeout(() => setAlert(null), 3000);
     } finally {
       setIsUserLoading(false);
-    }
-  };
-
-  const handleAddProblemStatement = async () => {
-    if (!newPsTitle.trim() || !newPsDescription.trim()) {
-      setAlert({ type: "error", message: "Please fill in all fields" });
-      setTimeout(() => setAlert(null), 3000);
-      return;
-    }
-
-    setIsAddingPs(true);
-    try {
-      const token = await getToken();
-      if (!token) return;
-
-      const response = await fetch(API_ENDPOINTS.adminProblemStatements, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: newPsTitle,
-          description: newPsDescription,
-        }),
-      });
-
-      if (response.ok) {
-        setAlert({ type: 'success', message: 'Problem statement added successfully' });
-        setTimeout(() => setAlert(null), 3000);
-        setIsAddPSModalOpen(false);
-        setNewPsTitle("");
-        setNewPsDescription("");
-      } else {
-        setAlert({ type: "error", message: "Failed to create problem statement" });
-        setTimeout(() => setAlert(null), 3000);
-      }
-    } catch (err) {
-      setAlert({ type: "error", message: "An error occurred" });
-      setTimeout(() => setAlert(null), 3000);
-    } finally {
-      setIsAddingPs(false);
     }
   };
 
@@ -640,7 +531,7 @@ export function AdminContainer() {
       )}
 
       <FormSection title="Platform Statistics">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-[16px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[16px]">
           <Card>
             <div className="flex flex-col items-center gap-[8px] text-center">
               <UserCircle className="w-8 h-8 text-[#22c55e]" />
@@ -653,13 +544,6 @@ export function AdminContainer() {
               <Users className="w-8 h-8 text-[#22c55e]" />
               <span className="font-['Google_Sans_Flex',sans-serif] text-[24px] text-white">{stats.totalTeams}</span>
               <span className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90">Total Teams</span>
-            </div>
-          </Card>
-          <Card>
-            <div className="flex flex-col items-center gap-[8px] text-center">
-              <FileText className="w-8 h-8 text-[#22c55e]" />
-              <span className="font-['Google_Sans_Flex',sans-serif] text-[24px] text-white">{stats.totalSubmissions}</span>
-              <span className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90">Submissions</span>
             </div>
           </Card>
           <Card>
@@ -680,13 +564,11 @@ export function AdminContainer() {
       </FormSection>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-6 h-auto">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto">
           <TabsTrigger value="users">Manage Users</TabsTrigger>
           <TabsTrigger value="teams">Manage Teams</TabsTrigger>
-          <TabsTrigger value="submissions">Submissions</TabsTrigger>
           <TabsTrigger value="selected-teams">Selected Teams</TabsTrigger>
           <TabsTrigger value="evaluators">Evaluators</TabsTrigger>
-          <TabsTrigger value="problems">Problem Statements</TabsTrigger>
         </TabsList>
 
         <TabsContent value="users" className="mt-6">
@@ -753,97 +635,6 @@ export function AdminContainer() {
           </FormSection>
         </TabsContent>
 
-        <TabsContent value="submissions" className="mt-6">
-          <FormSection title="Submissions">
-            <div className="flex flex-col gap-[12px] mb-6">
-              <div className="flex flex-col sm:flex-row gap-[12px]">
-                <div className="flex-1">
-                  <FormInput
-                    label=""
-                    placeholder="Search submissions..."
-                    value={submissionsSearch}
-                    onChange={(e) => {
-                      setSubmissionsSearch(e.target.value);
-                      setSubmissionsPage(1);
-                    }}
-                  />
-                </div>
-                {/* <Button variant="secondary" onClick={() => handleExport('submissions')}>
-                  <Download className="w-4 h-4" />
-                  Export Submissions
-                </Button> */}
-              </div>
-            </div>
-
-            {isSubmissionsLoading ? (
-              <div className="flex justify-center py-[40px]">
-                <Spinner size="lg" />
-              </div>
-            ) : submissions.length === 0 ? (
-              <div className="text-white text-center py-[40px] opacity-70">
-                No submissions found.
-              </div>
-            ) : (
-              <div className="flex flex-col gap-[16px]">
-                {submissions.map((team) => (
-                  <Card key={team.teamCode}>
-                    <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
-                      <div className="flex-1">
-                        <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white mb-[4px]">{team.teamName}</h3>
-                        <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90 mb-[8px]">
-                          Problem: {team.problemStatement} • Status: {team.status}
-                        </p>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {team.videoURL && (
-                            <a
-                              href={team.videoURL}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-red-500/10 text-red-400 text-[12px] hover:bg-red-500/20 transition-colors border border-red-500/20"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7" /><rect x="1" y="5" width="15" height="14" rx="2" ry="2" /></svg>
-                              Video Pitch
-                            </a>
-                          )}
-                          {team.submissionPDF && (
-                            <a
-                              href={team.submissionPDF}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-500/10 text-blue-400 text-[12px] hover:bg-blue-500/20 transition-colors border border-blue-500/20"
-                            >
-                              <FileText className="w-3 h-3" />
-                              Documentation
-                            </a>
-                          )}
-                          {team.anyOtherLink && (
-                            <a
-                              href={team.anyOtherLink}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 text-[12px] hover:bg-emerald-500/20 transition-colors border border-emerald-500/20"
-                            >
-                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" /><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" /></svg>
-                              Project Link
-                            </a>
-                          )}
-                        </div>
-                      </div>
-                      <div className="flex gap-[8px] w-full sm:w-auto justify-end">
-                        <Button variant="secondary" onClick={() => handleViewTeam(team.teamCode)}>
-                          <Eye className="w-4 h-4" />
-                          View
-                        </Button>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-                {renderPagination(submissionsPage, submissionsTotalPages, setSubmissionsPage)}
-              </div>
-            )}
-          </FormSection>
-        </TabsContent>
-
         <TabsContent value="teams" className="mt-6">
           <FormSection title="Teams">
             <div className="flex flex-col gap-[12px] mb-6">
@@ -880,9 +671,17 @@ export function AdminContainer() {
                   <Card key={team.teamCode}>
                     <div className="flex flex-col sm:flex-row items-start justify-between gap-4">
                       <div className="flex-1">
-                        <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white mb-[4px]">{team.teamName}</h3>
+                        <div className="flex items-center gap-2 mb-[4px]">
+                          <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white">{team.teamName}</h3>
+                          {team.isShortlisted && (
+                            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#22c55e]/10 border border-[#22c55e]/20 text-[11px] text-[#22c55e] font-medium">
+                              <Star className="w-3 h-3 fill-current" />
+                              Shortlisted
+                            </span>
+                          )}
+                        </div>
                         <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90 mb-[8px]">
-                          Problem: {team.problemStatement} • Members: {team.memberCount} • Status: {team.status}
+                          Members: {team.memberCount} • Status: {team.status}
                         </p>
                       </div>
                       <div className="flex gap-[8px] w-full sm:w-auto justify-end">
@@ -890,19 +689,31 @@ export function AdminContainer() {
                           <Eye className="w-4 h-4" />
                           View
                         </Button>
-                        {team.status === 'submitted' || team.status === 'under-review' ? (
+                        {team.isShortlisted ? (
+                          <Button variant="secondary" onClick={() => {
+                            setConfirmation({
+                              isOpen: true,
+                              title: "Remove from Shortlist",
+                              message: `Are you sure you want to remove team "${team.teamName}" from the shortlist?`,
+                              onConfirm: () => handleToggleShortlistTeam(team.teamCode, false),
+                            });
+                          }}>
+                            <X className="w-4 h-4" />
+                            Unshortlist
+                          </Button>
+                        ) : (
                           <Button variant="primary" onClick={() => {
                             setConfirmation({
                               isOpen: true,
                               title: "Shortlist Team",
                               message: `Are you sure you want to shortlist team "${team.teamName}"? This will move them to the next round.`,
-                              onConfirm: () => handleShortlistTeam(team.teamCode),
+                              onConfirm: () => handleToggleShortlistTeam(team.teamCode, true),
                             });
                           }}>
                             <Star className="w-4 h-4" />
                             Shortlist
                           </Button>
-                        ) : null}
+                        )}
                       </div>
                     </div>
                   </Card>
@@ -954,7 +765,7 @@ export function AdminContainer() {
                               {team.teamName}
                             </h3>
                             <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-90 mb-[8px]">
-                              Problem: {team.problemStatement} • Members: {team.memberCount} • Status: {team.status}
+                              Members: {team.memberCount} • Status: {team.status}
                             </p>
                             <div className="flex items-center gap-2 mt-2">
                               <span className="text-[12px] text-white opacity-70">
@@ -1060,15 +871,6 @@ export function AdminContainer() {
         <TabsContent value="evaluators" className="mt-6">
           <EvaluatorsTab />
         </TabsContent>
-
-        <TabsContent value="problems" className="mt-6">
-          <FormSection title="Manage Problem Statements">
-            <Button variant="primary" onClick={() => setIsAddPSModalOpen(true)}>
-              <Upload className="w-4 h-4" />
-              Add New Problem Statement
-            </Button>
-          </FormSection>
-        </TabsContent>
       </Tabs>
 
       <TeamDetailsModal
@@ -1087,45 +889,6 @@ export function AdminContainer() {
         isLoading={isUserLoading}
         openResumeInNewTab
       />
-
-      <Modal isOpen={isAddPSModalOpen} onClose={() => setIsAddPSModalOpen(false)} title="Add Problem Statement">
-        <div className="flex flex-col gap-[20px]">
-          <FormInput
-            label="Title"
-            placeholder="Enter problem statement title"
-            value={newPsTitle}
-            onChange={(e) => setNewPsTitle(e.target.value)}
-          />
-
-          <FormTextarea
-            label="Description"
-            placeholder="Enter detailed description..."
-            value={newPsDescription}
-            onChange={(e) => setNewPsDescription(e.target.value)}
-          />
-
-          <div className="flex gap-[12px] justify-end pt-[8px]">
-            <Button onClick={() => setIsAddPSModalOpen(false)} variant="secondary" disabled={isAddingPs}>
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                setConfirmation({
-                  isOpen: true,
-                  title: "Create Problem Statement",
-                  message: "Are you sure you want to create this problem statement? It will be visible to all users.",
-                  onConfirm: handleAddProblemStatement,
-                });
-              }}
-              variant="primary"
-              disabled={isAddingPs || !newPsTitle || !newPsDescription}
-            >
-              {isAddingPs && <Spinner size="sm" className="mr-2" />}
-              {isAddingPs ? 'Creating...' : 'Create Problem Statement'}
-            </Button>
-          </div>
-        </div>
-      </Modal>
 
       <ConfirmationDialog
         isOpen={confirmation.isOpen}

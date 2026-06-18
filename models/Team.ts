@@ -44,11 +44,6 @@ export interface ITeam extends Document {
   teamMembers: ITeamMember[];
   memberCount: number;
   teamStatus: TeamStatus;
-  appliedFor?: string;
-
-  videoURL?: string;
-  submissionPDF?: string;
-  anyOtherLink?: string;
 
   isEvaluated: boolean;
   evaluations: IEvaluation[];
@@ -59,7 +54,6 @@ export interface ITeam extends Document {
 
   createdAt: Date;
   updatedAt: Date;
-  submittedAt?: Date;
   evaluatedAt?: Date;
   shortlistedAt?: Date;
   rsvpCompletedAt?: Date;
@@ -132,14 +126,6 @@ const TeamSchema: Schema = new Schema(
       default: "pending",
       index: true,
     },
-    appliedFor: {
-      type: String,
-      index: true,
-    },
-
-    videoURL: { type: String },
-    submissionPDF: { type: String },
-    anyOtherLink: { type: String },
 
     // Evaluation
     isEvaluated: {
@@ -178,7 +164,6 @@ const TeamSchema: Schema = new Schema(
     },
     memberRSVPs: [MemberRSVPSchema],
 
-    submittedAt: { type: Date },
     evaluatedAt: { type: Date },
     shortlistedAt: { type: Date },
     rsvpCompletedAt: { type: Date },

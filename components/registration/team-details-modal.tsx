@@ -109,11 +109,6 @@ export function TeamDetailsModal({
           <div className="flex flex-col gap-[24px]">
             <div>
               <h3 className="font-['Google_Sans_Flex',sans-serif] text-[20px] text-white mb-[8px]">{teamDetails.teamName}</h3>
-              {teamDetails.appliedFor && (
-                <p className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white opacity-70 mt-[4px]">
-                  Problem Statement: {teamDetails.appliedFor.title}
-                </p>
-              )}
               <p className="font-['Google_Sans_Flex',sans-serif] text-[14px] text-white opacity-70 mt-[4px]">
                 Members: {teamDetails.memberCount || (teamDetails.teamMembers?.length || 0)}/{teamDetails.maxMembers || 2}
               </p>

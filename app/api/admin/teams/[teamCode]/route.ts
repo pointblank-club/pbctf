@@ -3,7 +3,6 @@ import { authenticateUser, requireAdmin, createAuthErrorResponse } from "@/lib/m
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
-import ProblemStatement from "@/models/ProblemStatement";
 import Evaluator from "@/models/Evaluator";
 
 export const dynamic = 'force-dynamic';
@@ -57,15 +56,6 @@ export async function GET(
     const members = await User.find({ uid: { $in: memberUids } })
       .select('uid name email organisation profile_picture discord_username resume_link github_link');
 
-    // Get problem statement
-    let problemStatement = null;
-    if (team.appliedFor) {
-      const ps = await ProblemStatement.findById(team.appliedFor);
-      if (ps) {
-        problemStatement = { id: ps._id.toString(), title: ps.title };
-      }
-    }
-
     // Get evaluator info
     // Fetch all evaluators who are assigned to this team
     const assignedEvaluators = await Evaluator.find({ "assignedTeams.teamCode": team.teamCode })
@@ -100,10 +90,6 @@ export async function GET(
       memberCount: team.memberCount,
       teamStatus: team.teamStatus,
       isLooking: team.isLooking,
-      appliedFor: problemStatement,
-      videoURL: team.videoURL || null,
-      submissionPDF: team.submissionPDF || null,
-      anyOtherLink: team.anyOtherLink || null,
       isEvaluated: team.isEvaluated,
       evaluations: team.evaluations || [],
       votes: team.votes || [],
@@ -111,7 +97,6 @@ export async function GET(
       isShortlisted: team.isShortlisted,
       memberRSVPs: team.memberRSVPs,
       createdAt: team.createdAt,
-      submittedAt: team.submittedAt || null,
       evaluatedAt: team.evaluatedAt || null,
       shortlistedAt: team.shortlistedAt || null,
       rsvpCompletedAt: team.rsvpCompletedAt || null,
@@ -152,11 +137,43 @@ export async function PUT(
     }
 
     const updateData: Record<string, any> = {};
+    const updateOps: Record<string, any> = {};
 
     if (isShortlisted !== undefined) {
       updateData.isShortlisted = Boolean(isShortlisted);
       if (isShortlisted && !team.shortlistedAt) {
         updateData.shortlistedAt = new Date();
+      }
+
+      // Tag shortlisted teams with a "strongly_accepted" evaluation so they
+      // surface in the evaluation-tier based "Selected Teams" view alongside
+      // teams accepted through the regular evaluation flow.
+      const adminEvaluatorId = `admin:${authResult.user.uid}`;
+      if (isShortlisted) {
+        const alreadyTagged = (team.evaluations || []).some(
+          (e: any) => e.evaluatorId === adminEvaluatorId
+        );
+        if (!alreadyTagged) {
+          updateOps.$push = {
+            evaluations: {
+              evaluatorId: adminEvaluatorId,
+              name: authResult.user.name,
+              tier: 'strongly_accepted',
+              comment: 'Shortlisted via admin panel',
+              createdAt: new Date(),
+            },
+          };
+        }
+        updateData.isEvaluated = true;
+        if (!team.evaluatedAt) {
+          updateData.evaluatedAt = new Date();
+        }
+      } else {
+        // Remove only the admin-added evaluation tag when un-shortlisting,
+        // leaving any genuine evaluator reviews intact.
+        updateOps.$pull = {
+          evaluations: { evaluatorId: adminEvaluatorId },
+        };
       }
     }
 
@@ -168,9 +185,13 @@ export async function PUT(
       updateData.teamStatus = teamStatus;
     }
 
+    if (Object.keys(updateData).length > 0) {
+      updateOps.$set = updateData;
+    }
+
     const updatedTeam = await Team.findOneAndUpdate(
       { teamCode: params.teamCode },
-      { $set: updateData },
+      updateOps,
       { new: true }
     );
 

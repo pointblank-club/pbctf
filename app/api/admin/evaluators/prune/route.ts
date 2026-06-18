@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { authenticateUser, requireAdmin, createAuthErrorResponse } from "@/lib/middleware/auth";
 import dbConnect from "@/lib/db";
-import Team from "@/models/Team";
 import Evaluator from "@/models/Evaluator";
 
 export const dynamic = 'force-dynamic';
@@ -51,26 +50,16 @@ export async function POST(request: NextRequest) {
             return createSuccessResponse("No assignments to prune", { prunedCount: 0 });
         }
 
-        // Find which of these are NOT submitted
-        const submittedTeams = await Team.find({
-            teamCode: { $in: Array.from(allAssignedCodes) },
-            submittedAt: { $exists: true, $ne: null }
-        }).select('teamCode');
-
-        const submittedTeamCodes = new Set(submittedTeams.map(t => t.teamCode));
-
         // Identify invalid assignments
         let prunedCount = 0;
         const updates = [];
 
         for (const evaluator of evaluators) {
             const originalCount = evaluator.assignedTeams.length;
-            // Keep assignment if:
-            // The team has submitted (is in submittedTeamCodes)
-            // OR
-            // The team has already been evaluated (preserve history even if submission status is weird)
+            // Keep assignment only if the team has already been evaluated
+            // (evaluation is now profile-based; there is no submission gating)
             const validAssignments = evaluator.assignedTeams.filter((t: any) =>
-                submittedTeamCodes.has(t.teamCode) || t.isEvaluated === true
+                t.isEvaluated === true
             );
 
             if (validAssignments.length !== originalCount) {

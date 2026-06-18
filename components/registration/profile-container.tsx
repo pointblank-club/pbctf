@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth } from "@/hooks/use-auth";
 import { Home } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Spinner } from "@/components/ui/spinner";
@@ -30,10 +30,6 @@ export function ProfileContainer() {
     github: "",
     linkedin: "",
     portfolio: "",
-    leetcode: "",
-    codeforces: "",
-    kaggle: "",
-    devfolio: "",
     ctf_profile: "",
     profile_picture: "",
     isLooking: false,
@@ -46,7 +42,10 @@ export function ProfileContainer() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isProfileLocked, setIsProfileLocked] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [alert, setAlert] = useState<{ type: "success" | "error" | "warning" | "info"; message: string } | null>(null);
+  const [alert, setAlert] = useState<{
+    type: "success" | "error" | "warning" | "info";
+    message: string;
+  } | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated || !user) {
@@ -60,11 +59,11 @@ export function ProfileContainer() {
         setIsLoading(true);
         const token = await getToken();
 
-        const response = await fetch('/api/user/profile', {
+        const response = await fetch("/api/user/profile", {
           headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
         });
 
         if (response.ok) {
@@ -83,10 +82,6 @@ export function ProfileContainer() {
               github: userData.github_link || "",
               linkedin: userData.linkedin_link || "",
               portfolio: userData.portfolio_link || "",
-              leetcode: userData.leetcode_profile || "",
-              codeforces: userData.codeforces_link || "",
-              kaggle: userData.kaggle_link || "",
-              devfolio: userData.devfolio_link || "",
               ctf_profile: userData.ctf_profile || "",
               isLooking: userData.isLooking || false,
               teamCode: userData.teamCode || "",
@@ -94,13 +89,15 @@ export function ProfileContainer() {
             });
 
             if (userData.resume_link) setResumeFileName("resume.pdf");
-            if (userData.profile_picture) setProfilePhotoFileName("profile.jpg");
+            if (userData.profile_picture)
+              setProfilePhotoFileName("profile.jpg");
 
             if (userData.isProfileLocked || data.isProfileLocked) {
               setIsProfileLocked(true);
               setAlert({
                 type: "warning",
-                message: "Your profile is locked because your team has been evaluated. You can no longer make changes."
+                message:
+                  "Your profile is locked because your team has been evaluated. You can no longer make changes.",
               });
             }
           }
@@ -109,7 +106,7 @@ export function ProfileContainer() {
           toast({
             variant: "destructive",
             title: "Error",
-            description: "Failed to load profile data."
+            description: "Failed to load profile data.",
           });
         }
       } catch (error) {
@@ -117,7 +114,7 @@ export function ProfileContainer() {
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to load profile data. Please refresh the page."
+          description: "Failed to load profile data. Please refresh the page.",
         });
       } finally {
         setIsLoading(false);
@@ -127,12 +124,13 @@ export function ProfileContainer() {
     fetchProfile();
   }, [user, isAuthenticated, router]);
 
-  const toBase64 = (file: File) => new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = error => reject(error);
-  });
+  const toBase64 = (file: File) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
 
   const handleToggleLooking = async () => {
     try {
@@ -159,40 +157,40 @@ export function ProfileContainer() {
       const newValue = !profileData.isLooking;
 
       const response = await fetch(API_ENDPOINTS.lookingForTeam, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          isLooking: newValue
-        })
+          isLooking: newValue,
+        }),
       });
 
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to update status');
+        throw new Error(data.message || "Failed to update status");
       }
 
-      setProfileData(prev => ({ ...prev, isLooking: newValue }));
+      setProfileData((prev) => ({ ...prev, isLooking: newValue }));
 
       toast({
         title: newValue ? "Profile is now public" : "Profile is now private",
         description: newValue
           ? "Your profile is now publicly visible and discoverable by other participants"
-          : "Your profile is now private and hidden from the Discover section"
+          : "Your profile is now private and hidden from the Discover section",
       });
 
       // Update global user context silently
       refreshUser();
-
     } catch (error) {
-      console.error('Error toggling status:', error);
+      console.error("Error toggling status:", error);
       toast({
         variant: "destructive",
         title: "Failed to update status",
-        description: error instanceof Error ? error.message : "Could not update status"
+        description:
+          error instanceof Error ? error.message : "Could not update status",
       });
     }
   };
@@ -231,10 +229,6 @@ export function ProfileContainer() {
         github_link: profileData.github,
         linkedin_link: profileData.linkedin,
         portfolio_link: profileData.portfolio,
-        leetcode_profile: profileData.leetcode,
-        codeforces_link: profileData.codeforces,
-        kaggle_link: profileData.kaggle,
-        devfolio_link: profileData.devfolio,
         ctf_profile: profileData.ctf_profile,
         isLooking: profileData.isLooking,
         resume: resumeBase64,
@@ -242,19 +236,19 @@ export function ProfileContainer() {
       };
 
       // Call Next.js API route
-      const response = await fetch('/api/user/profile', {
-        method: 'PUT',
+      const response = await fetch("/api/user/profile", {
+        method: "PUT",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify(payload),
       });
 
       const data = await response.json();
 
-      if (!response.ok || !data.success && data.status !== 'success') {
-        throw new Error(data.message || 'Failed to update profile');
+      if (!response.ok || (!data.success && data.status !== "success")) {
+        throw new Error(data.message || "Failed to update profile");
       }
 
       setAlert({
@@ -269,7 +263,8 @@ export function ProfileContainer() {
     } catch (error) {
       setAlert({
         type: "error",
-        message: error instanceof Error ? error.message : "Failed to update profile",
+        message:
+          error instanceof Error ? error.message : "Failed to update profile",
       });
     } finally {
       setIsSubmitting(false);
@@ -289,7 +284,10 @@ export function ProfileContainer() {
   return (
     <div className="flex flex-col gap-[24px] max-w-[700px] w-full">
       <div className="flex items-center justify-between">
-        <h1 className="text-[42px] text-white" style={{ fontFamily: 'var(--font-heading)' }}>
+        <h1
+          className="text-[42px] text-white"
+          style={{ fontFamily: "var(--font-heading)" }}
+        >
           Edit Profile
         </h1>
         <Button onClick={() => router.push("/dashboard")} variant="secondary">
@@ -308,24 +306,36 @@ export function ProfileContainer() {
             onCheckedChange={handleToggleLooking}
             className="data-[state=checked]:bg-[#22c55e] border-[#22c55e]"
           />
-          <label htmlFor="profileLookingForTeam" className="text-[14px] font-semibold text-white cursor-pointer" style={{ fontFamily: 'var(--font-body)' }}>
-            Public Profile
+          <label
+            htmlFor="profileLookingForTeam"
+            className="text-[14px] font-semibold text-white cursor-pointer"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
+            Discoverable Profile
           </label>
         </div>
-        <p className="text-[13px] text-[rgba(255,255,255,0.6)] ml-[32px]" style={{ fontFamily: 'var(--font-body)' }}>
-          Enable this to make your profile publicly visible and discoverable by other participants.
+        <p
+          className="text-[13px] text-[rgba(255,255,255,0.6)] ml-[32px]"
+          style={{ fontFamily: "var(--font-body)" }}
+        >
+          Enable this to make your profile publicly visible and discoverable by
+          other participants.
         </p>
       </div>
 
       <form onSubmit={handleUpdateProfile} className="flex flex-col gap-[24px]">
-        <div className={`flex flex-col gap-[24px] ${isProfileLocked ? 'opacity-70 pointer-events-none' : ''}`}>
+        <div
+          className={`flex flex-col gap-[24px] ${isProfileLocked ? "opacity-70 pointer-events-none" : ""}`}
+        >
           <FormSection title="Personal Information">
             <FormInput
               label="Full Name"
               placeholder="John Doe"
               required
               value={profileData.name}
-              onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
+              onChange={(e) =>
+                setProfileData({ ...profileData, name: e.target.value })
+              }
               disabled
             />
             <FormInput
@@ -334,7 +344,9 @@ export function ProfileContainer() {
               placeholder="your.email@example.com"
               required
               value={profileData.email}
-              onChange={(e) => setProfileData({ ...profileData, email: e.target.value })}
+              onChange={(e) =>
+                setProfileData({ ...profileData, email: e.target.value })
+              }
               disabled
             />
             <div className="grid grid-cols-2 gap-[16px]">
@@ -344,7 +356,9 @@ export function ProfileContainer() {
                 placeholder="+1 555 0100"
                 required
                 value={profileData.phone}
-                onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
+                onChange={(e) =>
+                  setProfileData({ ...profileData, phone: e.target.value })
+                }
                 disabled
               />
               <FormInput
@@ -352,7 +366,9 @@ export function ProfileContainer() {
                 placeholder="22"
                 required
                 value={profileData.age}
-                onChange={(e) => setProfileData({ ...profileData, age: e.target.value })}
+                onChange={(e) =>
+                  setProfileData({ ...profileData, age: e.target.value })
+                }
                 disabled
               />
             </div>
@@ -361,7 +377,12 @@ export function ProfileContainer() {
               placeholder="username#1234"
               required
               value={profileData.discord_username}
-              onChange={(e) => setProfileData({ ...profileData, discord_username: e.target.value })}
+              onChange={(e) =>
+                setProfileData({
+                  ...profileData,
+                  discord_username: e.target.value,
+                })
+              }
               disabled={isProfileLocked}
             />
             <FormInput
@@ -369,7 +390,9 @@ export function ProfileContainer() {
               placeholder="Your University"
               required
               value={profileData.organisation}
-              onChange={(e) => setProfileData({ ...profileData, organisation: e.target.value })}
+              onChange={(e) =>
+                setProfileData({ ...profileData, organisation: e.target.value })
+              }
               disabled={isProfileLocked}
             />
             <FormTextarea
@@ -377,7 +400,9 @@ export function ProfileContainer() {
               placeholder="Tell us about yourself..."
               required
               value={profileData.bio}
-              onChange={(e) => setProfileData({ ...profileData, bio: e.target.value })}
+              onChange={(e) =>
+                setProfileData({ ...profileData, bio: e.target.value })
+              }
               rows={3}
               disabled={isProfileLocked}
             />
@@ -413,39 +438,54 @@ export function ProfileContainer() {
               label="GitHub"
               placeholder="https://github.com/username"
               value={profileData.github}
-              onChange={(e) => setProfileData({ ...profileData, github: e.target.value })}
+              onChange={(e) =>
+                setProfileData({ ...profileData, github: e.target.value })
+              }
               disabled={isProfileLocked}
             />
             <FormInput
               label="LinkedIn"
               placeholder="https://linkedin.com/in/username"
               value={profileData.linkedin}
-              onChange={(e) => setProfileData({ ...profileData, linkedin: e.target.value })}
+              onChange={(e) =>
+                setProfileData({ ...profileData, linkedin: e.target.value })
+              }
               disabled={isProfileLocked}
             />
             <FormInput
               label="Portfolio"
               placeholder="https://yourportfolio.com"
               value={profileData.portfolio}
-              onChange={(e) => setProfileData({ ...profileData, portfolio: e.target.value })}
+              onChange={(e) =>
+                setProfileData({ ...profileData, portfolio: e.target.value })
+              }
               disabled={isProfileLocked}
             />
             <FormInput
               label="CTF Profile"
               placeholder="https://ctftime.org/team/12345"
               value={profileData.ctf_profile}
-              onChange={(e) => setProfileData({ ...profileData, ctf_profile: e.target.value })}
+              onChange={(e) =>
+                setProfileData({ ...profileData, ctf_profile: e.target.value })
+              }
               disabled={isProfileLocked}
             />
           </FormSection>
 
-          <Button type="submit" variant="primary" disabled={isSubmitting || isProfileLocked}>
+          <Button
+            type="submit"
+            variant="primary"
+            disabled={isSubmitting || isProfileLocked}
+          >
             {isSubmitting && <Spinner size="sm" className="mr-2" />}
-            {isSubmitting ? "Saving..." : isProfileLocked ? "Profile Locked" : "Save Changes"}
+            {isSubmitting
+              ? "Saving..."
+              : isProfileLocked
+                ? "Profile Locked"
+                : "Save Changes"}
           </Button>
         </div>
       </form>
     </div>
   );
 }
-
