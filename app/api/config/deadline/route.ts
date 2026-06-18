@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 export const dynamic = 'force-dynamic';
 
 // Submission deadline: Extended
-const SUBMISSION_DEADLINE = new Date('2026-01-21T10:00:00+05:30');
+const SUBMISSION_DEADLINE = new Date('2026-06-19T10:00:00+05:30');
 const RSVP_DEADLINE = new Date('2026-01-24T23:59:00+05:30');
 
 /**
