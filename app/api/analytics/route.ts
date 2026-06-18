@@ -95,42 +95,10 @@ export async function GET(request: NextRequest) {
     }));
 
     // Calculate Problem Statement Distribution
-    const psAggregation = await Team.aggregate([
-      {
-        $match: {
-          appliedFor: { $exists: true, $ne: null },
-        },
-      },
-      {
-        $group: {
-          _id: "$appliedFor",
-          count: { $sum: 1 },
-        },
-      },
-      {
-        $sort: { count: -1 },
-      },
-    ]);
-
-    // Fetch PS Titles
-    const psIds = psAggregation.map((item) => item._id).filter((id) => id); // Filter out nulls
-    const problemStatements = await ProblemStatement.find({
-      _id: { $in: psIds },
-    }).select("title");
-    const psMap = new Map(
-      problemStatements.map((ps) => [ps._id.toString(), ps.title]),
-    );
-
-    const psDistribution = psAggregation.map((item) => ({
-      name: psMap.get(item._id?.toString()) || "Unknown",
-      value: item.count,
-    }));
-
     return createSuccessResponse({
       ...currentStats,
       history,
       teamDistribution,
-      psDistribution,
     });
   } catch (error: any) {
     console.error("Analytics data fetch error:", error);
