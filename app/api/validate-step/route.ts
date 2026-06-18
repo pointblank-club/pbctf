@@ -3,8 +3,10 @@ import User from "@/models/User";
 import dbConnect from "@/lib/db";
 
 // Validation functions
-const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-const validateDiscordUsername = (username: string) => username.length >= 2 && username.length <= 32;
+const validateEmail = (email: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const validateDiscordUsername = (username: string) =>
+  username.length >= 2 && username.length <= 32;
 const validatePhone = (phone: string) => /^\+?\d{1,4}[-\s]?\d{10}$/.test(phone);
 const validateURL = (url: string) => {
   try {
@@ -22,9 +24,6 @@ const validateAge = (age: string) => {
 // URL validation patterns
 const githubUrlPattern = /^https?:\/\/(www\.)?github\.com\//;
 const linkedinUrlPattern = /^https?:\/\/(www\.)?linkedin\.com\//;
-const leetcodeUrlPattern = /^https?:\/\/(www\.)?leetcode\.com\//;
-const kaggleUrlPattern = /^https?:\/\/(www\.)?kaggle\.com\//;
-const devfolioUrlPattern = /^https?:\/\/(www\.)?devfolio\.co\//;
 
 // Step 1: Basic Information
 const validateStep1 = async (data: any) => {
@@ -86,7 +85,9 @@ const validateStep2 = async (data: any) => {
   } else if (!validateDiscordUsername(data.discord_username)) {
     errors.discord_username = "Invalid Discord username";
   } else {
-    const existingUser = await User.findOne({ discord_username: data.discord_username });
+    const existingUser = await User.findOne({
+      discord_username: data.discord_username,
+    });
     if (existingUser) {
       errors.discord_username = "Discord username is already registered";
     }
@@ -106,19 +107,16 @@ const validateStep3 = async (data: any) => {
   if (!data.githubLink?.trim()) {
     errors.githubLink = "GitHub profile link is required";
   } else if (!githubUrlPattern.test(data.githubLink)) {
-    errors.githubLink = "Please enter a valid GitHub profile URL (https://github.com/username)";
+    errors.githubLink =
+      "Please enter a valid GitHub profile URL (https://github.com/username)";
   }
 
   // Validate LinkedIn link (required)
   if (!data.linkedinLink?.trim()) {
     errors.linkedinLink = "LinkedIn profile link is required";
   } else if (!linkedinUrlPattern.test(data.linkedinLink)) {
-    errors.linkedinLink = "Please enter a valid LinkedIn profile URL (https://linkedin.com/in/username)";
-  }
-
-  // Validate LeetCode link (optional)
-  if (data.leetcodeProfile && !leetcodeUrlPattern.test(data.leetcodeProfile)) {
-    errors.leetcodeProfile = "Please enter a valid LeetCode profile URL (https://leetcode.com/username)";
+    errors.linkedinLink =
+      "Please enter a valid LinkedIn profile URL (https://linkedin.com/in/username)";
   }
 
   // Validate Portfolio link (optional)
@@ -136,37 +134,30 @@ const validateStep4 = async (data: any) => {
   const ctfProfilesErrors: string[] = [];
 
   // Validate CP profiles
-  const cpProfiles = JSON.parse(data.cpProfiles || '[]');
+  const cpProfiles = JSON.parse(data.cpProfiles || "[]");
   cpProfiles.forEach((link: string, index: number) => {
     if (link && !validateURL(link)) {
       cpProfilesErrors[index] = "Invalid URL format";
     }
   });
-  
-  if (cpProfilesErrors.length > 0 && cpProfilesErrors.some(error => error)) {
+
+  if (cpProfilesErrors.length > 0 && cpProfilesErrors.some((error) => error)) {
     errors.cpProfiles = JSON.stringify(cpProfilesErrors);
   }
 
   // Validate CTF profiles
-  const ctfProfiles = JSON.parse(data.ctfProfileLinks || '[]');
+  const ctfProfiles = JSON.parse(data.ctfProfileLinks || "[]");
   ctfProfiles.forEach((link: string, index: number) => {
     if (link && !validateURL(link)) {
       ctfProfilesErrors[index] = "Invalid URL format";
     }
   });
-  
-  if (ctfProfilesErrors.length > 0 && ctfProfilesErrors.some(error => error)) {
+
+  if (
+    ctfProfilesErrors.length > 0 &&
+    ctfProfilesErrors.some((error) => error)
+  ) {
     errors.ctfProfileLinks = JSON.stringify(ctfProfilesErrors);
-  }
-
-  // Validate Kaggle link (optional)
-  if (data.kaggleLink && !kaggleUrlPattern.test(data.kaggleLink)) {
-    errors.kaggleLink = "Please enter a valid Kaggle profile URL (https://kaggle.com/username)";
-  }
-
-  // Validate Devfolio link (optional)
-  if (data.devfolioLink && !devfolioUrlPattern.test(data.devfolioLink)) {
-    errors.devfolioLink = "Please enter a valid Devfolio profile URL (https://devfolio.co/@username)";
   }
 
   return errors;
@@ -215,7 +206,7 @@ export async function POST(request: Request) {
       default:
         return NextResponse.json(
           { message: "Invalid step", error: "Step out of range" },
-          { status: 400 }
+          { status: 400 },
         );
     }
 
@@ -225,13 +216,13 @@ export async function POST(request: Request) {
     return NextResponse.json({
       valid: !hasErrors,
       errors: errors,
-      step: step
+      step: step,
     });
   } catch (error) {
     console.error("Step validation error:", error);
     return NextResponse.json(
       { message: "An error occurred during validation", error: String(error) },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

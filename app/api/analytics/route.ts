@@ -65,31 +65,20 @@ export async function GET(request: NextRequest) {
       }),
     ]);
 
-    const adjust = (value: number) => Math.ceil(value * 1);
-
     const realRegistered = Math.max(
       0,
       totalTeams - (submittedCount + evaluatedCount),
     );
 
-    const adjustedRegistered = adjust(realRegistered);
-    const adjustedSubmitted = adjust(submittedCount);
-    const adjustedEvaluated = adjust(evaluatedCount);
-    const adjustedShortlisted = adjust(shortlistedCount);
-
-    // Ensure total equals the sum of mutually exclusive parts (Reg + Sub + Eval)
-    const adjustedTotalTeams =
-      adjustedRegistered + adjustedSubmitted + adjustedEvaluated;
-
     const currentStats = {
-      totalUsers: adjust(totalUsers),
-      totalTeams: adjustedTotalTeams,
-      totalSubmissions: adjustedSubmitted,
-      totalEvaluated: adjustedEvaluated,
+      totalUsers,
+      totalTeams,
+      totalSubmissions: submittedCount,
+      totalEvaluated: evaluatedCount,
     };
 
     const teamDistribution = [
-      { name: "Registered", value: adjustedRegistered },
+      { name: "Registered", value: realRegistered },
       { name: "Submitted", value: submittedCount },
       {
         name: "Evaluated",

@@ -223,10 +223,6 @@ export function DashboardContainer() {
               { key: "resume_link", label: "Resume" },
               { key: "github_link", label: "GitHub" },
               { key: "linkedin_link", label: "LinkedIn" },
-              { key: "leetcode_profile", label: "LeetCode" },
-              { key: "codeforces_link", label: "Codeforces" },
-              { key: "kaggle_link", label: "Kaggle" },
-              { key: "devfolio_link", label: "Devfolio" },
               { key: "portfolio_link", label: "Portfolio" },
               { key: "ctf_profile", label: "CTF Profile" },
             ];
@@ -538,7 +534,8 @@ export function DashboardContainer() {
         setIsChallengeCardOpen(false);
         toast({
           title: "Challenge Solved!",
-          description: "Congratulations! You solved the challenge and removed your noob tag.",
+          description:
+            "Congratulations! You solved the challenge and removed your noob tag.",
         });
       } else {
         setFlagError(data.message || "Incorrect flag. Try again!");
@@ -818,7 +815,7 @@ export function DashboardContainer() {
 
       {/* Challenge Alert Banner */}
       {!hasSolvedChallenge ? (
-        <div 
+        <div
           onClick={() => setIsChallengeCardOpen(!isChallengeCardOpen)}
           className="cursor-pointer transition-all duration-300 hover:scale-[1.01]"
         >
@@ -949,17 +946,34 @@ export function DashboardContainer() {
             <FormSection title="Challenge: Don't be a Noob">
               <div className="flex flex-col gap-[16px]">
                 <div className="p-[16px] rounded-[12px] bg-white/5 border border-white/10 space-y-[12px]">
-                  <p className="text-[14.5px] leading-[22px] text-white/90" style={{ fontFamily: 'var(--font-body)' }}>
-                  Intelligence reports suggest that a sensitive artifact is being disclosed somewhere within the application. The leak appears to affect only the currently authenticated user. Find the exposed artifact .
+                  <p
+                    className="text-[14.5px] leading-[22px] text-white/90"
+                    style={{ fontFamily: "var(--font-body)" }}
+                  >
+                    Intelligence reports suggest that a sensitive artifact is
+                    being disclosed somewhere within the application. The leak
+                    appears to affect only the currently authenticated user.
+                    Find the exposed artifact .
                   </p>
-                  <p className="text-[14px] leading-[20px] text-[#22c55e] font-medium" style={{ fontFamily: 'var(--font-body)' }}>
-                    💡 <span className="underline">CTF Hint</span>: The application may reveal more information than it chooses to display to the user.
+                  <p
+                    className="text-[14px] leading-[20px] text-[#22c55e] font-medium"
+                    style={{ fontFamily: "var(--font-body)" }}
+                  >
+                    💡 <span className="underline">CTF Hint</span>: The
+                    application may reveal more information than it chooses to
+                    display to the user.
                   </p>
-                  <p className="text-[13px] text-white/60 leading-[18px]" style={{ fontFamily: 'var(--font-body)' }}>
+                  <p
+                    className="text-[13px] text-white/60 leading-[18px]"
+                    style={{ fontFamily: "var(--font-body)" }}
+                  >
                     Flag Format: <code>pbctf{`{...}`}</code>
                   </p>
                 </div>
-                <form onSubmit={handleSubmitFlag} className="flex gap-[12px] items-end">
+                <form
+                  onSubmit={handleSubmitFlag}
+                  className="flex gap-[12px] items-end"
+                >
                   <div className="flex-1">
                     <FormInput
                       label="Verify Flag"
@@ -969,13 +983,22 @@ export function DashboardContainer() {
                       required
                     />
                   </div>
-                  <Button type="submit" variant="primary" disabled={isSubmittingFlag}>
-                    {isSubmittingFlag ? <Spinner size="sm" className="mr-2" /> : null}
+                  <Button
+                    type="submit"
+                    variant="primary"
+                    disabled={isSubmittingFlag}
+                  >
+                    {isSubmittingFlag ? (
+                      <Spinner size="sm" className="mr-2" />
+                    ) : null}
                     Submit
                   </Button>
                 </form>
                 {flagError && (
-                  <p className="text-[13px] text-red-400 font-semibold" style={{ fontFamily: 'var(--font-body)' }}>
+                  <p
+                    className="text-[13px] text-red-400 font-semibold"
+                    style={{ fontFamily: "var(--font-body)" }}
+                  >
                     ❌ {flagError}
                   </p>
                 )}
@@ -1292,12 +1315,16 @@ export function DashboardContainer() {
       )}
 
       {/* Hidden Flag Container in DOM */}
-      <div id="heyloo" className="hidden" data-howdy={dynamicFlag} style={{ display: 'none' }}></div>
+      <div
+        id="heyloo"
+        className="hidden"
+        data-howdy={dynamicFlag}
+        style={{ display: "none" }}
+      ></div>
 
       {/* Faint hint at the bottom for inspect challenge */}
       {!hasSolvedChallenge && dynamicFlag && (
-        <div className="text-[10px] text-white/5 select-all hover:text-white/20 transition-colors text-center mt-12 mb-6">
-        </div>
+        <div className="text-[10px] text-white/5 select-all hover:text-white/20 transition-colors text-center mt-12 mb-6"></div>
       )}
     </div>
   );

@@ -255,7 +255,7 @@ export function RegistrationContainer({
       case "organisation":
         if (!value.trim()) return "Organisation is required";
         break;
-      case 'github':
+      case "github":
         if (!value.trim()) return "GitHub link is required";
         const githubPattern =
           /^(https?:\/\/)?(www\.)?github\.com\/[\w-]+(\/)?$/i;
@@ -280,19 +280,7 @@ export function RegistrationContainer({
           }
         }
         break;
-      case "leetcode":
-        if (value.trim()) {
-          try {
-            const url = new URL(value.trim());
-            if (!url.hostname.includes("leetcode.com")) {
-              return "Please enter a valid LeetCode URL (e.g., https://leetcode.com/username)";
-            }
-          } catch {
-            return "Please enter a valid LeetCode URL";
-          }
-        }
-        break;
-      case 'ctf':
+      case "ctf":
         if (value.trim()) {
           try {
             new URL(value.trim());
@@ -329,8 +317,16 @@ export function RegistrationContainer({
     const validationErrors: Record<string, string> = {};
 
     const requiredFields: Array<keyof typeof registerData> = [
-      'name', 'email', 'password', 'confirmPassword', 'discord_username',
-      'phone', 'age', 'organisation', 'github', 'linkedin'
+      "name",
+      "email",
+      "password",
+      "confirmPassword",
+      "discord_username",
+      "phone",
+      "age",
+      "organisation",
+      "github",
+      "linkedin",
     ];
 
     requiredFields.forEach((field) => {
@@ -341,7 +337,9 @@ export function RegistrationContainer({
     });
 
     const optionalFields: Array<keyof typeof registerData> = [
-      'portfolio', 'bio', 'ctf'
+      "portfolio",
+      "bio",
+      "ctf",
     ];
 
     optionalFields.forEach((field) => {
@@ -424,22 +422,24 @@ export function RegistrationContainer({
       }
       // Create FormData for API request
       const formData = new FormData();
-      formData.append('name', registerData.name);
-      formData.append('email', registerData.email);
-      formData.append('password', registerData.password);
-      formData.append('discord_username', registerData.discord_username);
-      formData.append('phone', formattedPhone);
-      formData.append('age', registerData.age);
-      formData.append('organisation', registerData.organisation);
-      formData.append('bio', registerData.bio);
-      formData.append('github_link', registerData.github);
-      formData.append('linkedin_link', registerData.linkedin);
-      
-      if (resume) formData.append('resume', resume);
-      if (profilePhoto) formData.append('profile_picture', profilePhoto);
-      if (registerData.portfolio) formData.append('portfolio_link', registerData.portfolio);
-      if (registerData.ctf) formData.append('ctf_profile', registerData.ctf);
-      if (registerData.referralCode) formData.append('referral_code', registerData.referralCode);
+      formData.append("name", registerData.name);
+      formData.append("email", registerData.email);
+      formData.append("password", registerData.password);
+      formData.append("discord_username", registerData.discord_username);
+      formData.append("phone", formattedPhone);
+      formData.append("age", registerData.age);
+      formData.append("organisation", registerData.organisation);
+      formData.append("bio", registerData.bio);
+      formData.append("github_link", registerData.github);
+      formData.append("linkedin_link", registerData.linkedin);
+
+      if (resume) formData.append("resume", resume);
+      if (profilePhoto) formData.append("profile_picture", profilePhoto);
+      if (registerData.portfolio)
+        formData.append("portfolio_link", registerData.portfolio);
+      if (registerData.ctf) formData.append("ctf_profile", registerData.ctf);
+      if (registerData.referralCode)
+        formData.append("referral_code", registerData.referralCode);
 
       await register(formData);
 
@@ -468,10 +468,10 @@ export function RegistrationContainer({
       let errorMessage = "Registration failed. Please try again.";
       const fieldErrors: Record<string, string> = {};
       const fieldNameMap: Record<string, string> = {
-        'github_link': 'github',
-        'linkedin_link': 'linkedin',
-        'portfolio_link': 'portfolio',
-        'ctf_profile': 'ctf',
+        github_link: "github",
+        linkedin_link: "linkedin",
+        portfolio_link: "portfolio",
+        ctf_profile: "ctf",
       };
 
       if (error instanceof Error) {
@@ -494,43 +494,86 @@ export function RegistrationContainer({
         } else {
           errorMessage = error.message || errorMessage;
           const errorMsg = error.message.toLowerCase();
-          if (errorMsg.includes('email already exists') || errorMsg.includes('email is already')) {
-            fieldErrors.email = 'This email is already registered';
-          } else if (errorMsg.includes('discord username already exists') || errorMsg.includes('discord username is already')) {
-            fieldErrors.discord_username = 'This Discord username is already registered';
-          } else if (errorMsg.includes('phone number already exists') || errorMsg.includes('phone number is already')) {
-            fieldErrors.phone = 'This phone number is already registered';
-          } else if (errorMsg.includes('invalid portfolio') || errorMsg.includes('portfolio link')) {
-            fieldErrors.portfolio = 'Invalid Portfolio URL';
-          } else if (errorMsg.includes('invalid github') || errorMsg.includes('github profile')) {
-            fieldErrors.github = 'Invalid GitHub URL';
-          } else if (errorMsg.includes('invalid linkedin') || errorMsg.includes('linkedin profile')) {
-            fieldErrors.linkedin = 'Invalid LinkedIn URL';
+          if (
+            errorMsg.includes("email already exists") ||
+            errorMsg.includes("email is already")
+          ) {
+            fieldErrors.email = "This email is already registered";
+          } else if (
+            errorMsg.includes("discord username already exists") ||
+            errorMsg.includes("discord username is already")
+          ) {
+            fieldErrors.discord_username =
+              "This Discord username is already registered";
+          } else if (
+            errorMsg.includes("phone number already exists") ||
+            errorMsg.includes("phone number is already")
+          ) {
+            fieldErrors.phone = "This phone number is already registered";
+          } else if (
+            errorMsg.includes("invalid portfolio") ||
+            errorMsg.includes("portfolio link")
+          ) {
+            fieldErrors.portfolio = "Invalid Portfolio URL";
+          } else if (
+            errorMsg.includes("invalid github") ||
+            errorMsg.includes("github profile")
+          ) {
+            fieldErrors.github = "Invalid GitHub URL";
+          } else if (
+            errorMsg.includes("invalid linkedin") ||
+            errorMsg.includes("linkedin profile")
+          ) {
+            fieldErrors.linkedin = "Invalid LinkedIn URL";
           }
         }
       } else if (typeof error === "string") {
         errorMessage = error;
         const errorMsg = error.toLowerCase();
-        if (errorMsg.includes('invalid ctf') || errorMsg.includes('ctf profile')) {
-          fieldErrors.ctf = 'Invalid CTF profile URL';
-        } else if (errorMsg.includes('invalid portfolio') || errorMsg.includes('portfolio link')) {
-          fieldErrors.portfolio = 'Invalid Portfolio URL';
-        } else if (errorMsg.includes('invalid github') || errorMsg.includes('github profile')) {
-          fieldErrors.github = 'Invalid GitHub URL';
-        } else if (errorMsg.includes('invalid linkedin') || errorMsg.includes('linkedin profile')) {
-          fieldErrors.linkedin = 'Invalid LinkedIn URL';
+        if (
+          errorMsg.includes("invalid ctf") ||
+          errorMsg.includes("ctf profile")
+        ) {
+          fieldErrors.ctf = "Invalid CTF profile URL";
+        } else if (
+          errorMsg.includes("invalid portfolio") ||
+          errorMsg.includes("portfolio link")
+        ) {
+          fieldErrors.portfolio = "Invalid Portfolio URL";
+        } else if (
+          errorMsg.includes("invalid github") ||
+          errorMsg.includes("github profile")
+        ) {
+          fieldErrors.github = "Invalid GitHub URL";
+        } else if (
+          errorMsg.includes("invalid linkedin") ||
+          errorMsg.includes("linkedin profile")
+        ) {
+          fieldErrors.linkedin = "Invalid LinkedIn URL";
         }
       } else if (error && typeof error === "object" && "message" in error) {
         errorMessage = String(error.message);
         const errorMsg = errorMessage.toLowerCase();
-        if (errorMsg.includes('invalid ctf') || errorMsg.includes('ctf profile')) {
-          fieldErrors.ctf = 'Invalid CTF profile URL';
-        } else if (errorMsg.includes('invalid portfolio') || errorMsg.includes('portfolio link')) {
-          fieldErrors.portfolio = 'Invalid Portfolio URL';
-        } else if (errorMsg.includes('invalid github') || errorMsg.includes('github profile')) {
-          fieldErrors.github = 'Invalid GitHub URL';
-        } else if (errorMsg.includes('invalid linkedin') || errorMsg.includes('linkedin profile')) {
-          fieldErrors.linkedin = 'Invalid LinkedIn URL';
+        if (
+          errorMsg.includes("invalid ctf") ||
+          errorMsg.includes("ctf profile")
+        ) {
+          fieldErrors.ctf = "Invalid CTF profile URL";
+        } else if (
+          errorMsg.includes("invalid portfolio") ||
+          errorMsg.includes("portfolio link")
+        ) {
+          fieldErrors.portfolio = "Invalid Portfolio URL";
+        } else if (
+          errorMsg.includes("invalid github") ||
+          errorMsg.includes("github profile")
+        ) {
+          fieldErrors.github = "Invalid GitHub URL";
+        } else if (
+          errorMsg.includes("invalid linkedin") ||
+          errorMsg.includes("linkedin profile")
+        ) {
+          fieldErrors.linkedin = "Invalid LinkedIn URL";
         }
       }
 
@@ -544,18 +587,18 @@ export function RegistrationContainer({
           alertMessage = fieldErrors[fieldErrorKeys[0]];
         } else {
           const fieldDisplayNameMap: Record<string, string> = {
-            'ctf': 'CTF Profile',
-            'portfolio': 'Portfolio',
-            'github': 'GitHub',
-            'linkedin': 'LinkedIn',
-            'email': 'Email',
-            'password': 'Password',
-            'discord_username': 'Discord Username',
-            'phone': 'Phone',
-            'age': 'Age',
-            'organisation': 'Organisation',
-            'bio': 'Bio',
-            'name': 'Name',
+            ctf: "CTF Profile",
+            portfolio: "Portfolio",
+            github: "GitHub",
+            linkedin: "LinkedIn",
+            email: "Email",
+            password: "Password",
+            discord_username: "Discord Username",
+            phone: "Phone",
+            age: "Age",
+            organisation: "Organisation",
+            bio: "Bio",
+            name: "Name",
           };
 
           const errorList = fieldErrorKeys
@@ -925,35 +968,35 @@ export function RegistrationContainer({
               error={errors.phone}
             />
             <FormInput
-  label="Age"
-  type="number"
-  placeholder="22"
-  required
-  value={registerData.age}
-  onChange={(e) =>
-    setRegisterData({
-      ...registerData,
-      age: e.target.value,
-    })
-  }
-  onBlur={handleFieldBlur("age")}
-  error={errors.age}
-/>
+              label="Age"
+              type="number"
+              placeholder="22"
+              required
+              value={registerData.age}
+              onChange={(e) =>
+                setRegisterData({
+                  ...registerData,
+                  age: e.target.value,
+                })
+              }
+              onBlur={handleFieldBlur("age")}
+              error={errors.age}
+            />
 
-<FormInput
-  label="Organisation"
-  placeholder="Your University/Company"
-  required
-  value={registerData.organisation}
-  onChange={(e) =>
-    setRegisterData({
-      ...registerData,
-      organisation: e.target.value,
-    })
-  }
-  onBlur={handleFieldBlur("organisation")}
-  error={errors.organisation}
-/>
+            <FormInput
+              label="Organisation"
+              placeholder="Your University/Company"
+              required
+              value={registerData.organisation}
+              onChange={(e) =>
+                setRegisterData({
+                  ...registerData,
+                  organisation: e.target.value,
+                })
+              }
+              onBlur={handleFieldBlur("organisation")}
+              error={errors.organisation}
+            />
             <FormTextarea
               label="Bio"
               placeholder="Tell us about yourself..."
@@ -964,7 +1007,7 @@ export function RegistrationContainer({
                   bio: e.target.value,
                 })
               }
-              onBlur={handleFieldBlur('bio')}
+              onBlur={handleFieldBlur("bio")}
               rows={3}
               error={errors.bio}
             />
@@ -978,7 +1021,10 @@ export function RegistrationContainer({
               />
             </div>
             {errors.resume && (
-              <span className="text-[12px] text-[#ff4d00]" style={{ fontFamily: 'var(--font-body)' }}>
+              <span
+                className="text-[12px] text-[#ff4d00]"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
                 {errors.resume}
               </span>
             )}
@@ -991,12 +1037,18 @@ export function RegistrationContainer({
               />
             </div>
             {errors.profilePhoto && (
-              <span className="text-[12px] text-red-400" style={{ fontFamily: 'var(--font-body)' }}>
+              <span
+                className="text-[12px] text-red-400"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
                 {errors.profilePhoto}
               </span>
             )}
             <div className="flex flex-col gap-[12px]">
-              <p className="text-[14px] text-white opacity-80" style={{ fontFamily: 'var(--font-body)' }}>
+              <p
+                className="text-[14px] text-white opacity-80"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
                 Professional Links (Required)
               </p>
               <FormInput
@@ -1010,7 +1062,7 @@ export function RegistrationContainer({
                     github: e.target.value,
                   })
                 }
-                onBlur={handleFieldBlur('github')}
+                onBlur={handleFieldBlur("github")}
                 error={errors.github}
               />
               <FormInput
@@ -1024,12 +1076,15 @@ export function RegistrationContainer({
                     linkedin: e.target.value,
                   })
                 }
-                onBlur={handleFieldBlur('linkedin')}
+                onBlur={handleFieldBlur("linkedin")}
                 error={errors.linkedin}
               />
             </div>
             <div className="flex flex-col gap-[12px]">
-              <p className="text-[14px] text-white opacity-80" style={{ fontFamily: 'var(--font-body)' }}>
+              <p
+                className="text-[14px] text-white opacity-80"
+                style={{ fontFamily: "var(--font-body)" }}
+              >
                 Optional: Add your social links
               </p>
               <FormInput
@@ -1042,7 +1097,7 @@ export function RegistrationContainer({
                     portfolio: e.target.value,
                   })
                 }
-                onBlur={handleFieldBlur('portfolio')}
+                onBlur={handleFieldBlur("portfolio")}
                 error={errors.portfolio}
               />
               <FormInput
@@ -1055,7 +1110,7 @@ export function RegistrationContainer({
                     ctf: e.target.value,
                   })
                 }
-                onBlur={handleFieldBlur('ctf')}
+                onBlur={handleFieldBlur("ctf")}
                 error={errors.ctf}
               />
             </div>
@@ -1077,19 +1132,19 @@ export function RegistrationContainer({
                     }}
                     className="w-[18px] h-[18px] rounded-[4px] border border-[rgba(255,255,255,0.38)] backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.2)] text-[#22c55e] focus:ring-2 focus:ring-[#22c55e] focus:ring-offset-0 cursor-pointer appearance-none checked:bg-[#22c55e] checked:border-[#22c55e] transition-all"
                     style={{
-                      backgroundImage: acceptedCodeOfConduct 
+                      backgroundImage: acceptedCodeOfConduct
                         ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23ffffff' stroke-width='2' d='M2 6l3 3 5-5'/%3E%3C/svg%3E")`
-                        : 'none',
-                      backgroundRepeat: 'no-repeat',
-                      backgroundPosition: 'center',
-                      backgroundSize: '12px 12px'
+                        : "none",
+                      backgroundRepeat: "no-repeat",
+                      backgroundPosition: "center",
+                      backgroundSize: "12px 12px",
                     }}
                   />
                 </div>
                 <label
                   htmlFor="codeOfConduct"
                   className="text-[14px] text-white leading-[20px] cursor-pointer flex-1"
-                  style={{ fontFamily: 'var(--font-body)' }}
+                  style={{ fontFamily: "var(--font-body)" }}
                 >
                   I agree to the{" "}
                   <button
@@ -1106,7 +1161,10 @@ export function RegistrationContainer({
                 </label>
               </div>
               {errors.codeOfConduct && (
-                <span className="text-[12px] text-[#ff4d00]" style={{ fontFamily: 'var(--font-body)' }}>
+                <span
+                  className="text-[12px] text-[#ff4d00]"
+                  style={{ fontFamily: "var(--font-body)" }}
+                >
                   {errors.codeOfConduct}
                 </span>
               )}
@@ -1132,14 +1190,21 @@ export function RegistrationContainer({
           className="flex flex-col gap-[24px] text-white"
           style={{ fontFamily: "var(--font-body)" }}
         >
-          <div className="flex flex-col gap-[24px] text-white" style={{ fontFamily: 'var(--font-body)' }}>
+          <div
+            className="flex flex-col gap-[24px] text-white"
+            style={{ fontFamily: "var(--font-body)" }}
+          >
             <div className="flex flex-col gap-[16px]">
               <div>
-                <h3 className="text-[18px] font-semibold mb-[8px]" style={{ fontFamily: 'var(--font-heading)' }}>
+                <h3
+                  className="text-[18px] font-semibold mb-[8px]"
+                  style={{ fontFamily: "var(--font-heading)" }}
+                >
                   Overview
                 </h3>
                 <p className="text-[14px] leading-[22px] opacity-90">
-                  Point Blank is committed to providing a safe, inclusive, and respectful environment for all CTF participants.
+                  Point Blank is committed to providing a safe, inclusive, and
+                  respectful environment for all CTF participants.
                 </p>
                 <p className="text-[14px] leading-[22px] opacity-90 mt-[8px]">
                   By participating, you agree to follow this Code of Conduct.
@@ -1147,22 +1212,33 @@ export function RegistrationContainer({
               </div>
 
               <div>
-                <h3 className="text-[18px] font-semibold mb-[8px]" style={{ fontFamily: 'var(--font-heading)' }}>
+                <h3
+                  className="text-[18px] font-semibold mb-[8px]"
+                  style={{ fontFamily: "var(--font-heading)" }}
+                >
                   Respect & Professionalism
                 </h3>
                 <ul className="list-disc list-inside space-y-[4px] text-[14px] leading-[22px] opacity-90 ml-[8px]">
-                  <li>Treat all participants, organizers, and volunteers with respect</li>
+                  <li>
+                    Treat all participants, organizers, and volunteers with
+                    respect
+                  </li>
                   <li>Maintain a friendly and inclusive environment</li>
                   <li>Professional behavior is expected at all times</li>
                 </ul>
               </div>
 
               <div>
-                <h3 className="text-[18px] font-semibold mb-[8px]" style={{ fontFamily: 'var(--font-heading)' }}>
+                <h3
+                  className="text-[18px] font-semibold mb-[8px]"
+                  style={{ fontFamily: "var(--font-heading)" }}
+                >
                   Communication Guidelines
                 </h3>
                 <ul className="list-disc list-inside space-y-[4px] text-[14px] leading-[22px] opacity-90 ml-[8px]">
-                  <li>Use designated communication channels (Discord Channel)</li>
+                  <li>
+                    Use designated communication channels (Discord Channel)
+                  </li>
                   <li>Keep discussions relevant to the competition</li>
                   <li>No spam, repetitive messages, or off-topic content</li>
                   <li>Avoid promotional content or unrelated links</li>
@@ -1173,7 +1249,10 @@ export function RegistrationContainer({
               </div>
 
               <div>
-                <h3 className="text-[18px] font-semibold mb-[8px]" style={{ fontFamily: 'var(--font-heading)' }}>
+                <h3
+                  className="text-[18px] font-semibold mb-[8px]"
+                  style={{ fontFamily: "var(--font-heading)" }}
+                >
                   Content Standards
                 </h3>
                 <ul className="list-disc list-inside space-y-[4px] text-[14px] leading-[22px] opacity-90 ml-[8px]">
@@ -1185,7 +1264,10 @@ export function RegistrationContainer({
               </div>
 
               <div>
-                <h3 className="text-[18px] font-semibold mb-[8px]" style={{ fontFamily: 'var(--font-heading)' }}>
+                <h3
+                  className="text-[18px] font-semibold mb-[8px]"
+                  style={{ fontFamily: "var(--font-heading)" }}
+                >
                   Venue Etiquette
                 </h3>
                 <ul className="list-disc list-inside space-y-[4px] text-[14px] leading-[22px] opacity-90 ml-[8px]">
@@ -1197,21 +1279,32 @@ export function RegistrationContainer({
               </div>
 
               <div>
-                <h3 className="text-[18px] font-semibold mb-[8px]" style={{ fontFamily: 'var(--font-heading)' }}>
+                <h3
+                  className="text-[18px] font-semibold mb-[8px]"
+                  style={{ fontFamily: "var(--font-heading)" }}
+                >
                   Enforcement
                 </h3>
                 <ul className="list-disc list-inside space-y-[4px] text-[14px] leading-[22px] opacity-90 ml-[8px]">
-                  <li>Point Blank reserves the right to take action for violations, including warnings, disqualification, or removal from the event.</li>
+                  <li>
+                    Point Blank reserves the right to take action for
+                    violations, including warnings, disqualification, or removal
+                    from the event.
+                  </li>
                   <li>Reports of misconduct will be handled confidentially.</li>
                 </ul>
               </div>
 
               <div>
-                <h3 className="text-[18px] font-semibold mb-[8px]" style={{ fontFamily: 'var(--font-heading)' }}>
+                <h3
+                  className="text-[18px] font-semibold mb-[8px]"
+                  style={{ fontFamily: "var(--font-heading)" }}
+                >
                   Final Note
                 </h3>
                 <p className="text-[14px] leading-[22px] opacity-90 mt-[8px]">
-                  Bring curiosity, participate responsibly, and respect the community.
+                  Bring curiosity, participate responsibly, and respect the
+                  community.
                 </p>
                 <p className="text-[14px] leading-[22px] opacity-90 mt-[12px] text-right">
                   — Point Blank
@@ -1219,25 +1312,25 @@ export function RegistrationContainer({
               </div>
             </div>
 
-          <div className="flex justify-end pt-[16px] border-t border-[rgba(255,255,255,0.2)]">
-            <Button
-              onClick={() => {
-                setAcceptedCodeOfConduct(true);
-                setIsCodeOfConductModalOpen(false);
-                if (errors.codeOfConduct) {
-                  const newErrors = { ...errors };
-                  delete newErrors.codeOfConduct;
-                  setErrors(newErrors);
-                }
-              }}
-              variant="primary"
-            >
-              I Accept
-            </Button>
+            <div className="flex justify-end pt-[16px] border-t border-[rgba(255,255,255,0.2)]">
+              <Button
+                onClick={() => {
+                  setAcceptedCodeOfConduct(true);
+                  setIsCodeOfConductModalOpen(false);
+                  if (errors.codeOfConduct) {
+                    const newErrors = { ...errors };
+                    delete newErrors.codeOfConduct;
+                    setErrors(newErrors);
+                  }
+                }}
+                variant="primary"
+              >
+                I Accept
+              </Button>
+            </div>
           </div>
         </div>
-      </div>
       </Modal>
-    </div> 
+    </div>
   );
-  }
+}

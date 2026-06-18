@@ -195,10 +195,6 @@ export async function PUT(request: NextRequest) {
       profile_picture, // base64 encoded image
       github_link,
       linkedin_link,
-      leetcode_profile,
-      codeforces_link,
-      kaggle_link,
-      devfolio_link,
       portfolio_link,
       ctf_profile,
       isLooking,
@@ -234,14 +230,6 @@ export async function PUT(request: NextRequest) {
       updateData.github_link = github_link?.trim() || null;
     if (linkedin_link !== undefined)
       updateData.linkedin_link = linkedin_link?.trim() || null;
-    if (leetcode_profile !== undefined)
-      updateData.leetcode_profile = leetcode_profile?.trim() || null;
-    if (codeforces_link !== undefined)
-      updateData.codeforces_link = codeforces_link?.trim() || null;
-    if (kaggle_link !== undefined)
-      updateData.kaggle_link = kaggle_link?.trim() || null;
-    if (devfolio_link !== undefined)
-      updateData.devfolio_link = devfolio_link?.trim() || null;
     if (portfolio_link !== undefined)
       updateData.portfolio_link = portfolio_link?.trim() || null;
     if (ctf_profile !== undefined)

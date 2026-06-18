@@ -49,7 +49,7 @@ export async function GET(
 
     const memberUids = team.teamMembers.map((m: any) => m.uid);
     const members = await User.find({ uid: { $in: memberUids } }).select(
-      "uid name email organisation profile_picture discord_username resume_link github_link linkedin_link leetcode_profile codeforces_link kaggle_link portfolio_link bio age",
+      "uid name email organisation profile_picture discord_username resume_link github_link linkedin_link portfolio_link bio age",
     );
 
     const formattedMembers = team.teamMembers.map((member: any) => {

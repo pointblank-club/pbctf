@@ -1,24 +1,29 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/Firebase";
-import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+} from "firebase/auth";
 import { cloudinaryV2 } from "@/c";
 import dbConnect from "@/lib/db";
 import User, { IUser } from "@/models/User";
 
 // Configure route
-export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs';
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
 
 // Configure Cloudinary
 cloudinaryV2.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET
+  api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
 // Validation functions
-const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-const validateDiscordUsername = (username: string) => username.length >= 2 && username.length <= 32;
+const validateEmail = (email: string) =>
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const validateDiscordUsername = (username: string) =>
+  username.length >= 2 && username.length <= 32;
 const validatePhone = (phone: string) => /^\+?\d{1,4}[-\s]?\d{10}$/.test(phone);
 const validateAge = (age: number) => age >= 13 && age <= 100;
 const validatePassword = (password: string) => {
@@ -39,7 +44,11 @@ const validateURL = (url: string) => {
 };
 
 // Upload base64 file to Cloudinary
-async function uploadBase64ToCloudinary(base64Data: string, folder: string, resourceType: 'image' | 'raw'): Promise<string> {
+async function uploadBase64ToCloudinary(
+  base64Data: string,
+  folder: string,
+  resourceType: "image" | "raw",
+): Promise<string> {
   return new Promise((resolve, reject) => {
     cloudinaryV2.uploader.upload(
       base64Data,
@@ -50,22 +59,27 @@ async function uploadBase64ToCloudinary(base64Data: string, folder: string, reso
       (error, result) => {
         if (error) reject(error);
         else resolve(result!.secure_url);
-      }
+      },
     );
   });
 }
 
 export async function POST(request: Request) {
   try {
-    const REGISTRATION_DEADLINE = new Date('2026-07-19T10:00:00+05:30');
+    const REGISTRATION_DEADLINE = new Date("2026-07-19T10:00:00+05:30");
     if (new Date() > REGISTRATION_DEADLINE) {
       return NextResponse.json(
         {
           success: false,
-          message: "Registration deadline has passed. Registrations are no longer accepted.",
-          error: { code: 'registration_closed', message: "Registration deadline has passed. Registrations are no longer accepted." }
+          message:
+            "Registration deadline has passed. Registrations are no longer accepted.",
+          error: {
+            code: "registration_closed",
+            message:
+              "Registration deadline has passed. Registrations are no longer accepted.",
+          },
         },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -75,22 +89,22 @@ export async function POST(request: Request) {
     const fileToBase64 = async (file: File): Promise<string> => {
       const arrayBuffer = await file.arrayBuffer();
       const buffer = Buffer.from(arrayBuffer);
-      return `data:${file.type};base64,${buffer.toString('base64')}`;
+      return `data:${file.type};base64,${buffer.toString("base64")}`;
     };
 
     // Extract fields
-    const name = formData.get('name') as string;
-    const email = formData.get('email') as string;
-    const password = formData.get('password') as string;
-    const discord_username = formData.get('discord_username') as string;
-    const phone = formData.get('phone') as string;
-    const age = formData.get('age') as string;
-    const organisation = formData.get('organisation') as string;
-    const bio = formData.get('bio') as string;
+    const name = formData.get("name") as string;
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const discord_username = formData.get("discord_username") as string;
+    const phone = formData.get("phone") as string;
+    const age = formData.get("age") as string;
+    const organisation = formData.get("organisation") as string;
+    const bio = formData.get("bio") as string;
 
     // Handle files
-    const resumeFile = formData.get('resume') as File | null;
-    const profilePicFile = formData.get('profile_picture') as File | null;
+    const resumeFile = formData.get("resume") as File | null;
+    const profilePicFile = formData.get("profile_picture") as File | null;
 
     let resume: string | undefined;
     if (resumeFile && resumeFile.size > 0) {
@@ -102,15 +116,11 @@ export async function POST(request: Request) {
       profile_picture = await fileToBase64(profilePicFile);
     }
 
-    const leetcode_profile = formData.get('leetcode_profile') as string;
-    const github_link = formData.get('github_link') as string;
-    const linkedin_link = formData.get('linkedin_link') as string;
-    const codeforces_link = formData.get('codeforces_link') as string;
-    const kaggle_link = formData.get('kaggle_link') as string;
-    const devfolio_link = formData.get('devfolio_link') as string;
-    const portfolio_link = formData.get('portfolio_link') as string;
-    const ctf_profile = formData.get('ctf_profile') as string;
-    const isLooking = formData.get('isLooking') === 'true';
+    const github_link = formData.get("github_link") as string;
+    const linkedin_link = formData.get("linkedin_link") as string;
+    const portfolio_link = formData.get("portfolio_link") as string;
+    const ctf_profile = formData.get("ctf_profile") as string;
+    const isLooking = formData.get("isLooking") === "true";
 
     // Validation
     const errors: Record<string, string> = {};
@@ -126,7 +136,8 @@ export async function POST(request: Request) {
     }
 
     if (!password || !validatePassword(password)) {
-      errors.password = "Password must be at least 8 characters and contain uppercase, lowercase, number, and special character";
+      errors.password =
+        "Password must be at least 8 characters and contain uppercase, lowercase, number, and special character";
     }
 
     if (!discord_username?.trim()) {
@@ -147,7 +158,11 @@ export async function POST(request: Request) {
       errors.age = "Age must be between 13 and 100";
     }
 
-    if (!organisation?.trim() || organisation.length < 2 || organisation.length > 200) {
+    if (
+      !organisation?.trim() ||
+      organisation.length < 2 ||
+      organisation.length > 200
+    ) {
       errors.organisation = "Organisation is required (2-200 characters)";
     }
 
@@ -157,9 +172,6 @@ export async function POST(request: Request) {
     }
     if (linkedin_link && !validateURL(linkedin_link)) {
       errors.linkedin_link = "Invalid LinkedIn URL";
-    }
-    if (leetcode_profile && !validateURL(leetcode_profile)) {
-      errors.leetcode_profile = "Invalid LeetCode URL";
     }
     if (portfolio_link && !validateURL(portfolio_link)) {
       errors.portfolio_link = "Invalid portfolio URL";
@@ -171,9 +183,9 @@ export async function POST(request: Request) {
         {
           success: false,
           message: "Validation error",
-          errors
+          errors,
         },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -187,9 +199,9 @@ export async function POST(request: Request) {
         {
           success: false,
           message: "Email already exists",
-          error: { code: 'email_exists', message: "Email already exists" }
+          error: { code: "email_exists", message: "Email already exists" },
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -200,9 +212,12 @@ export async function POST(request: Request) {
         {
           success: false,
           message: "Discord username already exists",
-          error: { code: 'discord_exists', message: "Discord username already exists" }
+          error: {
+            code: "discord_exists",
+            message: "Discord username already exists",
+          },
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
@@ -213,39 +228,46 @@ export async function POST(request: Request) {
         {
           success: false,
           message: "Phone number already exists",
-          error: { code: 'phone_exists', message: "Phone number already exists" }
+          error: {
+            code: "phone_exists",
+            message: "Phone number already exists",
+          },
         },
-        { status: 409 }
+        { status: 409 },
       );
     }
 
     // Create Firebase Auth user
     let firebaseUser;
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        password,
+      );
       firebaseUser = userCredential.user;
-      
+
       // Send email verification
       await sendEmailVerification(firebaseUser);
     } catch (firebaseError: any) {
-      if (firebaseError.code === 'auth/email-already-in-use') {
+      if (firebaseError.code === "auth/email-already-in-use") {
         return NextResponse.json(
           {
             success: false,
             message: "Email already exists",
-            error: { code: 'email_exists', message: "Email already exists" }
+            error: { code: "email_exists", message: "Email already exists" },
           },
-          { status: 409 }
+          { status: 409 },
         );
       }
-      if (firebaseError.code === 'auth/weak-password') {
+      if (firebaseError.code === "auth/weak-password") {
         return NextResponse.json(
           {
             success: false,
             message: "Password is too weak",
-            error: { code: 'weak_password', message: "Password is too weak" }
+            error: { code: "weak_password", message: "Password is too weak" },
           },
-          { status: 400 }
+          { status: 400 },
         );
       }
       throw firebaseError;
@@ -257,18 +279,26 @@ export async function POST(request: Request) {
 
     if (resume) {
       try {
-        resumeUrl = await uploadBase64ToCloudinary(resume, 'zenith/resumes', 'raw');
+        resumeUrl = await uploadBase64ToCloudinary(
+          resume,
+          "zenith/resumes",
+          "raw",
+        );
       } catch (uploadError) {
-        console.error('Resume upload error:', uploadError);
+        console.error("Resume upload error:", uploadError);
         // Continue without resume
       }
     }
 
     if (profile_picture) {
       try {
-        profilePicUrl = await uploadBase64ToCloudinary(profile_picture, 'zenith/profiles', 'image');
+        profilePicUrl = await uploadBase64ToCloudinary(
+          profile_picture,
+          "zenith/profiles",
+          "image",
+        );
       } catch (uploadError) {
-        console.error('Profile picture upload error:', uploadError);
+        console.error("Profile picture upload error:", uploadError);
         // Continue without profile picture
       }
     }
@@ -285,34 +315,32 @@ export async function POST(request: Request) {
       bio: bio?.trim(),
       resume_link: resumeUrl,
       profile_picture: profilePicUrl,
-      leetcode_profile: leetcode_profile?.trim(),
       github_link: github_link?.trim(),
       linkedin_link: linkedin_link?.trim(),
-      codeforces_link: codeforces_link?.trim(),
-      kaggle_link: kaggle_link?.trim(),
-      devfolio_link: devfolio_link?.trim(),
       portfolio_link: portfolio_link?.trim(),
       ctf_profile: ctf_profile?.trim(),
       isLooking: Boolean(isLooking),
-      role: 'user',
+      role: "user",
       teamCode: undefined,
     });
 
     await newUser.save();
 
-    return NextResponse.json({
-      message: "Registration successful",
-      uid: firebaseUser.uid,
-      status: "pending_verification",
-      user: {
+    return NextResponse.json(
+      {
+        message: "Registration successful",
         uid: firebaseUser.uid,
-        email: newUser.email,
-        name: newUser.name,
-        isAdmin: false,
-        profile_picture: newUser.profile_picture || null,
-      }
-    }, { status: 201 });
-
+        status: "pending_verification",
+        user: {
+          uid: firebaseUser.uid,
+          email: newUser.email,
+          name: newUser.name,
+          isAdmin: false,
+          profile_picture: newUser.profile_picture || null,
+        },
+      },
+      { status: 201 },
+    );
   } catch (error: any) {
     console.error("Registration error:", error);
     return NextResponse.json(
@@ -320,12 +348,12 @@ export async function POST(request: Request) {
         success: false,
         message: error instanceof Error ? error.message : "Server error",
         error: {
-          code: 'server_error',
+          code: "server_error",
           message: error instanceof Error ? error.message : "Server error",
-          details: process.env.NODE_ENV === 'development' ? error : undefined
-        }
+          details: process.env.NODE_ENV === "development" ? error : undefined,
+        },
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

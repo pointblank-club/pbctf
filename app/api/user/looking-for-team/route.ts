@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
     const [users, totalUsers] = await Promise.all([
       User.find(query)
         .select(
-          "uid name email organisation bio profile_picture github_link linkedin_link leetcode_profile hasSolvedChallenge",
+          "uid name email organisation bio profile_picture github_link linkedin_link hasSolvedChallenge",
         )
         .skip(skip)
         .limit(limit)
