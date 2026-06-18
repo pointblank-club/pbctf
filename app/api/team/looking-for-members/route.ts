@@ -81,17 +81,14 @@ export async function GET(request: NextRequest) {
     const teamLeadUids = teams.map(t => t.teamLead);
     const allMemberUids = teams.flatMap(t => t.teamMembers.map((m: any) => m.uid));
     const uniqueMemberUids = [...new Set(allMemberUids)];
-    const problemStatementIds = teams.map(t => t.appliedFor).filter((id): id is string => Boolean(id));
 
-    const [teamLeads, teamMembers, problemStatements] = await Promise.all([
+    const [teamLeads, teamMembers] = await Promise.all([
       User.find({ uid: { $in: teamLeadUids } }).select('uid name'),
       User.find({ uid: { $in: uniqueMemberUids } }).select('uid name organisation'),
-      ProblemStatement.find({ _id: { $in: problemStatementIds } }).select('_id title'),
     ]);
 
     const formattedTeams = teams.map(team => {
       const lead = teamLeads.find(u => u.uid === team.teamLead);
-      const ps = problemStatements.find(p => p._id.toString() === team.appliedFor);
 
       const formattedMembers = team.teamMembers.map((m: any) => {
         const member = teamMembers.find(u => u.uid === m.uid);
@@ -112,7 +109,6 @@ export async function GET(request: NextRequest) {
         teamMembers: formattedMembers,
         currentMemberCount: team.memberCount,
         maxMembers: 2,
-        appliedFor: ps ? { id: ps._id.toString(), title: ps.title } : null,
         isLooking: team.isLooking,
       };
     });

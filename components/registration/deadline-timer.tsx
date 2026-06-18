@@ -195,12 +195,12 @@ export function DeadlineTimer({ teamStatus, hasSubmitted = false, isEvaluated = 
               ? "Team Not Selected"
               : hasAcceptedEvaluation
                 ? "🎉 Your Team Has Been Selected!"
-                : "Submissions Closed"
+                : "Registration Closed"
             : isExpired
-              ? "Submissions Closed"
+              ? "Registration Closed"
               : submitted
-                ? "Submission Complete!"
-                : "Submission Deadline"}
+                ? "You're Registered!"
+                : "Registration Deadline"}
         </h3>
       </div>
 
@@ -331,7 +331,7 @@ export function DeadlineTimer({ teamStatus, hasSubmitted = false, isEvaluated = 
               ) : (
                 <>
                   <p className="text-[14px] text-white/80 text-center w-full" style={{ fontFamily: 'var(--font-body)' }}>
-                    The submission deadline has passed. No new submissions are being accepted.
+                    The registration deadline has passed. No new registrations are being accepted.
                   </p>
                   <p className="text-[15px] text-white font-medium text-center w-full" style={{ fontFamily: 'var(--font-body)' }}>
                     Results will be out soon :)
@@ -341,7 +341,7 @@ export function DeadlineTimer({ teamStatus, hasSubmitted = false, isEvaluated = 
             ) : (
               <>
                 <p className="text-[14px] text-white/80 text-center w-full" style={{ fontFamily: 'var(--font-body)' }}>
-                  The submission deadline has passed. No new submissions are being accepted.
+                  The registration deadline has passed. No new registrations are being accepted.
                 </p>
                 <p className="text-[15px] text-white font-medium text-center w-full" style={{ fontFamily: 'var(--font-body)' }}>
                   Results will be out soon :)
@@ -393,9 +393,9 @@ export function DeadlineTimer({ teamStatus, hasSubmitted = false, isEvaluated = 
             className={`text-[13px] text-center w-full text-white/80`}
             style={{ fontFamily: 'var(--font-body)' }}
           >
-            {submitted 
-              ? "Your team has successfully submitted. Good luck!" 
-              : "⚠️ Your team has not submitted yet. Make sure to submit before the deadline!"}
+            {submitted
+              ? "Your team is registered. Good luck!"
+              : "⚠️ Your team is not registered yet. Make sure to register before the deadline!"}
           </p>
 
           {/* Deadline Date */}

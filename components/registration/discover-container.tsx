@@ -19,7 +19,6 @@ import { AlertBanner } from "./alert-banner";
 interface TeamLookingForMembers {
   teamName: string;
   teamCode: string;
-  problemStatement: string;
   currentMembers: number;
   maxMembers: number;
   teamLead?: {
@@ -31,10 +30,6 @@ interface TeamLookingForMembers {
     name: string;
     organisation?: string;
   }>;
-  appliedFor?: {
-    id: string;
-    title: string;
-  };
 }
 
 interface ParticipantLookingForTeam {
@@ -203,12 +198,10 @@ export function DiscoverContainer() {
                 const transformed = teamsData.data.teams.map((team: any) => ({
                   teamName: team.teamName,
                   teamCode: team.teamCode,
-                  problemStatement: team.appliedFor?.title || 'No problem statement selected',
                   currentMembers: team.currentMemberCount || 0,
                   maxMembers: team.maxMembers || 4,
                   teamLead: team.teamLead,
                   teamMembers: team.teamMembers,
-                  appliedFor: team.appliedFor,
                 }));
                 setTeamsLookingForMembers(transformed);
                 // Store pagination info
@@ -415,7 +408,6 @@ export function DiscoverContainer() {
               name: m.name,
               role: 'Member',
             })) || [],
-            appliedFor: basicTeamData.appliedFor,
             memberCount: basicTeamData.currentMembers,
             maxMembers: basicTeamData.maxMembers,
             teamStatus: 'pending',
@@ -452,7 +444,6 @@ export function DiscoverContainer() {
                 name: m.name,
                 role: 'Member',
               })) || [],
-              appliedFor: basicTeamData.appliedFor,
               memberCount: basicTeamData.currentMembers,
               maxMembers: basicTeamData.maxMembers,
               teamStatus: 'pending',
@@ -474,7 +465,6 @@ export function DiscoverContainer() {
               name: m.name,
               role: 'Member',
             })) || [],
-            appliedFor: basicTeamData.appliedFor,
             memberCount: basicTeamData.currentMembers,
             maxMembers: basicTeamData.maxMembers,
             teamStatus: 'pending',
@@ -500,7 +490,6 @@ export function DiscoverContainer() {
             name: m.name,
             role: 'Member',
           })) || [],
-          appliedFor: basicTeamData.appliedFor,
           memberCount: basicTeamData.currentMembers,
           maxMembers: basicTeamData.maxMembers,
           teamStatus: 'pending',
@@ -737,9 +726,6 @@ export function DiscoverContainer() {
                                     </span>
                                   )}
                                 </div>
-                                <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70 mb-[8px]">
-                                  Problem: {team.problemStatement}
-                                </p>
                                 <div className="flex items-center gap-[12px]">
                                   <span className="font-['Google_Sans_Flex',sans-serif] text-[12px] text-white opacity-60">
                                     {team.currentMembers}/{team.maxMembers} members

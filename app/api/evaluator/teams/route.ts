@@ -4,7 +4,6 @@ import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
 import Evaluator from "@/models/Evaluator";
-import ProblemStatement from "@/models/ProblemStatement";
 
 export const dynamic = 'force-dynamic';
 
@@ -47,8 +46,6 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1');
     const limit = parseInt(searchParams.get('limit') || '10');
     const sort = searchParams.get('sort'); // 'votes'
-    const filter = searchParams.get('filter'); // 'submitted'
-    const psIds = searchParams.get('psIds')?.split(',').filter(Boolean) || [];
     const tiers = searchParams.get('tiers')?.split(',').filter(Boolean) || [];
 
     const skip = (page - 1) * limit;
@@ -60,11 +57,6 @@ export async function GET(request: NextRequest) {
 
     // --- Build Aggregation Pipeline ---
     const pipeline: any[] = [];
-
-    // Global filters
-    if (psIds.length > 0) {
-      pipeline.push({ $match: { appliedFor: { $in: psIds } } });
-    }
 
     if (type === 'assigned') {
       if (!evaluator) {
@@ -81,8 +73,8 @@ export async function GET(request: NextRequest) {
         pipeline.push({ $match: { 'evaluations': { $elemMatch: { evaluatorId: authResult.user.uid, tier: { $in: tiers } } } } });
       }
 
-    } else if (type === 'all_submissions') {
-      // Show ALL teams
+    } else {
+      // All Teams view — show every team, optionally filtered by evaluation tier
       if (tiers.length > 0) {
         pipeline.push({ $match: { 'evaluations.tier': { $in: tiers } } });
       }
@@ -108,19 +100,9 @@ export async function GET(request: NextRequest) {
               cond: { $eq: ["$$v.vote", "down"] }
             }
           }
-        },
-        isSubmitted: {
-          $or: [
-            { $gt: [{ $strLenCP: { $ifNull: ["$submissionPDF", ""] } }, 0] },
-            { $gt: [{ $strLenCP: { $ifNull: ["$videoURL", ""] } }, 0] }
-          ]
         }
       }
     });
-
-    if (filter === 'submitted') {
-      pipeline.push({ $match: { isSubmitted: true } });
-    }
 
     if (sort === 'votes') {
       // Sort by upvoteCount as requested
@@ -144,11 +126,6 @@ export async function GET(request: NextRequest) {
     const totalTeams = metadata.total;
     const totalPages = Math.ceil(totalTeams / limit);
 
-    // Fetch Problem Statements for these teams
-    const problemIds = [...new Set(rawTeams.map((t: any) => t.appliedFor).filter((id: any) => Boolean(id)))];
-    // @ts-ignore
-    const problemStatements = await ProblemStatement.find({ _id: { $in: problemIds } });
-
     // Fetch User Details (Members + Evaluators + Voters)
     const teamMemberUids = rawTeams.flatMap((t: any) => t.teamMembers.map((m: any) => m.uid));
     const evaluatorUids = rawTeams.flatMap((t: any) => (t.evaluations || []).map((e: any) => e.evaluatorId));
@@ -163,7 +140,6 @@ export async function GET(request: NextRequest) {
 
     // Helper to format team
     const formatTeam = (team: any) => {
-      const ps = problemStatements.find(p => p._id.toString() === team.appliedFor);
       const isAssigned = assignedTeamCodes.includes(team.teamCode);
       const assignment = isAssigned ? evaluator?.assignedTeams.find((a: any) => a.teamCode === team.teamCode) : null;
 
@@ -199,10 +175,6 @@ export async function GET(request: NextRequest) {
         teamName: team.teamName,
         teamMembers: hydratedMembers,
         memberCount: team.memberCount,
-        appliedFor: ps ? { id: ps._id.toString(), title: ps.title } : null,
-        videoURL: team.videoURL || null,
-        submissionPDF: team.submissionPDF || null,
-        anyOtherLink: team.anyOtherLink || null,
 
         // Evaluation Context
         isAssigned,

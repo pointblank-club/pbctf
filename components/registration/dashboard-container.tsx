@@ -25,7 +25,6 @@ import { AlertBanner } from "./alert-banner";
 import { TeamOverviewCard } from "./team-overview-card";
 import { TeamMembersCard } from "./team-members-card";
 import { QuickActionsCard } from "./quick-actions-card";
-import { SubmissionStatusCard } from "./submission-status-card";
 import { DeadlineTimer } from "./deadline-timer";
 import { TransferOwnershipModal } from "./transfer-ownership-modal";
 import {
@@ -65,13 +64,6 @@ interface Team {
   memberCount: number;
   teamStatus: string;
   isLooking: boolean;
-  appliedFor?: {
-    id: string;
-    title: string;
-  } | null;
-  videoURL?: string;
-  submissionPDF?: string;
-  anyOtherLink?: string;
   isEvaluated?: boolean;
   evaluator?: {
     id: string;
@@ -89,7 +81,6 @@ interface Team {
     createdAt: Date | string;
   }>;
   createdAt?: Date;
-  submittedAt?: Date;
 }
 
 export function DashboardContainer() {
@@ -112,9 +103,6 @@ export function DashboardContainer() {
   const [leaveTeamDialogOpen, setLeaveTeamDialogOpen] = useState(false);
   const [invites, setInvites] = useState<any[]>([]);
   const [teamRequests, setTeamRequests] = useState<any[]>([]);
-  const [isDeadlineExpired, setIsDeadlineExpired] = useState(false);
-  const [withdrawSubmissionDialogOpen, setWithdrawSubmissionDialogOpen] =
-    useState(false);
   const [removeMemberDialogOpen, setRemoveMemberDialogOpen] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<{
     id: string;
@@ -206,22 +194,6 @@ export function DashboardContainer() {
             "Content-Type": "application/json",
           },
         });
-
-        // Fetch deadline status
-        try {
-          const deadlineResponse = await fetch("/api/config/deadline");
-          const deadlineData = await deadlineResponse.json();
-          if (deadlineData.success && deadlineData.data) {
-            setIsDeadlineExpired(deadlineData.data.isExpired);
-          }
-        } catch (error) {
-          console.error("Error fetching deadline:", error);
-          toast({
-            variant: "destructive",
-            title: "Warning",
-            description: "Failed to load deadline information.",
-          });
-        }
 
         if (userResponse.ok) {
           const userData = await userResponse.json();
@@ -473,25 +445,6 @@ export function DashboardContainer() {
     return statusMap[team.teamStatus] || "active";
   };
 
-  const hasAcceptedEvaluations = (): boolean => {
-    return (
-      team?.evaluations?.some(
-        (evaluation: any) =>
-          evaluation.tier === "accepted" ||
-          evaluation.tier === "strongly_accepted",
-      ) ?? false
-    );
-  };
-
-  const hasRejectedEvaluationsOnly = (): boolean => {
-    if (!team?.isEvaluated || !team?.evaluations) return false;
-    const hasRejected = team.evaluations.some(
-      (evaluation: any) => evaluation.tier === "rejected",
-    );
-    const hasAccepted = hasAcceptedEvaluations();
-    return hasRejected && !hasAccepted;
-  };
-
   const isTeamLead = (): boolean => {
     if (!team || !user) return false;
     // Check if user is the team lead by checking teamMembers array
@@ -677,73 +630,6 @@ export function DashboardContainer() {
           error instanceof Error ? error.message : "Failed to leave team",
       });
       setLeaveTeamDialogOpen(false);
-    }
-  };
-
-  const handleWithdrawSubmission = () => {
-    setWithdrawSubmissionDialogOpen(true);
-  };
-
-  const executeWithdrawSubmission = async () => {
-    if (!team || !user) return;
-
-    try {
-      const token = await getToken();
-      if (!token) {
-        setAlert({
-          type: "error",
-          message: "Authentication required",
-        });
-        return;
-      }
-
-      const response = await fetch(API_ENDPOINTS.withdrawSubmission, {
-        method: "PUT",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          teamCode: team.teamCode,
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || "Failed to withdraw submission");
-      }
-
-      setAlert({
-        type: "success",
-        message: "Submission withdrawn successfully. You can now submit again.",
-      });
-      setTimeout(() => setAlert(null), 3000);
-
-      // Refresh team data
-      const teamResponse = await fetch(API_ENDPOINTS.getTeam(team.teamCode), {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (teamResponse.ok) {
-        const teamData = await teamResponse.json();
-        if (teamData.success && teamData.data) {
-          setTeam(teamData.data);
-        }
-      }
-    } catch (error) {
-      console.error("Error withdrawing submission:", error);
-      setAlert({
-        type: "error",
-        message:
-          error instanceof Error
-            ? error.message
-            : "Failed to withdraw submission",
-      });
-      setTimeout(() => setAlert(null), 3000);
     }
   };
 
@@ -952,7 +838,7 @@ export function DashboardContainer() {
           className="text-[15.9px] text-white opacity-90 leading-[23.8px]"
           style={{ fontFamily: "var(--font-body)" }}
         >
-          Manage your profile, team, and submissions from your dashboard.
+          Manage your profile and team from your dashboard.
         </p>
       </div>
 
@@ -978,16 +864,10 @@ export function DashboardContainer() {
         </Button>
       </div>
 
-      {/* Submission Deadline Timer */}
+      {/* Registration Deadline Timer */}
       <DeadlineTimer
         teamStatus={team?.teamStatus}
-        hasSubmitted={
-          teamStatus === "submitted" ||
-          teamStatus === "shortlisted" ||
-          teamStatus === "confirmed"
-        }
-        isEvaluated={team?.isEvaluated}
-        evaluations={team?.evaluations}
+        hasSubmitted={!!team}
         hasTeam={!!team}
         rsvpStatus={rsvpStatus}
         onRSVP={handleRSVP}
@@ -1003,7 +883,7 @@ export function DashboardContainer() {
               <div className="flex flex-col gap-[16px]">
                 <AlertBanner
                   type="warning"
-                  message="Important: Even if you want to participate alone, you still need to create a team to submit your project."
+                  message="Important: Even if you want to participate alone, you still need to create a team to take part in the CTF."
                 />
                 <p
                   className="text-[14px] text-white opacity-80"
@@ -1040,7 +920,6 @@ export function DashboardContainer() {
                 teamCode: team.teamCode,
                 memberCount: team.memberCount,
                 maxMembers: 2,
-                problemStatement: team.appliedFor?.title,
               }}
               isLead={isTeamLead()}
               status={teamStatus}
@@ -1058,112 +937,20 @@ export function DashboardContainer() {
               onTransferOwnership={() => setTransferOwnershipDialogOpen(true)}
             />
           )}
-
-          {team &&
-            teamStatus === "submitted" &&
-            hasRejectedEvaluationsOnly() && (
-              <FormSection title="Team Status">
-                <div className="flex flex-col gap-[16px]">
-                  <AlertBanner
-                    type="error"
-                    message="Unfortunately, your team was not selected for the next round. Thank you for participating!"
-                  />
-                  <div className="flex items-center gap-[12px] p-[16px] rounded-[12px] bg-[rgba(220,38,38,0.1)] border border-[rgba(220,38,38,0.2)]">
-                    <X className="w-6 h-6 text-red-400" />
-                    <div className="flex flex-col gap-[4px]">
-                      <span
-                        className="text-[16px] text-white font-medium"
-                        style={{ fontFamily: "var(--font-body)" }}
-                      >
-                        Team Not Selected
-                      </span>
-                      <span
-                        className="text-[12px] text-white opacity-70"
-                        style={{ fontFamily: "var(--font-body)" }}
-                      >
-                        Your submission has been evaluated but was not selected.
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </FormSection>
-            )}
-
-          {/* Show SubmissionStatusCard for submitted/under-review teams that are not selected (accepted) or rejected */}
-          {team &&
-            (teamStatus === "submitted" || teamStatus === "under-review") &&
-            !hasAcceptedEvaluations() &&
-            !hasRejectedEvaluationsOnly() && (
-              <SubmissionStatusCard
-                status={teamStatus as "submitted" | "under-review"}
-                rsvpStatus={rsvpStatus}
-                submittedAt={team.submittedAt}
-                onRSVP={handleRSVP}
-              />
-            )}
-
-          {team &&
-            (teamStatus === "confirmed" || teamStatus === "declined") && (
-              <SubmissionStatusCard
-                status={teamStatus as "confirmed" | "declined"}
-                rsvpStatus={rsvpStatus}
-                submittedAt={team.submittedAt}
-                onRSVP={handleRSVP}
-              />
-            )}
         </div>
 
         {/* Right Column - 1/3 width */}
         <div className="flex flex-col gap-[24px]">
-          {/* Compact Profile Status */}
-          <FormSection title="Profile Status">
-            <div className="flex flex-col gap-[12px]">
-              <div className="flex justify-between items-center">
-                <span
-                  className="text-[14px] text-white"
-                  style={{ fontFamily: "var(--font-body)" }}
-                >
-                  Completeness
-                </span>
-                <span
-                  className="text-[14px] text-white font-semibold"
-                  style={{ fontFamily: "var(--font-body)" }}
-                >
-                  {profileCompleteness}%
-                </span>
-              </div>
-              <div className="w-full bg-[rgba(138,138,138,0.2)] rounded-full h-[8px] overflow-hidden">
-                <div
-                  className="bg-gradient-to-r from-[#22c55e] to-[#4ade80] h-full transition-all duration-500"
-                  style={{ width: `${profileCompleteness}%` }}
-                />
-              </div>
-              {profileCompleteness < 100 && (
-                <p
-                  onClick={() => router.push("/dashboard/profile")}
-                  className="text-[12px] text-[#4ade80] opacity-80 cursor-pointer hover:opacity-100 transition-opacity break-words text-center"
-                  style={{ fontFamily: "var(--font-body)" }}
-                >
-                  {missingFields.length} fields missing → Complete now
-                </p>
-              )}
-            </div>
-          </FormSection>
-
           {/* Quick Actions Card */}
           {team && teamStatus !== "none" && (
             <QuickActionsCard
               isLead={isTeamLead()}
               teamStatus={teamStatus}
-              isEvaluated={team.isEvaluated}
-              isShortlisted={team.isShortlisted}
               memberCount={team.memberCount}
               maxMembers={2}
               onNavigate={(path) => router.push(path)}
               onDeleteTeam={checkDeleteTeamEligibility}
               onLeaveTeam={() => setLeaveTeamDialogOpen(true)}
-              onWithdrawSubmission={handleWithdrawSubmission}
-              isDeadlineExpired={isDeadlineExpired}
             />
           )}
 
@@ -1287,8 +1074,8 @@ export function DashboardContainer() {
               style={{ fontFamily: "var(--font-body)" }}
             >
               Are you sure you want to delete the team "{team?.teamName}"? This
-              action cannot be undone and all team data including members and
-              submissions will be permanently removed.
+              action cannot be undone and all team data including members will
+              be permanently removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -1304,46 +1091,6 @@ export function DashboardContainer() {
               style={{ fontFamily: "var(--font-body)" }}
             >
               Delete Team
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Withdraw Submission Confirmation Dialog */}
-      <AlertDialog
-        open={withdrawSubmissionDialogOpen}
-        onOpenChange={setWithdrawSubmissionDialogOpen}
-      >
-        <AlertDialogContent className="bg-[rgba(138,138,138,0.15)] backdrop-blur-[2.5px] border-[rgba(255,255,255,0.2)]">
-          <AlertDialogHeader>
-            <AlertDialogTitle
-              className="text-white"
-              style={{ fontFamily: "var(--font-heading)" }}
-            >
-              Withdraw Submission
-            </AlertDialogTitle>
-            <AlertDialogDescription
-              className="text-white/80"
-              style={{ fontFamily: "var(--font-body)" }}
-            >
-              Are you sure you want to withdraw the submission for "
-              {team?.teamName}"? All submission details (video, PDF, links) will
-              be permanently deleted.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel
-              className="text-white"
-              style={{ fontFamily: "var(--font-body)" }}
-            >
-              Cancel
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={executeWithdrawSubmission}
-              className="bg-black/50 hover:bg-black/60 text-white border border-[#22c55e]"
-              style={{ fontFamily: "var(--font-body)" }}
-            >
-              Withdraw Submission
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

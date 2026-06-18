@@ -1,6 +1,6 @@
 "use client";
 
-import { Calendar, Users, FileText, Award, Gift, HelpCircle, Target, LogIn, UserPlus } from "lucide-react";
+import { Calendar, Users, FileText, Award, Gift, HelpCircle, LogIn, UserPlus } from "lucide-react";
 import { FormSection } from "./form-section";
 import { Button } from "./button";
 import { Card } from "./card";
@@ -8,23 +8,6 @@ import { Card } from "./card";
 interface LandingContainerProps {
   onNavigate: (view: string) => void;
 }
-
-interface ProblemStatement {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  difficulty: string;
-  active: boolean;
-}
-
-// Mock problem statements - will be replaced with API call
-const problemStatements: ProblemStatement[] = [
-  { id: '1', title: 'AI-Powered Healthcare Assistant', description: 'Build an AI solution for healthcare diagnostics', category: 'AI/ML', difficulty: 'Advanced', active: true },
-  { id: '2', title: 'Sustainable Smart City Platform', description: 'Create a platform for managing smart city infrastructure', category: 'IoT', difficulty: 'Intermediate', active: true },
-  { id: '3', title: 'Financial Inclusion App', description: 'Develop a mobile app for underbanked populations', category: 'FinTech', difficulty: 'Beginner', active: true },
-  { id: '4', title: 'Blockchain Supply Chain', description: 'Build a transparent supply chain solution using blockchain', category: 'Blockchain', difficulty: 'Advanced', active: true },
-];
 
 export function LandingContainer({ onNavigate }: LandingContainerProps) {
   return (
@@ -55,39 +38,8 @@ export function LandingContainer({ onNavigate }: LandingContainerProps) {
             <LogIn className="w-4 h-4" />
             Login
           </Button>
-          <Button onClick={() => onNavigate('problem-statements')} variant="secondary">
-            <Target className="w-4 h-4" />
-            View Challenges
-          </Button>
         </div>
       </div>
-
-      {/* Problem Statements Preview */}
-      <FormSection title="Featured Challenges">
-        <div className="grid grid-cols-2 gap-[16px]">
-          {problemStatements.slice(0, 4).map((ps) => (
-            <Card key={ps.id}>
-              <div className="flex flex-col gap-[8px]">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-['Google_Sans_Flex',sans-serif] text-[16px] text-white">{ps.title}</h3>
-                  <span className="text-[12px] text-[#22c55e] bg-[rgba(34,197,94,0.2)] px-[8px] py-[4px] rounded-[8px]">
-                    {ps.category}
-                  </span>
-                </div>
-                <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70">
-                  {ps.description}
-                </p>
-                <div className="flex items-center gap-[8px] mt-[4px]">
-                  <span className="text-[12px] text-white opacity-60">{ps.difficulty}</span>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-        <Button onClick={() => onNavigate('problem-statements')} variant="secondary">
-          View All Challenges
-        </Button>
-      </FormSection>
 
       {/* Timeline */}
       <FormSection title="Event Timeline">

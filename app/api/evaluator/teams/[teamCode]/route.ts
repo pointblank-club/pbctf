@@ -4,7 +4,6 @@ import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
 import Evaluator from "@/models/Evaluator";
-import ProblemStatement from "@/models/ProblemStatement";
 
 export const dynamic = 'force-dynamic';
 
@@ -70,15 +69,6 @@ export async function GET(
     const members = await User.find({ uid: { $in: memberUids } })
       .select('uid name email organisation github_link linkedin_link resume_link');
 
-    // Get problem statement
-    let problemStatement = null;
-    if (team.appliedFor) {
-      const ps = await ProblemStatement.findById(team.appliedFor);
-      if (ps) {
-        problemStatement = { id: ps._id.toString(), title: ps.title, description: ps.description };
-      }
-    }
-
     const formattedMembers = team.teamMembers.map((member: any) => {
       const userInfo = members.find(u => u.uid === member.uid);
       return {
@@ -98,14 +88,9 @@ export async function GET(
       teamName: team.teamName,
       teamMembers: formattedMembers,
       memberCount: team.memberCount,
-      appliedFor: problemStatement,
-      videoURL: team.videoURL || null,
-      submissionPDF: team.submissionPDF || null,
-      anyOtherLink: team.anyOtherLink || null,
       isEvaluated: team.isEvaluated,
       evaluations: team.evaluations || [],
       votes: team.votes || [],
-      submittedAt: team.submittedAt || null,
     });
   } catch (error: any) {
     console.error("Get team details error:", error);

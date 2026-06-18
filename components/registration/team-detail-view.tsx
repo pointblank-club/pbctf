@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/registration/button";
-import { ChevronLeft, FileText, Youtube, ExternalLink, ThumbsUp, ThumbsDown, MessageSquare, ChevronDown, ChevronUp, User } from "lucide-react";
+import { ChevronLeft, ThumbsUp, ThumbsDown, MessageSquare, User } from "lucide-react";
 import { useAuth } from '@/hooks/use-auth';
 import { API_ENDPOINTS } from "@/lib/api-config";
 import { StickyAlert } from "@/components/registration/sticky-alert";
@@ -188,66 +188,14 @@ export function TeamDetailView({ team, onBack, onEvaluationSuccess, onVoteSucces
                 </Button>
                 <div>
                     <h2 className="text-xl font-bold text-white text-[24px]" style={{ fontFamily: 'var(--font-heading)' }}>{team.teamName}</h2>
-                    <p className="text-sm text-white/60" style={{ fontFamily: 'var(--font-body)' }}>{team.appliedFor?.title || "No Problem Statement"}</p>
                 </div>
             </div>
 
             {error && <StickyAlert type="error" message={error} onClose={() => setError(null)} />}
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full">
-                {/* Left Column: Artifacts (PDF/Video) & Voting */}
+                {/* Left Column: Voting / Evaluation */}
                 <div className="lg:col-span-2 flex flex-col gap-6">
-                    {/* Submission Artifacts */}
-                    <FormSection title="Submission Artifacts">
-                        <div className="flex flex-col gap-4">
-                            <div className="flex gap-4 flex-wrap">
-                                {team.videoURL && (
-                                    <a
-                                        href={team.videoURL}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-2 px-4 py-3 bg-red-600/10 text-red-400 border border-red-600/20 rounded-lg hover:bg-red-600/20 transition-colors"
-                                        style={{ fontFamily: 'var(--font-body)' }}
-                                    >
-                                        <Youtube className="w-5 h-5" />
-                                        Watch Video Pitch
-                                        <ExternalLink className="w-3 h-3 ml-1 opacity-50" />
-                                    </a>
-                                )}
-                                {team.submissionPDF ? (
-                                    <a
-                                        href={team.submissionPDF}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-2 px-4 py-3 bg-white/5 text-white border border-white/10 rounded-lg hover:bg-white/10 transition-colors"
-                                        style={{ fontFamily: 'var(--font-body)' }}
-                                    >
-                                        <FileText className="w-5 h-5" />
-                                        View Submission PDF
-                                        <ExternalLink className="w-3 h-3 ml-1 opacity-50" />
-                                    </a>
-                                ) : (
-                                    <div className="flex items-center gap-2 px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white/40 cursor-not-allowed">
-                                        <FileText className="w-5 h-5 opacity-50" />
-                                        No PDF Submission
-                                    </div>
-                                )}
-                                {team.anyOtherLink && (
-                                    <a
-                                        href={team.anyOtherLink}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="flex items-center gap-2 px-4 py-3 bg-blue-600/10 text-blue-400 border border-blue-600/20 rounded-lg hover:bg-blue-600/20 transition-colors"
-                                        style={{ fontFamily: 'var(--font-body)' }}
-                                    >
-                                        <ExternalLink className="w-5 h-5" />
-                                        Additional Link
-                                    </a>
-                                )}
-                            </div>
-                        </div>
-                    </FormSection>
-
                     {/* Official Evaluation / Community Vote Form*/}
                     <FormSection title={isAssigned ? "Official Evaluation" : "Community Vote"}>
                         <div className="flex flex-col gap-6">
