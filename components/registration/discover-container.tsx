@@ -39,6 +39,7 @@ interface ParticipantLookingForTeam {
   interests: string;
   university?: string;
   email?: string;
+  hasSolvedChallenge?: boolean;
 }
 
 export function DiscoverContainer() {
@@ -145,7 +146,7 @@ export function DiscoverContainer() {
                   // Set team capacity
                   setTeamCapacity({
                     current: teamData.data.currentMemberCount || (teamData.data.teamMembers?.length || 0),
-                    max: teamData.data.maxMembers || 4
+                    max: teamData.data.maxMembers || 2
                   });
 
                   // Fetch already sent invites by this team
@@ -199,7 +200,7 @@ export function DiscoverContainer() {
                   teamName: team.teamName,
                   teamCode: team.teamCode,
                   currentMembers: team.currentMemberCount || 0,
-                  maxMembers: team.maxMembers || 4,
+                  maxMembers: team.maxMembers || 2,
                   teamLead: team.teamLead,
                   teamMembers: team.teamMembers,
                 }));
@@ -246,6 +247,7 @@ export function DiscoverContainer() {
                   interests: user.bio || 'No interests listed',
                   university: user.organisation || undefined,
                   email: user.email,
+                  hasSolvedChallenge: user.hasSolvedChallenge || false,
                 }));
               setParticipantsLookingForTeams(transformed);
               // Store pagination info
@@ -631,9 +633,12 @@ export function DiscoverContainer() {
             <p className="text-gray-300 mb-6">
               You need to enable "Public Profile" in your profile settings to see teams looking for members.
             </p>
-            <Button onClick={() => router.push("/dashboard/profile")} variant="primary">
-              Go to Profile Settings
-            </Button>
+
+            <div className="w-full h-full flex justify-center items-center">
+              <Button onClick={() => router.push("/dashboard/profile")} variant="primary">
+                Go to Profile Settings
+              </Button>
+            </div>
           </div>
             </div>
           ) : (
@@ -792,6 +797,11 @@ export function DiscoverContainer() {
                                       {sentInvites.has(participant.id) && (
                                         <span className="px-[8px] py-[2px] bg-[rgba(255,235,59,0.2)] border border-[#ffeb3b] rounded-[6px] text-[12px] text-[#ffeb3b] font-medium">
                                           Invite Sent
+                                        </span>
+                                      )}
+                                      {!participant.hasSolvedChallenge && (
+                                        <span className="px-[8px] py-[2px] bg-red-500/10 border border-red-500/20 rounded-[6px] text-[11px] text-red-400 font-semibold tracking-wide">
+                                          🔴 Unverified Noob
                                         </span>
                                       )}
                                     </div>

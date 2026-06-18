@@ -350,7 +350,7 @@ export function TeamDetailView({ team, onBack, onEvaluationSuccess, onVoteSucces
                                 </div>
                             ))}
                             {/* Render Empty Slots */}
-                            {Array.from({ length: Math.max(0, 4 - (team.teamMembers?.length || 0)) }).map((_, i) => (
+                            {Array.from({ length: Math.max(0, 2 - (team.teamMembers?.length || 0)) }).map((_, i) => (
                                 <div
                                     key={`empty-${i}`}
                                     className="flex-1 flex items-center justify-between p-4 border border-dashed border-white/10 rounded-xl bg-transparent opacity-50 select-none"

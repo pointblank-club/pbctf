@@ -23,30 +23,20 @@ export async function GET(request: NextRequest) {
             Team.countDocuments({ teamStatus: { $in: ['shortlisted', 'accepted', 'rejected'] } }),
         ]);
 
-        const adjust = (value: number) => Math.ceil(value * 1.4);
+        const registered = Math.max(0, totalTeams - (totalSubmissions + totalEvaluated));
 
-        const realRegistered = Math.max(0, totalTeams - (totalSubmissions + totalEvaluated));
-
-        const adjustedRegistered = adjust(realRegistered);
-        const adjustedSubmitted = adjust(totalSubmissions);
-        const adjustedEvaluated = adjust(totalEvaluated);
-
-        // Ensure consistency
-        const adjustedTotalTeams = adjustedRegistered + adjustedSubmitted + adjustedEvaluated;
-
-        const adjustedStats = {
-            totalUsers: adjust(totalUsers),
-            totalTeams: adjustedTotalTeams,
-            // In Cron, totalSubmissions includes evaluations (from DB query logic). 
-            totalSubmissions: adjust(totalSubmissions),
-            totalEvaluated: adjustedEvaluated,
+        const stats = {
+            totalUsers,
+            totalTeams: registered + totalSubmissions + totalEvaluated,
+            totalSubmissions,
+            totalEvaluated,
             date: new Date(),
         };
 
         // Store in DB
-        await Analytics.create(adjustedStats);
+        await Analytics.create(stats);
 
-        return NextResponse.json({ success: true, data: adjustedStats });
+        return NextResponse.json({ success: true, data: stats });
 
     } catch (error: any) {
         console.error("Cron job error:", error);

@@ -120,6 +120,7 @@ export async function GET(request: NextRequest) {
       role: user.role,
       isLooking: user.isLooking,
       teamCode: user.teamCode || null,
+      hasSolvedChallenge: user.hasSolvedChallenge || false,
       isProfileLocked: false,
     };
 

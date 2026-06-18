@@ -182,7 +182,7 @@ const getOrCreateBatchDocument = async () => {
 
 export async function POST(request: Request) {
   try {
-    const REGISTRATION_DEADLINE = new Date('2026-01-20T10:00:00+05:30');
+    const REGISTRATION_DEADLINE = new Date('2026-07-19T10:00:00+05:30');
     if (new Date() > REGISTRATION_DEADLINE) {
       return NextResponse.json(
         {

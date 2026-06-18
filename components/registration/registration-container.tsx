@@ -711,7 +711,7 @@ export function RegistrationContainer({
             Registration Open
           </p>
           <div className="absolute inset-0 rounded-[15px]">
-            <div className="absolute border border-[#b85c00] border-solid inset-0 pointer-events-none rounded-[15px]" />
+            <div className="absolute border border-[#22c55e] border-solid inset-0 pointer-events-none rounded-[15px]" />
           </div>
         </div>
 
@@ -777,9 +777,9 @@ export function RegistrationContainer({
       )}
 
       {/* Card about filling more fields */}
-      <Card className="bg-[rgba(255,77,0,0.1)] border-[#ff4d00]/30">
+      <Card className="bg-[rgba(21,255,0,0.1)] border-[#22c55e]/50">
         <div className="flex items-start gap-[12px]">
-          <Info className="w-5 h-5 text-[#ff4d00] flex-shrink-0 mt-0.5" />
+          <Info className="w-5 h-5 text-[#22c55e] flex-shrink-0 mt-0.5" />
           <div className="flex flex-col gap-[4px]">
             <p
               className="text-[14px] text-white font-semibold"
@@ -1075,7 +1075,7 @@ export function RegistrationContainer({
                         setErrors(newErrors);
                       }
                     }}
-                    className="w-[18px] h-[18px] rounded-[4px] border border-[rgba(255,255,255,0.38)] backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.2)] text-[#ff4d00] focus:ring-2 focus:ring-[#ff4d00] focus:ring-offset-0 cursor-pointer appearance-none checked:bg-[#ff4d00] checked:border-[#ff4d00] transition-all"
+                    className="w-[18px] h-[18px] rounded-[4px] border border-[rgba(255,255,255,0.38)] backdrop-blur-[2.5px] backdrop-filter bg-[rgba(138,138,138,0.2)] text-[#22c55e] focus:ring-2 focus:ring-[#22c55e] focus:ring-offset-0 cursor-pointer appearance-none checked:bg-[#22c55e] checked:border-[#22c55e] transition-all"
                     style={{
                       backgroundImage: acceptedCodeOfConduct 
                         ? `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='none' stroke='%23ffffff' stroke-width='2' d='M2 6l3 3 5-5'/%3E%3C/svg%3E")`
@@ -1098,7 +1098,7 @@ export function RegistrationContainer({
                       e.preventDefault();
                       setIsCodeOfConductModalOpen(true);
                     }}
-                    className="text-[#ff4d00] hover:text-[#ff8800] underline inline-flex items-center gap-1 transition-colors"
+                    className="text-[#22c55e] hover:text-[#22c55e] underline inline-flex items-center gap-1 transition-colors"
                   >
                     Code of Conduct
                     <ExternalLink className="w-3 h-3" />

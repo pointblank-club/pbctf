@@ -29,9 +29,9 @@ export async function GET(request: NextRequest) {
             return createAuthErrorResponse(authResult);
         }
 
-        // Allow 'frai' and 'admin' roles only (same as analytics)
+        // Allow 'admin' role only
         const userRole = authResult.user.role;
-        if (userRole !== 'frai' && userRole !== 'admin') {
+        if (userRole !== 'admin') {
             return createErrorResponse("Access denied", "FORBIDDEN", 403);
         }
 

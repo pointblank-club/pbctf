@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
 
     await dbConnect();
 
-    const query: any = { isLooking: true, memberCount: { $lt: 4 } };
+    const query: any = { isLooking: true, memberCount: { $lt: 2 } };
 
     if (appliedFor) {
       query.appliedFor = appliedFor;

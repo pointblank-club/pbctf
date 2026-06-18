@@ -31,7 +31,7 @@ export async function GET(request: Request) {
         const { searchParams } = new URL(request.url);
         const mode = searchParams.get("mode") || "current";
 
-        const MAX_TEAM_SIZE = 4;
+        const MAX_TEAM_SIZE = 2;
 
         const [users, teams, pendingJoinRequests, problems] =
             await Promise.all([

@@ -473,49 +473,6 @@ export function ProfileContainer() {
               }
               disabled={isProfileLocked}
             />
-          </FormSection>
-
-          <FormSection title="Competitive & Technical Profiles">
-            <div className="grid grid-cols-2 gap-[16px]">
-              <FormInput
-                label="LeetCode"
-                placeholder="https://leetcode.com/username"
-                value={profileData.leetcode}
-                onChange={(e) =>
-                  setProfileData({ ...profileData, leetcode: e.target.value })
-                }
-                disabled={isProfileLocked}
-              />
-              <FormInput
-                label="Codeforces"
-                placeholder="https://codeforces.com/profile/username"
-                value={profileData.codeforces}
-                onChange={(e) =>
-                  setProfileData({ ...profileData, codeforces: e.target.value })
-                }
-                disabled={isProfileLocked}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-[16px]">
-              <FormInput
-                label="Kaggle"
-                placeholder="https://kaggle.com/username"
-                value={profileData.kaggle}
-                onChange={(e) =>
-                  setProfileData({ ...profileData, kaggle: e.target.value })
-                }
-                disabled={isProfileLocked}
-              />
-              <FormInput
-                label="Devfolio"
-                placeholder="https://devfolio.co/@username"
-                value={profileData.devfolio}
-                onChange={(e) =>
-                  setProfileData({ ...profileData, devfolio: e.target.value })
-                }
-                disabled={isProfileLocked}
-              />
-            </div>
             <FormInput
               label="CTF Profile"
               placeholder="https://ctftime.org/team/12345"

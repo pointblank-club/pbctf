@@ -138,7 +138,7 @@ export function LandingContainer({ onNavigate }: LandingContainerProps) {
             <div>
               <h3 className="font-['Google_Sans_Flex',sans-serif] text-[15px] text-white mb-[4px]">Who can participate?</h3>
               <p className="font-['Google_Sans_Flex',sans-serif] text-[13px] text-white opacity-70">
-                Students from any university or college can participate. Teams can have 2-5 members.
+                Students from any university or college can participate. Teams can have atmost two members.
               </p>
             </div>
           </div>

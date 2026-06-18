@@ -32,9 +32,9 @@ export async function GET(request: NextRequest) {
             return createAuthErrorResponse(authResult);
         }
 
-        // Allow 'frai' and 'admin' roles
+        // Allow 'admin' role only
         const userRole = authResult.user.role;
-        if (userRole !== 'frai' && userRole !== 'admin') {
+        if (userRole !== 'admin') {
             return createErrorResponse("Access denied", "FORBIDDEN", 403);
         }
 
@@ -71,10 +71,10 @@ export async function GET(request: NextRequest) {
         };
 
         const teamDistribution = [
-            { name: 'Registered', value: adjustedRegistered },
-            { name: 'Submitted', value: adjustedSubmitted },
-            { name: 'Evaluated', value: Math.max(0, adjustedEvaluated - adjustedShortlisted) },
-            { name: 'Shortlisted', value: adjustedShortlisted },
+            { name: 'Registered', value: registered },
+            { name: 'Submitted', value: submittedCount },
+            { name: 'Evaluated', value: Math.max(0, evaluatedCount - shortlistedCount) },
+            { name: 'Shortlisted', value: shortlistedCount },
         ];
 
         // Fetch history (last 30 days)

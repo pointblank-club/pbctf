@@ -20,6 +20,7 @@ interface UserDetails {
   portfolio_link?: string;
   ctf_profile?: string;
   age?: number;
+  hasSolvedChallenge?: boolean;
 }
 
 interface UserProfileModalProps {
@@ -136,7 +137,14 @@ export function UserProfileModal({
               </div>
             )}
             <div className="flex-1">
-              <h3 className="font-['Google_Sans_Flex',sans-serif] text-[20px] text-white mb-[4px]">{userDetails.name}</h3>
+              <div className="flex items-center gap-[12px] flex-wrap mb-[4px]">
+                <h3 className="font-['Google_Sans_Flex',sans-serif] text-[20px] text-white">{userDetails.name}</h3>
+                {!userDetails.hasSolvedChallenge && (
+                  <span className="px-[8px] py-[2px] bg-red-500/10 border border-red-500/20 rounded-[6px] text-[11px] text-red-400 font-semibold tracking-wide">
+                    🔴 Unverified Noob
+                  </span>
+                )}
+              </div>
               {userDetails.email && (
                 <div className="flex items-center gap-[8px] mb-[4px]">
                   <Mail className="w-4 h-4 text-white opacity-60" />

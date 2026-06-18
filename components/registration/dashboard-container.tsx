@@ -19,6 +19,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { FormSection } from "./form-section";
+import { FormInput } from "./form-input";
 import { Button } from "./button";
 import { StatusBadge } from "./status-badge";
 import { AlertBanner } from "./alert-banner";
@@ -112,6 +113,12 @@ export function DashboardContainer() {
     useState(false);
   const [showWelcomeBanner, setShowWelcomeBanner] = useState(false);
   const [showVenueBanner, setShowVenueBanner] = useState(false);
+  const [hasSolvedChallenge, setHasSolvedChallenge] = useState(false);
+  const [isChallengeCardOpen, setIsChallengeCardOpen] = useState(false);
+  const [dynamicFlag, setDynamicFlag] = useState("");
+  const [flagInput, setFlagInput] = useState("");
+  const [isSubmittingFlag, setIsSubmittingFlag] = useState(false);
+  const [flagError, setFlagError] = useState("");
 
   const handleRespondToInvite = async (
     requestId: string,
@@ -201,6 +208,7 @@ export function DashboardContainer() {
           const profileData = userData.success ? userData.data : userData;
 
           if (profileData) {
+            setHasSolvedChallenge(profileData.hasSolvedChallenge || false);
             // Calculate profile completeness based on ALL profile fields (excluding system fields)
             // Define all profile fields with their human-readable labels
             const profileFields = [
@@ -503,6 +511,46 @@ export function DashboardContainer() {
     }
   };
 
+  const handleSubmitFlag = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!flagInput.trim()) return;
+
+    setIsSubmittingFlag(true);
+    setFlagError("");
+
+    try {
+      const token = await getToken();
+      if (!token) return;
+
+      const response = await fetch("/api/user/flag", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ flag: flagInput.trim() }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        setHasSolvedChallenge(true);
+        setIsChallengeCardOpen(false);
+        toast({
+          title: "Challenge Solved!",
+          description: "Congratulations! You solved the challenge and removed your noob tag.",
+        });
+      } else {
+        setFlagError(data.message || "Incorrect flag. Try again!");
+      }
+    } catch (err) {
+      console.error("Error submitting flag:", err);
+      setFlagError("Failed to submit flag. Server error.");
+    } finally {
+      setIsSubmittingFlag(false);
+    }
+  };
+
   /* 
     Triggered by the "Delete Team" button in QuickActions.
     Checks eligibility before opening confirmation dialog.
@@ -768,6 +816,25 @@ export function DashboardContainer() {
     <div className="flex flex-col gap-[24px] max-w-[1100px] w-full">
       {alert && <AlertBanner type={alert.type} message={alert.message} />}
 
+      {/* Challenge Alert Banner */}
+      {!hasSolvedChallenge ? (
+        <div 
+          onClick={() => setIsChallengeCardOpen(!isChallengeCardOpen)}
+          className="cursor-pointer transition-all duration-300 hover:scale-[1.01]"
+        >
+          <AlertBanner
+            type="error"
+            className="border border-red-500/30 hover:border-red-500/50 bg-red-950/20"
+            message="⚠️ Finish this challenge to remove your noob tag (Click here to expand/collapse)"
+          />
+        </div>
+      ) : (
+        <AlertBanner
+          type="success"
+          message="Congratulations, you solved the challenge."
+        />
+      )}
+
       {/* Welcome Banner - Registration Success */}
       {/* {showWelcomeBanner && (
         <div className="relative backdrop-blur-[2.5px] backdrop-filter bg-[rgba(34,197,94,0.15)] rounded-[15px] p-[20px] border border-[#22c55e]">
@@ -877,6 +944,45 @@ export function DashboardContainer() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-[24px]">
         {/* Left Column - 2/3 width */}
         <div className="lg:col-span-2 flex flex-col gap-[24px]">
+          {/* Security Challenge Card */}
+          {!hasSolvedChallenge && isChallengeCardOpen && (
+            <FormSection title="Challenge: Don't be a Noob">
+              <div className="flex flex-col gap-[16px]">
+                <div className="p-[16px] rounded-[12px] bg-white/5 border border-white/10 space-y-[12px]">
+                  <p className="text-[14.5px] leading-[22px] text-white/90" style={{ fontFamily: 'var(--font-body)' }}>
+                  Intelligence reports suggest that a sensitive artifact is being disclosed somewhere within the application. The leak appears to affect only the currently authenticated user. Find the exposed artifact .
+                  </p>
+                  <p className="text-[14px] leading-[20px] text-[#22c55e] font-medium" style={{ fontFamily: 'var(--font-body)' }}>
+                    💡 <span className="underline">CTF Hint</span>: The application may reveal more information than it chooses to display to the user.
+                  </p>
+                  <p className="text-[13px] text-white/60 leading-[18px]" style={{ fontFamily: 'var(--font-body)' }}>
+                    Flag Format: <code>pbctf{`{...}`}</code>
+                  </p>
+                </div>
+                <form onSubmit={handleSubmitFlag} className="flex gap-[12px] items-end">
+                  <div className="flex-1">
+                    <FormInput
+                      label="Verify Flag"
+                      placeholder="pbctf{...}"
+                      value={flagInput}
+                      onChange={(e) => setFlagInput(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <Button type="submit" variant="primary" disabled={isSubmittingFlag}>
+                    {isSubmittingFlag ? <Spinner size="sm" className="mr-2" /> : null}
+                    Submit
+                  </Button>
+                </form>
+                {flagError && (
+                  <p className="text-[13px] text-red-400 font-semibold" style={{ fontFamily: 'var(--font-body)' }}>
+                    ❌ {flagError}
+                  </p>
+                )}
+              </div>
+            </FormSection>
+          )}
+
           {/* Team Status for Users Without a Team */}
           {teamStatus === "none" && (
             <FormSection title="Team Status">
@@ -1183,6 +1289,15 @@ export function DashboardContainer() {
           members={team.teamMembers}
           currentUserId={user.uid}
         />
+      )}
+
+      {/* Hidden Flag Container in DOM */}
+      <div id="heyloo" className="hidden" data-howdy={dynamicFlag} style={{ display: 'none' }}></div>
+
+      {/* Faint hint at the bottom for inspect challenge */}
+      {!hasSolvedChallenge && dynamicFlag && (
+        <div className="text-[10px] text-white/5 select-all hover:text-white/20 transition-colors text-center mt-12 mb-6">
+        </div>
       )}
     </div>
   );

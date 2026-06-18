@@ -8,12 +8,8 @@ export interface IUser extends Document {
   phone?: string;
   discord_username?: string;
   resume_link?: string;
-  leetcode_profile?: string;
   github_link?: string;
   linkedin_link?: string;
-  codeforces_link?: string;
-  kaggle_link?: string;
-  devfolio_link?: string;
   portfolio_link?: string;
   ctf_profile?: string;
   bio?: string;
@@ -23,6 +19,7 @@ export interface IUser extends Document {
   isLooking: boolean;
   role: "user" | "admin" | "evaluator" | "frai";
   teamCode?: string;
+  hasSolvedChallenge?: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -35,12 +32,8 @@ const UserSchema: Schema = new Schema(
     phone: { type: String }, // Optional - required for regular users during registration
     discord_username: { type: String }, // Optional - required for regular users during registration
     resume_link: { type: String },
-    leetcode_profile: { type: String },
     github_link: { type: String },
     linkedin_link: { type: String },
-    codeforces_link: { type: String },
-    kaggle_link: { type: String },
-    devfolio_link: { type: String },
     portfolio_link: { type: String },
     ctf_profile: { type: String },
     bio: { type: String }, // Optional - required for regular users during registration
@@ -54,6 +47,7 @@ const UserSchema: Schema = new Schema(
       default: "user",
     },
     teamCode: { type: String, index: true },
+    hasSolvedChallenge: { type: Boolean, default: false },
   },
   {
     timestamps: true,

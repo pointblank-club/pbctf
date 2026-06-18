@@ -57,7 +57,7 @@ async function uploadBase64ToCloudinary(base64Data: string, folder: string, reso
 
 export async function POST(request: Request) {
   try {
-    const REGISTRATION_DEADLINE = new Date('2026-06-19T10:00:00+05:30');
+    const REGISTRATION_DEADLINE = new Date('2026-07-19T10:00:00+05:30');
     if (new Date() > REGISTRATION_DEADLINE) {
       return NextResponse.json(
         {

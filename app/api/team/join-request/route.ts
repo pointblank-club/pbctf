@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (team.memberCount >= 4) {
+    if (team.memberCount >= 2) {
       return NextResponse.json(
         { message: "Team is full" },
         { status: 409 }

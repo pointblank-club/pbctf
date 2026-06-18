@@ -9,7 +9,7 @@ import TeamJoinRequest from "@/models/TeamJoinRequest";
 export const dynamic = 'force-dynamic';
 
 // Max team members
-const MAX_TEAM_MEMBERS = 4;
+const MAX_TEAM_MEMBERS = 2;
 
 // Helper to create success response
 function createSuccessResponse(message: string, data: any, status = 200) {

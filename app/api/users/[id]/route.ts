@@ -179,7 +179,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
         organisation: user.organisation || null,
         isLooking: user.isLooking,
         role: user.role,
-        isAdmin: user.role === 'admin'
+        isAdmin: user.role === 'admin',
+        hasSolvedChallenge: user.hasSolvedChallenge || false,
       }
     });
   } catch (error) {

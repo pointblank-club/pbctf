@@ -74,7 +74,7 @@ export async function GET(request: NextRequest) {
     
     const [users, totalUsers] = await Promise.all([
       User.find(query)
-        .select('uid name email organisation bio profile_picture github_link linkedin_link leetcode_profile')
+        .select('uid name email organisation bio profile_picture github_link linkedin_link leetcode_profile hasSolvedChallenge')
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 }),
@@ -91,6 +91,7 @@ export async function GET(request: NextRequest) {
       github_link: user.github_link || null,
       linkedin_link: user.linkedin_link || null,
       leetcode_profile: user.leetcode_profile || null,
+      hasSolvedChallenge: user.hasSolvedChallenge || false,
     }));
 
     return NextResponse.json({
