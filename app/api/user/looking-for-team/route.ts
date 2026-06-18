@@ -106,9 +106,6 @@ export async function GET(request: NextRequest) {
       organisation: user.organisation || null,
       bio: user.bio || null,
       profile_picture: user.profile_picture || null,
-      // github_link: user.github_link || null,
-      // linkedin_link: user.linkedin_link || null,
-      // leetcode_profile: user.leetcode_profile || null,
       hasSolvedChallenge: user.hasSolvedChallenge || false,
     }));
 
