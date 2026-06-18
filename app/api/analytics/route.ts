@@ -57,7 +57,7 @@ export async function GET(request: NextRequest) {
       User.countDocuments({ role: "user" }),
       Team.countDocuments({}),
       Team.countDocuments({
-        teamStatus: { $in: ["submitted", "under-review"] },
+        teamStatus: { $in: ["submitted"] },
       }),
       Team.countDocuments({ evaluations: { $exists: true, $ne: [] } }),
       Team.countDocuments({

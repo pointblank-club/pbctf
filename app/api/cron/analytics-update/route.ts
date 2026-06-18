@@ -19,8 +19,8 @@ export async function GET(request: NextRequest) {
         const [totalUsers, totalTeams, totalSubmissions, totalEvaluated] = await Promise.all([
             User.countDocuments({ role: 'user' }),
             Team.countDocuments({}),
-            Team.countDocuments({ teamStatus: { $in: ['submitted', 'under-review', 'shortlisted', 'accepted', 'rejected'] } }),
-            Team.countDocuments({ teamStatus: { $in: ['shortlisted', 'accepted', 'rejected'] } }),
+            Team.countDocuments({ teamStatus: { $in: ['submitted', 'shortlisted', 'rsvped', 'rsvp_declined'] } }),
+            Team.countDocuments({ teamStatus: { $in: ['shortlisted', 'rsvped', 'rsvp_declined'] } }),
         ]);
 
         const registered = Math.max(0, totalTeams - (totalSubmissions + totalEvaluated));
