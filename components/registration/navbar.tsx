@@ -1,7 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import { usePathname } from "next/navigation";
-import { LogOut, LogIn, Shield, ShieldCheck } from "lucide-react";
+import { LogOut, LogIn, Shield, ShieldCheck, Menu, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface User {
   uid: string;
@@ -130,6 +132,7 @@ function NavLink({
 
 export function NavBar({ user, onLogout, onNavigate, isAuthLoading }: NavBarProps) {
   const pathname = usePathname() || "";
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const initials =
     (user?.name || "")
@@ -191,11 +194,11 @@ export function NavBar({ user, onLogout, onNavigate, isAuthLoading }: NavBarProp
 
           {/* Right cluster — nav + auth flush right, mirroring the landing header */}
           <div className="ml-auto flex items-center gap-4 md:gap-6 min-w-0">
-            {/* Nav. scroll horizontally on small screens */}
+            {/* Desktop Nav */}
             {user && nav.length > 0 && (
               <nav
                 aria-label="Primary"
-                className="min-w-0 overflow-x-auto no-scrollbar"
+                className="hidden md:block min-w-0"
               >
                 <div className="flex items-center gap-1 md:gap-2 px-1">
                   {nav.map((item) => (
@@ -210,24 +213,21 @@ export function NavBar({ user, onLogout, onNavigate, isAuthLoading }: NavBarProp
               </nav>
             )}
 
-          {/* Auth zone */}
+          {/* Desktop Auth zone */}
           {isAuthLoading ? (
-            <div className="flex shrink-0 items-center gap-2 md:gap-3" aria-label="Loading user">
-              <div className={`hidden sm:flex items-center gap-2.5 pl-1 pr-3 h-9 rounded-md ${control}`}>
+            <div className="hidden md:flex shrink-0 items-center gap-2 md:gap-3" aria-label="Loading user">
+              <div className={`flex items-center gap-2.5 pl-1 pr-3 h-9 rounded-md ${control}`}>
                 <span className="inline-flex w-7 h-7 rounded-sm bg-surface-2 animate-pulse" />
                 <span className="inline-flex w-14 h-3 rounded bg-surface-2 animate-pulse" />
               </div>
-              <span className={`sm:hidden inline-flex w-9 h-9 rounded-md animate-pulse ${control}`} />
             </div>
           ) : user ? (
-            <div className="flex shrink-0 items-center gap-2 md:gap-3">
+            <div className="hidden md:flex shrink-0 items-center gap-2 md:gap-3">
               {user.role && <RoleChip role={user.role} />}
 
               {isPrivilegedRole ? (
-                // Admin / evaluator: profile page doesn't apply, so the
-                // avatar tile is non-interactive and just displays identity.
                 <div
-                  className={`hidden sm:flex items-center gap-2.5 pl-1 pr-3 h-9 rounded-md ${control}`}
+                  className={`flex items-center gap-2.5 pl-1 pr-3 h-9 rounded-md ${control}`}
                   aria-label="Current operator"
                 >
                   <Avatar src={user.profilePicture} initials={initials} alt={user.name} />
@@ -242,7 +242,7 @@ export function NavBar({ user, onLogout, onNavigate, isAuthLoading }: NavBarProp
                   aria-label="Open profile"
                   aria-current={isActive("/dashboard/profile") ? "page" : undefined}
                   className={[
-                    "hidden sm:flex items-center gap-2.5 pl-1 pr-3 h-9 rounded-md",
+                    "flex items-center gap-2.5 pl-1 pr-3 h-9 rounded-md",
                     control,
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
                     isActive("/dashboard/profile")
@@ -269,41 +269,15 @@ export function NavBar({ user, onLogout, onNavigate, isAuthLoading }: NavBarProp
                 aria-label="Log out"
               >
                 <LogOut className="w-4 h-4" />
-                <span className="hidden lg:inline font-body text-[11px] font-semibold uppercase tracking-[0.05em]">Logout</span>
+                <span className="font-body text-[11px] font-semibold uppercase tracking-[0.05em]">Logout</span>
               </button>
-
-              {isPrivilegedRole ? (
-                <div
-                  className={`sm:hidden inline-flex w-9 h-9 items-center justify-center rounded-md ${control}`}
-                  aria-label="Current operator"
-                >
-                  <Avatar src={user.profilePicture} initials={initials} alt={user.name} />
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => handleNav("/dashboard/profile")}
-                  aria-label="Open profile"
-                  aria-current={isActive("/dashboard/profile") ? "page" : undefined}
-                  className={[
-                    "sm:hidden inline-flex w-9 h-9 items-center justify-center rounded-md",
-                    control,
-                    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
-                    isActive("/dashboard/profile")
-                      ? "border-brand/45 bg-brand-soft text-brand"
-                      : "text-ink-secondary hover:border-brand/40 hover:text-brand",
-                  ].join(" ")}
-                >
-                  <Avatar src={user.profilePicture} initials={initials} alt={user.name} />
-                </button>
-              )}
             </div>
           ) : (
             <button
               type="button"
               onClick={() => onNavigate && onNavigate("login")}
               className={[
-                "inline-flex items-center gap-2 h-9 px-4 rounded-md",
+                "hidden md:inline-flex items-center gap-2 h-9 px-4 rounded-md",
                 "bg-brand text-brand-ink font-body text-[11px] font-bold uppercase tracking-[0.05em]",
                 "shadow-[0_0_15px_rgba(0,255,136,0.15)] hover:shadow-[0_0_25px_rgba(0,255,136,0.35)] hover:-translate-y-px",
                 "transition-[transform,box-shadow] duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)]",
@@ -314,9 +288,108 @@ export function NavBar({ user, onLogout, onNavigate, isAuthLoading }: NavBarProp
               Login
             </button>
           )}
+
+            {/* Mobile Hamburger */}
+            <button
+              className="md:hidden flex items-center justify-center w-10 h-10 rounded-md text-ink hover:text-brand transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+              onClick={() => setMenuOpen(!menuOpen)}
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+            >
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Mobile Overlay */}
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.div
+            className="fixed inset-0 top-[64px] z-40 flex flex-col bg-surface-1/95 backdrop-blur-xl border-t border-[var(--border-soft)] p-6 md:hidden overflow-y-auto"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="flex flex-col gap-4">
+              {nav.map((item, i) => (
+                <motion.button
+                  key={item.view}
+                  className={[
+                    "flex items-center w-full px-4 py-3 rounded-md text-left font-body uppercase tracking-wider text-[14px]",
+                    isActive(item.match)
+                      ? "bg-brand/10 text-brand border border-brand/30"
+                      : "text-ink-secondary hover:bg-surface-2 hover:text-ink",
+                  ].join(" ")}
+                  onClick={() => {
+                    handleNav(item.view);
+                    setMenuOpen(false);
+                  }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  <span className="font-mono text-brand/50 mr-3 text-[11px]">0{i + 1}</span>
+                  {item.label}
+                </motion.button>
+              ))}
+
+              {!isPrivilegedRole && user && (
+                <motion.button
+                  className={[
+                    "flex items-center w-full px-4 py-3 rounded-md text-left font-body uppercase tracking-wider text-[14px]",
+                    isActive("/dashboard/profile")
+                      ? "bg-brand/10 text-brand border border-brand/30"
+                      : "text-ink-secondary hover:bg-surface-2 hover:text-ink",
+                  ].join(" ")}
+                  onClick={() => {
+                    handleNav("/dashboard/profile");
+                    setMenuOpen(false);
+                  }}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: nav.length * 0.05 }}
+                >
+                  <span className="font-mono text-brand/50 mr-3 text-[11px]">0{nav.length + 1}</span>
+                  Profile
+                </motion.button>
+              )}
+
+              <div className="mt-4 pt-4 border-t border-[var(--border-soft)] flex flex-col gap-3">
+                {user ? (
+                  <motion.button
+                    className="flex items-center justify-center w-full px-4 py-3 rounded-md bg-surface-2 text-ink-secondary hover:text-brand hover:bg-surface-3 transition-colors uppercase font-body text-[13px] tracking-wider"
+                    onClick={() => {
+                      onLogout();
+                      setMenuOpen(false);
+                    }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Logout
+                  </motion.button>
+                ) : (
+                  <motion.button
+                    className="flex items-center justify-center w-full px-4 py-3 rounded-md bg-brand text-brand-ink uppercase font-body font-bold text-[13px] tracking-wider"
+                    onClick={() => {
+                      onNavigate?.("login");
+                      setMenuOpen(false);
+                    }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                    <LogIn className="w-4 h-4 mr-2" />
+                    Login
+                  </motion.button>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   );
 }

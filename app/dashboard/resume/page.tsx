@@ -15,6 +15,15 @@ export default function ResumeViewPage() {
   const [iframeLoading, setIframeLoading] = useState(true);
   const [iframeError, setIframeError] = useState(false);
 
+  const handleBack = () => {
+    if (window.history.length <= 1) {
+      window.close();
+      setTimeout(() => router.push("/dashboard"), 100);
+    } else {
+      router.back();
+    }
+  };
+
   const proxiedUrl = rawUrl
     ? `/api/resume/view?url=${encodeURIComponent(rawUrl)}`
     : "";
@@ -30,7 +39,7 @@ export default function ResumeViewPage() {
           The resume viewer needs a resume URL passed as the{" "}
           <code className="font-mono text-brand">?url=</code> query parameter.
         </p>
-        <Button onClick={() => router.back()} variant="secondary">
+        <Button onClick={handleBack} variant="secondary">
           <ArrowLeft className="w-3.5 h-3.5" />
           Go back
         </Button>
@@ -51,7 +60,7 @@ export default function ResumeViewPage() {
           </h1>
         </div>
         <div className="flex items-center gap-2">
-          <Button onClick={() => router.back()} variant="secondary" size="sm">
+          <Button onClick={handleBack} variant="secondary" size="sm">
             <ArrowLeft className="w-3.5 h-3.5" />
             Back
           </Button>

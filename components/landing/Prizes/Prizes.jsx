@@ -15,7 +15,6 @@ const TIERS = [
   {
     id: 'prize-second',
     rankNumber: '02',
-    amount: 15000,
     label: 'SECOND PLACE',
     modifier: 'second',
     color: '#A0E0B0'
@@ -23,7 +22,6 @@ const TIERS = [
   {
     id: 'prize-first',
     rankNumber: '01',
-    amount: 25000,
     label: 'FIRST PLACE',
     modifier: 'first',
     color: 'var(--primary)'
@@ -31,22 +29,11 @@ const TIERS = [
   {
     id: 'prize-third',
     rankNumber: '03',
-    amount: 5000,
     label: 'THIRD PLACE',
     modifier: 'third',
     color: '#A0E0B0'
   },
 ];
-
-/* Total prize pool */
-const TOTAL_POOL = TIERS.reduce((sum, t) => sum + t.amount, 0);
-
-/* ---------------------------------------------------------------
-   Helper: format with ₹ and Indian locale
-   --------------------------------------------------------------- */
-function formatINR(value) {
-  return '₹' + Math.round(value).toLocaleString('en-IN');
-}
 
 /* ---------------------------------------------------------------
    Decorative Barcode Element
@@ -63,7 +50,7 @@ function Barcode() {
 /* ---------------------------------------------------------------
    Interactive Prize Card Component (Data Chip)
    --------------------------------------------------------------- */
-const PrizeCard = ({ tier, registerRef }) => {
+const PrizeCard = ({ tier }) => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -136,10 +123,10 @@ const PrizeCard = ({ tier, registerRef }) => {
             {/* Main Amount */}
             <div className="prizes__amount-wrapper">
               <p
-                className="prizes__amount"
-                ref={(el) => registerRef(tier.id, el)}
+                className="prizes__amount prize-blur"
+                style={{ filter: "blur(8px)", userSelect: "none", opacity: 0.8 }}
               >
-                ₹0
+                ₹ ??,???
               </p>
               <p className="prizes__label"><span className="prizes__prompt">&gt;</span> {tier.label}</p>
             </div>
@@ -157,12 +144,6 @@ const PrizeCard = ({ tier, registerRef }) => {
    --------------------------------------------------------------- */
 export default function Prizes() {
   const sectionRef = useRef(null);
-  const amountRefs = useRef({});
-  const totalRef = useRef(null);
-
-  const registerRef = (id, el) => {
-    amountRefs.current[id] = el;
-  };
 
   useGSAP(() => {
     const ctx = sectionRef.current;
@@ -183,45 +164,6 @@ export default function Prizes() {
       },
     });
 
-    /* --- Count-up animation for cards --- */
-    TIERS.forEach((tier) => {
-      const el = amountRefs.current[tier.id];
-      if (!el) return;
-
-      const proxy = { val: 0 };
-      gsap.to(proxy, {
-        val: tier.amount,
-        duration: 2.5,
-        ease: 'power2.out',
-        delay: tier.modifier === 'first' ? 0.2 : 0.5,
-        scrollTrigger: {
-          trigger: ctx,
-          start: 'top 75%',
-        },
-        onUpdate() {
-          el.textContent = formatINR(proxy.val);
-        },
-      });
-    });
-
-    /* --- Count-up for total pool --- */
-    if (totalRef.current) {
-      const totalProxy = { val: 0 };
-      gsap.to(totalProxy, {
-        val: TOTAL_POOL,
-        duration: 3,
-        ease: 'power2.out',
-        delay: 0.1,
-        scrollTrigger: {
-          trigger: ctx,
-          start: 'top 75%',
-        },
-        onUpdate() {
-          totalRef.current.textContent = Math.round(totalProxy.val).toLocaleString('en-IN');
-        },
-      });
-    }
-
   }, { scope: sectionRef });
 
   return (
@@ -235,9 +177,9 @@ export default function Prizes() {
         {/* Total Prize Pool */}
         <div className="prizes__total">
           <div className="prizes__total-label">Total Prize Pool</div>
-          <div className="prizes__total-amount">
+          <div className="prizes__total-amount prize-blur" style={{ filter: "blur(8px)", userSelect: "none", opacity: 0.8 }}>
             <span className="prizes__total-currency">₹</span>
-            <span ref={totalRef}>0</span>
+            <span>??,???</span>
           </div>
           <div className="prizes__total-divider" />
         </div>
@@ -245,7 +187,7 @@ export default function Prizes() {
         {/* Tiers */}
         <div className="prizes__tiers">
           {TIERS.map((tier) => (
-            <PrizeCard key={tier.id} tier={tier} registerRef={registerRef} />
+            <PrizeCard key={tier.id} tier={tier} />
           ))}
         </div>
 

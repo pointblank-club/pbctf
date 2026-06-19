@@ -177,6 +177,8 @@ export function RegistrationContainer({
   const [isCodeOfConductModalOpen, setIsCodeOfConductModalOpen] =
     useState(false);
   const [acceptedCodeOfConduct, setAcceptedCodeOfConduct] = useState(false);
+  const [attendedZenith, setAttendedZenith] = useState(false);
+  const [attendedPBCTF4, setAttendedPBCTF4] = useState(false);
   const [cocScrolledToBottom, setCocScrolledToBottom] = useState(false);
   const cocScrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -743,6 +745,8 @@ export function RegistrationContainer({
       if (registerData.ctf) formData.append("ctf_profile", registerData.ctf);
       if (registerData.referralCode)
         formData.append("referral_code", registerData.referralCode);
+      formData.append("attended_zenith", String(attendedZenith));
+      formData.append("attended_pbctf4", String(attendedPBCTF4));
 
       // reCAPTCHA v3 background token — scored server-side, no user interaction.
       const recaptchaToken = await executeRecaptcha("register");
@@ -1055,6 +1059,8 @@ export function RegistrationContainer({
 
     // Reset code of conduct acceptance
     setAcceptedCodeOfConduct(false);
+    setAttendedZenith(false);
+    setAttendedPBCTF4(false);
 
     // Reset wizard step
     setCurrentStepIndex(0);
@@ -1691,8 +1697,60 @@ export function RegistrationContainer({
                 {reviewRow("CTF Profile", registerData.ctf, 3)}
               </div>
 
+              {/* Optional Attendance Checkboxes */}
+              <div className="rounded-md border border-[var(--border-soft)] bg-surface-inset/50 p-4">
+                <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-muted mb-4">
+                  // Event history (Optional)
+                </div>
+                <div className="flex flex-col gap-3">
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <div className="relative flex items-center justify-center w-[18px] h-[18px] mt-0.5">
+                      <input
+                        type="checkbox"
+                        checked={attendedZenith}
+                        onChange={(e) => setAttendedZenith(e.target.checked)}
+                        className="peer sr-only"
+                      />
+                      <div className="absolute inset-0 rounded-[4px] border border-[var(--border-default)] bg-surface-2 peer-checked:bg-brand peer-checked:border-brand peer-focus-visible:ring-2 peer-focus-visible:ring-brand peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-surface transition-colors"></div>
+                      <svg
+                        className={`relative z-10 w-3 h-3 text-[#03110a] pointer-events-none transition-opacity duration-200 ${attendedZenith ? "opacity-100" : "opacity-0"}`}
+                        viewBox="0 0 12 12"
+                        fill="none"
+                      >
+                        <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                    <span className="text-[13px] text-ink leading-[1.55] select-none group-hover:text-ink-hover transition-colors">
+                      I attended Zenith
+                    </span>
+                  </label>
+
+                  <label className="flex items-start gap-3 cursor-pointer group">
+                    <div className="relative flex items-center justify-center w-[18px] h-[18px] mt-0.5">
+                      <input
+                        type="checkbox"
+                        checked={attendedPBCTF4}
+                        onChange={(e) => setAttendedPBCTF4(e.target.checked)}
+                        className="peer sr-only"
+                      />
+                      <div className="absolute inset-0 rounded-[4px] border border-[var(--border-default)] bg-surface-2 peer-checked:bg-brand peer-checked:border-brand peer-focus-visible:ring-2 peer-focus-visible:ring-brand peer-focus-visible:ring-offset-2 peer-focus-visible:ring-offset-surface transition-colors"></div>
+                      <svg
+                        className={`relative z-10 w-3 h-3 text-[#03110a] pointer-events-none transition-opacity duration-200 ${attendedPBCTF4 ? "opacity-100" : "opacity-0"}`}
+                        viewBox="0 0 12 12"
+                        fill="none"
+                      >
+                        <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                    <span className="text-[13px] text-ink leading-[1.55] select-none group-hover:text-ink-hover transition-colors">
+                      I attended PBCTF 4.0
+                    </span>
+                  </label>
+                </div>
+              </div>
+
               {/* Code of Conduct gate -- accept-only-via-modal flow */}
-              <div className="rounded-md border border-brand/35 bg-brand/[0.04] p-4">
+              <div className={`rounded-md border p-4 transition-all duration-300 ${!acceptedCodeOfConduct ? "border-[var(--warning)]/60 bg-[var(--warning)]/5 shadow-[0_0_15px_rgba(255,166,0,0.1)]" : "border-brand/35 bg-brand/[0.04]"}`}>
                 <div className="flex items-start gap-3">
                   <span
                     className={[
@@ -1716,22 +1774,32 @@ export function RegistrationContainer({
                     <p className="mt-1 text-[12px] text-ink-secondary font-normal">
                       Required. Covers respect, fair play, and venue rules.
                     </p>
+                    
                     {!acceptedCodeOfConduct && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setIsCodeOfConductModalOpen(true);
-                          if (errors.codeOfConduct) {
-                            const newErrors = { ...errors };
-                            delete newErrors.codeOfConduct;
-                            setErrors(newErrors);
-                          }
-                        }}
-                        className="mt-2 inline-flex items-center gap-1.5 text-brand hover:text-brand-hover underline underline-offset-2 font-semibold transition-colors"
-                      >
-                        Open Code of Conduct
-                        <ExternalLink className="w-3 h-3" />
-                      </button>
+                      <div className="mt-3 flex flex-col items-start gap-2">
+                        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-[var(--warning-soft)] text-[var(--warning)] text-[11px] font-mono tracking-wide uppercase border border-[var(--warning)]/20">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[var(--warning)] anim-blink" />
+                          Action Required
+                        </div>
+                        <p className="text-[12.5px] text-ink/80 italic">
+                          You must open the Code of Conduct and scroll to the bottom to enable the accept button.
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setIsCodeOfConductModalOpen(true);
+                            if (errors.codeOfConduct) {
+                              const newErrors = { ...errors };
+                              delete newErrors.codeOfConduct;
+                              setErrors(newErrors);
+                            }
+                          }}
+                          className="mt-1 inline-flex items-center gap-1.5 text-brand hover:text-brand-hover underline underline-offset-2 font-semibold transition-colors anim-pulse"
+                        >
+                          Open Code of Conduct
+                          <ExternalLink className="w-3 h-3" />
+                        </button>
+                      </div>
                     )}
                     {acceptedCodeOfConduct && (
                       <button
@@ -1746,7 +1814,7 @@ export function RegistrationContainer({
                   </div>
                 </div>
                 {errors.codeOfConduct && (
-                  <span className="block mt-2 text-[12px] text-[var(--danger)] font-mono">
+                  <span className="block mt-3 text-[12px] text-[var(--danger)] font-mono">
                     {errors.codeOfConduct}
                   </span>
                 )}

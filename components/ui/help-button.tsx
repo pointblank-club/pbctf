@@ -12,7 +12,7 @@ export function HelpButton() {
       <button
         onClick={() => setIsOpen(true)}
         aria-label="Open help"
-        className="group fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 h-11 px-4 rounded-md bg-surface-1/95 backdrop-blur-md text-ink border border-brand/30 hover:border-brand/55 hover:bg-surface-2 transition-[background,border-color,transform,box-shadow] duration-200 hover:shadow-glow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
+        className="group fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 h-11 px-4 rounded-md bg-surface-1/95 backdrop-blur-md text-ink border border-brand/30 hover:border-brand/55 hover:bg-surface-2 transition-[background,border-color,transform,box-shadow] duration-200 hover:shadow-glow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"
       >
         <MessageCircleQuestion className="w-4 h-4 text-brand group-hover:rotate-12 transition-transform duration-200" />
         <span className="text-[12.5px] font-body font-medium">Need help?</span>

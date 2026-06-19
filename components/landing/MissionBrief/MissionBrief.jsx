@@ -43,7 +43,7 @@ function FlappyBird({ onExit }) {
     function getPipeInterval() { return Math.max(120, BASE_PIPE_INTERVAL - Math.min(score, 25) * 1.5); }
 
     // --- Frame-rate cap: run logic at 70 fps ---
-    const TARGET_FPS = 70;
+    const TARGET_FPS = 60;
     const FRAME_MS   = 1000 / TARGET_FPS;
     let lastTime = 0;
 

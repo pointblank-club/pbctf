@@ -251,22 +251,22 @@ export function DiscoverContainer() {
           // Teams looking for members -- only for non-leads who can see the list
           shouldFetchLists && !userIsLead
             ? fetch(
-                `${API_ENDPOINTS.lookingForMembers}${queryParams}${queryParams ? "&" : "?"}page=${teamsPage}&limit=${ITEMS_PER_PAGE}`,
-                { method: "GET", headers },
-              )
+              `${API_ENDPOINTS.lookingForMembers}${queryParams}${queryParams ? "&" : "?"}page=${teamsPage}&limit=${ITEMS_PER_PAGE}`,
+              { method: "GET", headers },
+            )
             : Promise.resolve(null as any),
           // Operators looking for teams
           shouldFetchLists
             ? fetch(
-                `${API_ENDPOINTS.lookingForTeam}${queryParams}${queryParams ? "&" : "?"}page=${participantsPage}&limit=${ITEMS_PER_PAGE}`,
-                { method: "GET", headers },
-              )
+              `${API_ENDPOINTS.lookingForTeam}${queryParams}${queryParams ? "&" : "?"}page=${participantsPage}&limit=${ITEMS_PER_PAGE}`,
+              { method: "GET", headers },
+            )
             : Promise.resolve(null as any),
           // Sent invites by this team -- only if user is the lead of their team
           isLeadLocal && user?.teamCode
             ? fetch(`${API_ENDPOINTS.joinRequest}?teamCode=${user.teamCode}`, {
-                headers,
-              })
+              headers,
+            })
             : Promise.resolve(null as any),
         ]);
         const [teamsSettled, participantsSettled, sentInvitesSettled] = phase2;
@@ -296,7 +296,7 @@ export function DiscoverContainer() {
               if (teamsData.data.pagination) {
                 setTeamsPagination({
                   totalPages: teamsData.data.pagination.totalPages || 1,
-                  total: teamsData.data.pagination.total || 0,
+                  total: teamsData.data.pagination.totalTeams || 0,
                 });
               }
             } else {
@@ -339,7 +339,7 @@ export function DiscoverContainer() {
               if (participantsData.data.pagination) {
                 setParticipantsPagination({
                   totalPages: participantsData.data.pagination.totalPages || 1,
-                  total: participantsData.data.pagination.total || 0,
+                  total: participantsData.data.pagination.totalUsers || 0,
                 });
               }
             } else {
@@ -720,7 +720,7 @@ export function DiscoverContainer() {
         <>
           {/* HERO. compact operator strip */}
           <div className="relative overflow-hidden">
-<div className="relative flex items-end justify-between gap-4 flex-wrap">
+            <div className="relative flex items-end justify-between gap-4 flex-wrap">
               <div className="flex flex-col gap-1.5 min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="inline-flex w-1.5 h-1.5 rounded-full bg-brand shadow-glow-sm anim-blink" />
@@ -752,14 +752,14 @@ export function DiscoverContainer() {
             </div>
           </div>
 
-          {userHasTeam && !isTeamLead ? (
+          {userHasTeam && (!isTeamLead || (isTeamLead && teamCapacity && teamCapacity.current >= teamCapacity.max)) ? (
             <Card hudCorners>
               <div className="flex flex-col items-center justify-center px-6 py-12 text-center gap-4">
                 <span className="inline-flex w-12 h-12 items-center justify-center rounded-md bg-brand-soft border border-brand/40">
                   <Lock className="w-5 h-5 text-brand" />
                 </span>
                 <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand">
-                  &gt; Already enlisted
+                  &gt; {isTeamLead ? "Team Full" : "Already enlisted"}
                 </div>
                 <h2 className="font-heading text-[22px] font-bold text-ink leading-tight">
                   You ride with{" "}
@@ -768,7 +768,9 @@ export function DiscoverContainer() {
                   </span>
                 </h2>
                 <p className="text-[13px] text-ink-secondary font-body max-w-[44ch] leading-relaxed">
-                  Leave the current squad if you want to scout new ones. Recruitment is locked to leads only.
+                  {isTeamLead
+                    ? "Your squad has reached its maximum capacity. You must remove members if you want to recruit new ones."
+                    : "Leave the current squad if you want to scout new ones. Recruitment is locked to leads only."}
                 </p>
                 <Button
                   onClick={() => router.push("/dashboard")}
@@ -833,7 +835,7 @@ export function DiscoverContainer() {
                 <div className="px-3 pb-3 pt-1 text-[12px] text-ink-secondary font-body leading-relaxed">
                   Going public exposes your{" "}
                   <span className="text-ink">name, bio, organisation, profile picture, resume,
-                  and social links</span>{" "}
+                    and social links</span>{" "}
                   to other operators. Strip phone numbers, addresses, and personal emails from your resume before publishing.
                 </div>
               </details>
@@ -1218,7 +1220,7 @@ export function DiscoverContainer() {
                           }
                           disabled={
                             participantsPage >=
-                              participantsPagination.totalPages || isLoading
+                            participantsPagination.totalPages || isLoading
                           }
                           className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.22em] text-ink-secondary hover:text-brand disabled:opacity-30 disabled:hover:text-ink-secondary disabled:cursor-not-allowed transition-colors px-2 py-1.5 rounded"
                         >

@@ -220,6 +220,8 @@ export async function POST(request: Request) {
     const portfolio_link = formData.get("portfolio_link") as string;
     const ctf_profile = formData.get("ctf_profile") as string;
     const isLooking = formData.get("isLooking") === "true";
+    const attendedZenith = formData.get("attended_zenith") === "true";
+    const attendedPBCTF4 = formData.get("attended_pbctf4") === "true";
 
     // Validation
     const errors: Record<string, string> = {};
@@ -442,6 +444,8 @@ export async function POST(request: Request) {
       portfolio_link: portfolio_link?.trim(),
       ctf_profile: ctf_profile?.trim(),
       isLooking: Boolean(isLooking),
+      attendedZenith: Boolean(attendedZenith),
+      attendedPBCTF4: Boolean(attendedPBCTF4),
       role: "user",
       teamCode: undefined,
       authProvider: isGoogle ? "google" : "password",

@@ -139,7 +139,7 @@ export default function DashboardLayout({
       <main className="relative flex-1 w-full">
         <DotPattern />
 
-        <div className="relative z-10 mx-auto w-full max-w-[1100px] px-4 sm:px-6 md:px-8 py-8 sm:py-10 md:py-12">
+        <div className="relative mx-auto w-full max-w-[1100px] px-4 sm:px-6 md:px-8 py-8 sm:py-10 md:py-12">
           <div className="flex flex-col gap-6 md:gap-8">
             {alert && (
               <StickyAlert
