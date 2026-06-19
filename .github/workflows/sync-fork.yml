@@ -46,7 +46,7 @@ jobs:
       - name: Merge upstream changes
         run: |
           CURRENT_BRANCH="${{ steps.branch.outputs.branch }}"
-          UPSTREAM_BRANCH="staging"  # Upstream default branch
+          UPSTREAM_BRANCH="prod"  # Upstream default branch
           
           git checkout $CURRENT_BRANCH
           
