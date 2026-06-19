@@ -49,6 +49,13 @@ export default function EvaluatorRegisterPage() {
             return;
         }
 
+        const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+        if (!passwordRegex.test(formData.password)) {
+            setError("Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.");
+            setIsSubmitting(false);
+            return;
+        }
+
         if (!formData.evaluatorCode.trim()) {
             setError("Evaluator code is required");
             setIsSubmitting(false);

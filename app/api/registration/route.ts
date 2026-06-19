@@ -10,6 +10,7 @@ import path from "path";
 import os from "os";
 import dbConnect from "@/lib/db";
 import User, { IUser } from "@/models/User";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 // Utility functions for format validation
 const validateEmail = (email: string) =>
@@ -205,6 +206,18 @@ const getOrCreateBatchDocument = async () => {
 
 export async function POST(request: Request) {
   try {
+    // Basic IP Rate limiting (5 requests per minute)
+    const ip = request.headers.get("x-forwarded-for") || "unknown";
+    if (!checkRateLimit(ip, 5, 60 * 1000)) {
+      return NextResponse.json(
+        {
+          message: "Too many requests. Please try again later.",
+          error: "Rate limit exceeded",
+        },
+        { status: 429 }
+      );
+    }
+
     const REGISTRATION_DEADLINE = new Date("2026-07-19T10:00:00+05:30");
     if (new Date() > REGISTRATION_DEADLINE) {
       return NextResponse.json(
@@ -361,11 +374,12 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate password
-    if (password.length < 6) {
+    // Validate password (min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char)
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!passwordRegex.test(password)) {
       return NextResponse.json(
         {
-          message: "Password must be at least 6 characters long.",
+          message: "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
           error: "Weak password",
         },
         { status: 400 },

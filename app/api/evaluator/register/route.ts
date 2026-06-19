@@ -4,6 +4,7 @@ import dbConnect from "@/lib/db";
 import Evaluator from "@/models/Evaluator";
 import User from "@/models/User";
 import { getAuth } from "@/lib/firebase-admin";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export const dynamic = 'force-dynamic';
 
@@ -32,6 +33,11 @@ function createErrorResponse(message: string, code: string, status: number) {
  */
 export async function POST(request: NextRequest) {
     try {
+        const ip = request.headers.get("x-forwarded-for") || "unknown";
+        if (!checkRateLimit(ip, 5, 60 * 1000)) {
+            return createErrorResponse("Too many requests. Please try again later.", "RATE_LIMIT_EXCEEDED", 429);
+        }
+
         const authHeader = request.headers.get('authorization');
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
             return createErrorResponse("Authentication required", "AUTH_REQUIRED", 401);
