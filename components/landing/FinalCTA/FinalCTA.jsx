@@ -3,12 +3,14 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { useRetroSound } from '../hooks/useRetroSound';
+import { useAuth } from '@/hooks/use-auth';
 import './FinalCTA.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function FinalCTA() {
   const sectionRef = useRef(null);
+  const { isAuthenticated } = useAuth();
   const { playHover, playClick } = useRetroSound();
 
   useGSAP(() => {
@@ -42,13 +44,23 @@ export default function FinalCTA() {
         </p>
         <div className="final-cta__actions">
           <a
-            href="/register"
-            className="btn btn--primary"
+            href={isAuthenticated ? '/dashboard' : '/register'}
+            className={`btn ${isAuthenticated ? 'btn--secondary' : 'btn--primary'}`}
             id="cta-register-now"
             onMouseEnter={playHover}
             onClick={playClick}
           >
-            Register Now
+            {isAuthenticated ? (
+              <>
+                Access Granted
+                <svg className="btn__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                  <polyline points="12 5 19 12 12 19" />
+                </svg>
+              </>
+            ) : (
+              'Register Now'
+            )}
           </a>
 
         </div>

@@ -234,6 +234,34 @@
   transform: translateY(0);
 }
 
+/* --- Arrow affordance (e.g. "Access Granted →") --- */
+.pbctf-landing .btn__arrow {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  transition: transform var(--duration-normal) var(--ease-out);
+  will-change: transform;
+}
+
+.pbctf-landing .btn:hover .btn__arrow {
+  transform: translateX(5px);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .pbctf-landing .btn__arrow {
+    animation: btn-arrow-nudge 1.6s var(--ease-out) infinite;
+  }
+  /* Hover takes over from the idle nudge for a clean slide. */
+  .pbctf-landing .btn:hover .btn__arrow {
+    animation: none;
+  }
+}
+
+@keyframes btn-arrow-nudge {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+
 .pbctf-landing .btn--secondary {
   background: transparent;
   color: var(--text);

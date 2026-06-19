@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRetroSound } from '../hooks/useRetroSound';
+import { useAuth } from '@/hooks/use-auth';
 import './Hero.css';
 
 const CHARS = '!<>-_\\\\/[]{}—=+*^?#________';
@@ -61,6 +62,7 @@ const stagger = (i) => ({
 });
 
 export default function Hero() {
+  const { isAuthenticated } = useAuth();
   const { playHover, playClick } = useRetroSound();
 
   return (
@@ -127,24 +129,42 @@ export default function Hero() {
 
       <div className="hero__actions-wrapper">
         <motion.div className="hero__actions" {...stagger(15)}>
-          <a
-            href="/register"
-            className="btn btn--primary"
-            id="hero-register-cta"
-            onMouseEnter={playHover}
-            onClick={playClick}
-          >
-            Register Now
-          </a>
-          <a
-            href="/login"
-            className="btn btn--secondary"
-            id="hero-login-cta"
-            onMouseEnter={playHover}
-            onClick={playClick}
-          >
-            Login
-          </a>
+          {isAuthenticated ? (
+            <a
+              href="/dashboard"
+              className="btn btn--secondary"
+              id="hero-dashboard-cta"
+              onMouseEnter={playHover}
+              onClick={playClick}
+            >
+              Access Granted
+              <svg className="btn__arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12" />
+                <polyline points="12 5 19 12 12 19" />
+              </svg>
+            </a>
+          ) : (
+            <>
+              <a
+                href="/register"
+                className="btn btn--primary"
+                id="hero-register-cta"
+                onMouseEnter={playHover}
+                onClick={playClick}
+              >
+                Register Now
+              </a>
+              <a
+                href="/login"
+                className="btn btn--secondary"
+                id="hero-login-cta"
+                onMouseEnter={playHover}
+                onClick={playClick}
+              >
+                Login
+              </a>
+            </>
+          )}
         </motion.div>
       </div>
 

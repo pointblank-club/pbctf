@@ -179,6 +179,122 @@
   transform: translateY(-1px);
 }
 
+/* --- Authed user controls (avatar tile + logout) --- */
+.pbctf-landing .header__user {
+  display: none;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.pbctf-landing .header__user-tile {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 36px;
+  padding: 0 var(--space-3) 0 4px;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  text-decoration: none;
+  transition: background var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.pbctf-landing .header__user-tile:hover {
+  background: rgba(0, 255, 136, 0.08);
+  border-color: rgba(0, 255, 136, 0.4);
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.15);
+}
+
+.pbctf-landing .header__user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.pbctf-landing .header__user-avatar--initials {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary);
+  color: #050505;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.pbctf-landing .header__user-name {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pbctf-landing .header__logout {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: 36px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: var(--muted);
+  cursor: pointer;
+  transition: color var(--duration-normal) var(--ease-out),
+    background var(--duration-normal) var(--ease-out),
+    border-color var(--duration-normal) var(--ease-out),
+    box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.pbctf-landing .header__logout svg {
+  width: 16px;
+  height: 16px;
+}
+
+.pbctf-landing .header__logout:hover {
+  color: var(--primary);
+  background: rgba(0, 255, 136, 0.08);
+  border-color: rgba(0, 255, 136, 0.4);
+  box-shadow: 0 0 15px rgba(0, 255, 136, 0.15);
+}
+
+.pbctf-landing .header__logout-text {
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* --- Mobile overlay logout --- */
+.pbctf-landing .header__overlay-logout {
+  margin-top: var(--space-3);
+  align-self: flex-start;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: var(--text-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  transition: color 0.3s ease;
+}
+
+.pbctf-landing .header__overlay-logout:hover {
+  color: var(--primary);
+}
+
 /* --- Custom Tech Hamburger --- */
 .pbctf-landing .header__hamburger {
   display: flex;
@@ -323,6 +439,11 @@
 
   .pbctf-landing .btn.header__cta {
     display: inline-flex;
+    flex-shrink: 0;
+  }
+
+  .pbctf-landing .header__user {
+    display: flex;
     flex-shrink: 0;
   }
 
