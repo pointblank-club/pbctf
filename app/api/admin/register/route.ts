@@ -5,6 +5,7 @@ import dbConnect from "@/lib/db";
 import User, { IUser } from "@/models/User";
 import { getAuth } from "@/lib/firebase-admin";
 import { verifyRecaptcha } from "@/lib/recaptcha";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -21,6 +22,19 @@ const validatePassword = (password: string) => {
 
 export async function POST(request: Request) {
   try {
+    // IP rate limiting (5 requests per minute) — also throttles adminCode guessing
+    const ip = getClientIp(request);
+    if (!(await checkRateLimit(ip, 5, 60 * 1000))) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Too many requests. Please try again later.",
+          error: { code: "rate_limit_exceeded", message: "Rate limit exceeded" },
+        },
+        { status: 429 },
+      );
+    }
+
     const body = await request.json();
     const { name, email, password, adminCode, recaptcha_token } = body;
 

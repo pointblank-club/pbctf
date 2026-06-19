@@ -6,6 +6,7 @@ import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import { getAuth } from "@/lib/firebase-admin";
 import { verifyRecaptcha } from "@/lib/recaptcha";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const ADMIN_EMAIL_DOMAIN = process.env.ADMIN_EMAIL_DOMAIN;
 const SECRET_CODE = process.env.SECRET_CODE;
@@ -28,6 +29,15 @@ async function authenticateUser(email: string, password: string, isAdminAttempt:
 
 export async function POST(request: Request) {
   try {
+    // IP rate limiting (10 requests per minute) — throttles password guessing
+    const ip = getClientIp(request);
+    if (!(await checkRateLimit(ip, 10, 60 * 1000))) {
+      return NextResponse.json(
+        { message: "Too many requests. Please try again later." },
+        { status: 429 },
+      );
+    }
+
     const { email, password, recaptcha_token } = await request.json();
 
     if (!email || !password) {

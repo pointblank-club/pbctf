@@ -4,7 +4,7 @@ import dbConnect from "@/lib/db";
 import Evaluator from "@/models/Evaluator";
 import User from "@/models/User";
 import { getAuth } from "@/lib/firebase-admin";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { verifyRecaptcha } from "@/lib/recaptcha";
 
 export const dynamic = 'force-dynamic';
@@ -34,8 +34,8 @@ function createErrorResponse(message: string, code: string, status: number) {
  */
 export async function POST(request: NextRequest) {
     try {
-        const ip = request.headers.get("x-forwarded-for") || "unknown";
-        if (!checkRateLimit(ip, 5, 60 * 1000)) {
+        const ip = getClientIp(request);
+        if (!(await checkRateLimit(ip, 5, 60 * 1000))) {
             return createErrorResponse("Too many requests. Please try again later.", "RATE_LIMIT_EXCEEDED", 429);
         }
 

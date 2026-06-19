@@ -8,6 +8,7 @@ import { cloudinaryV2 } from "@/c";
 import dbConnect from "@/lib/db";
 import User, { IUser } from "@/models/User";
 import { verifyRecaptcha } from "@/lib/recaptcha";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 // Configure route
 export const dynamic = "force-dynamic";
@@ -67,6 +68,19 @@ async function uploadBase64ToCloudinary(
 
 export async function POST(request: Request) {
   try {
+    // IP rate limiting (5 requests per minute)
+    const ip = getClientIp(request);
+    if (!(await checkRateLimit(ip, 5, 60 * 1000))) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Too many requests. Please try again later.",
+          error: { code: "rate_limit_exceeded", message: "Rate limit exceeded" },
+        },
+        { status: 429 },
+      );
+    }
+
     const REGISTRATION_DEADLINE = new Date("2026-07-19T10:00:00+05:30");
     if (new Date() > REGISTRATION_DEADLINE) {
       return NextResponse.json(

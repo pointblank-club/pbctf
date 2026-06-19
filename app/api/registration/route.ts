@@ -10,7 +10,8 @@ import path from "path";
 import os from "os";
 import dbConnect from "@/lib/db";
 import User, { IUser } from "@/models/User";
-import { checkRateLimit } from "@/lib/rate-limit";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 
 // Utility functions for format validation
 const validateEmail = (email: string) =>
@@ -206,9 +207,9 @@ const getOrCreateBatchDocument = async () => {
 
 export async function POST(request: Request) {
   try {
-    // Basic IP Rate limiting (5 requests per minute)
-    const ip = request.headers.get("x-forwarded-for") || "unknown";
-    if (!checkRateLimit(ip, 5, 60 * 1000)) {
+    // IP rate limiting (5 requests per minute)
+    const ip = getClientIp(request);
+    if (!(await checkRateLimit(ip, 5, 60 * 1000))) {
       return NextResponse.json(
         {
           message: "Too many requests. Please try again later.",
@@ -233,6 +234,20 @@ export async function POST(request: Request) {
     const { fields, files } = await parseForm(request);
     const data = { ...fields };
     const { recaptcha_token, password } = data;
+
+    // reCAPTCHA v3 — fail closed (rejects when the token is missing) and check
+    // the score + action, before any Firebase/Cloudinary/DB writes.
+    const captcha = await verifyRecaptcha(recaptcha_token, "register");
+    if (!captcha.ok) {
+      console.warn("[registration] reCAPTCHA rejected:", captcha.reason, captcha.score);
+      return NextResponse.json(
+        {
+          message: "reCAPTCHA validation failed",
+          error: "Security check failed. Please try again.",
+        },
+        { status: 400 },
+      );
+    }
 
     // Check if required resume file is present
     if (!files.resume) {
@@ -491,28 +506,6 @@ export async function POST(request: Request) {
         },
         { status: 400 },
       );
-    }
-
-    // Validate reCAPTCHA if token provided
-    if (recaptcha_token) {
-      const recaptchaSecretKey = process.env.RECAPTCHA_SECRET_KEY;
-
-      // Verify reCAPTCHA token
-      const recaptchaResponse = await fetch(
-        `https://www.google.com/recaptcha/api/siteverify?secret=${recaptchaSecretKey}&response=${recaptcha_token}`,
-        { method: "POST" },
-      );
-      const recaptchaResult = await recaptchaResponse.json();
-
-      if (!recaptchaResult.success) {
-        return NextResponse.json(
-          {
-            message: "reCAPTCHA validation failed",
-            error: recaptchaResult["error-codes"],
-          },
-          { status: 400 },
-        );
-      }
     }
 
     // Create user in Firebase Authentication
