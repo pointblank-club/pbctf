@@ -106,7 +106,7 @@ export default function Sponsors() {
             Interested in sponsoring PBCTF&nbsp;5.0?
           </p>
           <a
-            href="mailto:sponsors@pointblankctf.in"
+            href="mailto:pbctf@pointblank.club"
             className="sponsors__cta-btn"
             id="sponsor-cta-btn"
           >
