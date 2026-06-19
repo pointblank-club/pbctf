@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
+import { useRetroSound } from '../hooks/useRetroSound';
 import './Categories.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -179,6 +180,7 @@ function DifficultyBar({ level, accent }) {
 export default function Categories() {
   const sectionRef = useRef(null);
   const [activeId, setActiveId] = useState(CATEGORIES[0].id);
+  const { playHover, playSelect } = useRetroSound();
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -228,10 +230,11 @@ export default function Categories() {
             </div>
             <div className="categories__nav-list">
               {CATEGORIES.map((cat) => (
-                <button 
-                  key={cat.id} 
+                <button
+                  key={cat.id}
                   className={`categories__nav-item ${activeId === cat.id ? 'active' : ''}`}
-                  onClick={() => setActiveId(cat.id)}
+                  onMouseEnter={playHover}
+                  onClick={() => { playSelect(); setActiveId(cat.id); }}
                 >
                   <span className="categories__nav-title">{cat.title}</span>
                   {activeId === cat.id && <span className="categories__nav-indicator">█</span>}

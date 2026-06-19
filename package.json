@@ -52,9 +52,9 @@
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",
     "eslint": "8.49.0",
-    "face-api.js": "^0.22.2",
     "eslint-config-next": "13.5.1",
     "express-rate-limit": "^8.5.2",
+    "face-api.js": "^0.22.2",
     "firebase": "^11.4.0",
     "firebase-admin": "^13.6.0",
     "formidable": "^3.5.2",
@@ -84,6 +84,7 @@
     "tailwindcss": "3.3.3",
     "tailwindcss-animate": "^1.0.7",
     "three": "^0.184.0",
+    "tone": "^15.1.22",
     "typescript": "5.2.2",
     "vaul": "^0.9.9",
     "zod": "^3.23.8"

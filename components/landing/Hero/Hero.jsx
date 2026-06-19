@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useRetroSound } from '../hooks/useRetroSound';
 import './Hero.css';
 
 const CHARS = '!<>-_\\\\/[]{}—=+*^?#________';
@@ -60,6 +61,8 @@ const stagger = (i) => ({
 });
 
 export default function Hero() {
+  const { playHover, playClick } = useRetroSound();
+
   return (
     <section id="hero" className="hero synthwave-hero">
       {/* Retro Synthwave Backdrop */}
@@ -124,10 +127,22 @@ export default function Hero() {
 
       <div className="hero__actions-wrapper">
         <motion.div className="hero__actions" {...stagger(15)}>
-          <a href="/register" className="btn btn--primary" id="hero-register-cta">
+          <a
+            href="/register"
+            className="btn btn--primary"
+            id="hero-register-cta"
+            onMouseEnter={playHover}
+            onClick={playClick}
+          >
             Register Now
           </a>
-          <a href="/login" className="btn btn--secondary" id="hero-login-cta">
+          <a
+            href="/login"
+            className="btn btn--secondary"
+            id="hero-login-cta"
+            onMouseEnter={playHover}
+            onClick={playClick}
+          >
             Login
           </a>
         </motion.div>

@@ -1,3 +1,4 @@
+import { useRetroSound } from '../hooks/useRetroSound';
 import './Footer.css';
 
 /* Minimal inline SVG icons — 24×24, stroke-only */
@@ -47,6 +48,8 @@ const SOCIALS = [
 ];
 
 export default function Footer() {
+  const { playHover, playClick } = useRetroSound();
+
   return (
     <footer id="footer" className="footer">
       <div className="footer__bottom-content">
@@ -74,6 +77,8 @@ export default function Footer() {
               target="_blank"
               rel="noopener noreferrer"
               aria-label={s.label}
+              onMouseEnter={playHover}
+              onClick={playClick}
             >
               {s.icon}
             </a>
