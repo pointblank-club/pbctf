@@ -24,8 +24,8 @@ type Note = string | number;
 const MUTE_KEY = "pbctf_sound_muted";
 
 class RetroSoundEngine {
-  private started = false;
-  private booting = false;
+  private built = false;
+  private unlockAttached = false;
   private muted = false;
 
   // Monotonic scheduling cursor — Tone throws if two events on a mono synth
@@ -46,7 +46,31 @@ class RetroSoundEngine {
   constructor() {
     if (typeof window !== "undefined") {
       this.muted = window.localStorage.getItem(MUTE_KEY) === "true";
+      this.attachUnlock();
     }
+  }
+
+  /**
+   * A Web Audio context can only be resumed from a genuine user-activation
+   * gesture (pointerdown / keydown / touch — note that `mouseenter` does NOT
+   * count). We listen once for the first such gesture anywhere on the page so
+   * the context is unlocked before the user reaches an interactive element,
+   * regardless of whether they hovered first.
+   */
+  private attachUnlock() {
+    if (this.unlockAttached) return;
+    this.unlockAttached = true;
+    const events = ["pointerdown", "touchstart", "keydown"];
+    const unlock = () => {
+      this.ensureStarted().then((running) => {
+        if (running) {
+          events.forEach((evt) => window.removeEventListener(evt, unlock));
+        }
+      });
+    };
+    events.forEach((evt) =>
+      window.addEventListener(evt, unlock, { passive: true })
+    );
   }
 
   /* ---------------- mute handling ---------------- */
@@ -84,24 +108,37 @@ class RetroSoundEngine {
 
   /* ---------------- engine lifecycle ---------------- */
 
-  private async ensureStarted() {
-    if (this.started) return;
-    if (this.booting) return;
-    this.booting = true;
-    try {
-      await Tone.start();
-      this.build();
-      this.started = true;
-    } catch {
-      // Audio unlock can fail outside a gesture; stay silent rather than throw.
-    } finally {
-      this.booting = false;
+  /**
+   * Ensure the audio context is actually *running* (not just "start() was
+   * called") and the synths are built. Returns whether audio is live.
+   *
+   * Crucially we re-check the real context state on every call: a hover or a
+   * blocked autoplay attempt may leave the context suspended, and we must keep
+   * retrying on subsequent gestures rather than latching a "started" flag.
+   */
+  private async ensureStarted(): Promise<boolean> {
+    if (typeof window === "undefined") return false;
+
+    if (Tone.getContext().state !== "running") {
+      try {
+        await Tone.start();
+      } catch {
+        // Resume can reject when not driven by a real gesture — stay silent.
+      }
     }
+
+    if (Tone.getContext().state !== "running") {
+      return false; // still locked; wait for a genuine user gesture
+    }
+
+    if (!this.built) {
+      this.built = true; // set before building (build() is synchronous)
+      this.build();
+    }
+    return true;
   }
 
   private build() {
-    if (this.master) return;
-
     this.master = new Tone.Volume(-6).toDestination();
     this.master.mute = this.muted;
 
