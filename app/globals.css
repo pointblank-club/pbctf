@@ -404,3 +404,9 @@ input[type="number"] { -moz-appearance: textfield; }
   -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--border-hairline);
 }
+
+/* Hide the floating reCAPTCHA v3 badge. Per Google's terms, the required
+   disclosure is shown inline on each auth form instead (see RecaptchaNotice). */
+.grecaptcha-badge {
+  visibility: hidden;
+}

@@ -5,6 +5,7 @@ import Evaluator from "@/models/Evaluator";
 import User from "@/models/User";
 import { getAuth } from "@/lib/firebase-admin";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 
 export const dynamic = 'force-dynamic';
 
@@ -54,7 +55,20 @@ export async function POST(request: NextRequest) {
         const uid = decodedToken.uid;
         const email = decodedToken.email || "";
         const body = await request.json();
-        const { name, evaluatorCode } = body;
+        const { name, evaluatorCode, recaptcha_token } = body;
+
+        // reCAPTCHA v3 background score check. The Firebase user was created
+        // client-side before this call, so clean it up if the check fails.
+        const captcha = await verifyRecaptcha(recaptcha_token, "evaluator_register");
+        if (!captcha.ok) {
+            console.warn("[evaluator/register] reCAPTCHA rejected:", captcha.reason, captcha.score);
+            try {
+                await getAuth().deleteUser(uid);
+            } catch (deleteError) {
+                console.error(`Failed to delete user ${uid} after reCAPTCHA failure:`, deleteError);
+            }
+            return createErrorResponse("Security check failed. Please try again.", "RECAPTCHA_FAILED", 400);
+        }
 
         if (!name) {
             return createErrorResponse("Name is required", "VALIDATION_ERROR", 400);

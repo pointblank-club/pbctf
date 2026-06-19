@@ -7,6 +7,7 @@ import {
 import { cloudinaryV2 } from "@/c";
 import dbConnect from "@/lib/db";
 import User, { IUser } from "@/models/User";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 
 // Configure route
 export const dynamic = "force-dynamic";
@@ -84,6 +85,22 @@ export async function POST(request: Request) {
     }
 
     const formData = await request.formData();
+
+    // reCAPTCHA v3 background score check — reject likely-bot registrations
+    // before doing any Firebase/Cloudinary/DB work.
+    const recaptchaToken = formData.get("recaptcha_token") as string | null;
+    const captcha = await verifyRecaptcha(recaptchaToken, "register");
+    if (!captcha.ok) {
+      console.warn("[register] reCAPTCHA rejected:", captcha.reason, captcha.score);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Security check failed. Please try again.",
+          error: { code: "recaptcha_failed", message: "reCAPTCHA verification failed" },
+        },
+        { status: 400 },
+      );
+    }
 
     // Helper to convert File to base64
     const fileToBase64 = async (file: File): Promise<string> => {

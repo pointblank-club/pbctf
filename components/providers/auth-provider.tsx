@@ -47,7 +47,7 @@ interface AuthContextType {
     // session — without waiting for /api/user/profile to also come back.
     firebaseUser: FirebaseUser | null;
     loading: boolean;
-    login: (email: string, password: string) => Promise<void>;
+    login: (email: string, password: string, recaptchaToken?: string | null) => Promise<void>;
     register: (formData: FormData) => Promise<void>;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
@@ -155,7 +155,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return () => unsubscribe();
     }, []);
 
-    const login = useCallback(async (email: string, password: string) => {
+    const login = useCallback(async (email: string, password: string, recaptchaToken?: string | null) => {
         try {
             setLoading(true); // Start loading immediately
             const response = await fetch(API_ENDPOINTS.login, {
@@ -163,7 +163,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({ email, password }),
+                body: JSON.stringify({ email, password, recaptcha_token: recaptchaToken ?? null }),
             });
 
             const data = await response.json();

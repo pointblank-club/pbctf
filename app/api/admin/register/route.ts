@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import dbConnect from "@/lib/db";
 import User, { IUser } from "@/models/User";
 import { getAuth } from "@/lib/firebase-admin";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 
 export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
@@ -21,7 +22,21 @@ const validatePassword = (password: string) => {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, password, adminCode } = body;
+    const { name, email, password, adminCode, recaptcha_token } = body;
+
+    // reCAPTCHA v3 background score check — reject likely-bot traffic.
+    const captcha = await verifyRecaptcha(recaptcha_token, "admin_register");
+    if (!captcha.ok) {
+      console.warn("[admin/register] reCAPTCHA rejected:", captcha.reason, captcha.score);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Security check failed. Please try again.",
+          error: { code: "recaptcha_failed", message: "reCAPTCHA verification failed" },
+        },
+        { status: 400 }
+      );
+    }
 
     const errors: Record<string, string> = {};
 

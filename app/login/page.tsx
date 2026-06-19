@@ -3,16 +3,19 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { useRecaptcha } from "@/hooks/use-recaptcha";
 import { FormSection } from "@/components/registration/form-section";
 import { FormInput } from "@/components/registration/form-input";
 import { Button } from "@/components/registration/button";
 import { StickyAlert } from "@/components/registration/sticky-alert";
+import { RecaptchaNotice } from "@/components/registration/recaptcha-notice";
 import { DotPattern } from "@/components/registration/dot-pattern";
 import { Spinner } from "@/components/ui/spinner";
 import { ArrowRight, LogIn } from "lucide-react";
 
 export default function LoginPage() {
   const { login, isAuthenticated, isLoading } = useAuth();
+  const { executeRecaptcha } = useRecaptcha();
   const [loginData, setLoginData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,7 +30,8 @@ export default function LoginPage() {
     setIsSubmitting(true);
     setError("");
     try {
-      await login(loginData.email, loginData.password);
+      const recaptchaToken = await executeRecaptcha("login");
+      await login(loginData.email, loginData.password, recaptchaToken);
       router.push("/dashboard");
     } catch (err: any) {
       setError(err?.message || "Login failed. Please try again.");
@@ -116,6 +120,8 @@ export default function LoginPage() {
                   Register here
                 </button>
               </div>
+
+              <RecaptchaNotice className="pt-1" />
             </form>
           </FormSection>
         </div>

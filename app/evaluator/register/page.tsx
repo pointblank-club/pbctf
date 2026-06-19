@@ -3,10 +3,12 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { useRecaptcha } from "@/hooks/use-recaptcha";
 import { FormSection } from "@/components/registration/form-section";
 import { FormInput } from "@/components/registration/form-input";
 import { Button } from "@/components/registration/button";
 import { StickyAlert } from "@/components/registration/sticky-alert";
+import { RecaptchaNotice } from "@/components/registration/recaptcha-notice";
 import { DotPattern } from "@/components/registration/dot-pattern";
 import { Spinner } from "@/components/ui/spinner";
 import { ShieldPlus } from "lucide-react";
@@ -16,6 +18,7 @@ import { auth } from "@/Firebase";
 
 export default function EvaluatorRegisterPage() {
     const { isAuthenticated, isLoading, user } = useAuth();
+    const { executeRecaptcha } = useRecaptcha();
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -63,6 +66,9 @@ export default function EvaluatorRegisterPage() {
         }
 
         try {
+            // reCAPTCHA v3 background token — scored server-side, no user interaction.
+            const recaptchaToken = await executeRecaptcha("evaluator_register");
+
             // Create user in Firebase directly to avoid /api/registration requirements
             const userCredential = await createUserWithEmailAndPassword(
                 auth,
@@ -81,7 +87,8 @@ export default function EvaluatorRegisterPage() {
                     },
                     body: JSON.stringify({
                         name: formData.name,
-                        evaluatorCode: formData.evaluatorCode
+                        evaluatorCode: formData.evaluatorCode,
+                        recaptcha_token: recaptchaToken
                     })
                 });
 
@@ -219,6 +226,8 @@ export default function EvaluatorRegisterPage() {
                                         ← Back to Main Registration
                                     </button>
                                 </div>
+
+                                <RecaptchaNotice />
                             </form>
                         </FormSection>
                     </div>

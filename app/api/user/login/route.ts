@@ -5,6 +5,7 @@ import { FirebaseError } from "firebase/app";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import { getAuth } from "@/lib/firebase-admin";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 
 const ADMIN_EMAIL_DOMAIN = process.env.ADMIN_EMAIL_DOMAIN;
 const SECRET_CODE = process.env.SECRET_CODE;
@@ -27,11 +28,25 @@ async function authenticateUser(email: string, password: string, isAdminAttempt:
 
 export async function POST(request: Request) {
   try {
-    const { email, password } = await request.json();
+    const { email, password, recaptcha_token } = await request.json();
 
     if (!email || !password) {
       return NextResponse.json(
         { message: "Email and password are required" },
+        { status: 400 }
+      );
+    }
+
+    // reCAPTCHA v3 background score check — reject likely-bot traffic.
+    const captcha = await verifyRecaptcha(recaptcha_token, "login");
+    if (!captcha.ok) {
+      console.warn("[login] reCAPTCHA rejected:", captcha.reason, captcha.score);
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Security check failed. Please try again.",
+          error: { code: "recaptcha_failed", message: "reCAPTCHA verification failed" },
+        },
         { status: 400 }
       );
     }

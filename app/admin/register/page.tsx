@@ -2,11 +2,13 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { useRecaptcha } from "@/hooks/use-recaptcha";
 import { useToast } from "@/hooks/use-toast";
 import { FormInput } from "@/components/registration/form-input";
 import { Button } from "@/components/registration/button";
 import { Card } from "@/components/registration/card";
 import { StickyAlert } from "@/components/registration/sticky-alert";
+import { RecaptchaNotice } from "@/components/registration/recaptcha-notice";
 import { DotPattern } from "@/components/registration/dot-pattern";
 import { Spinner } from "@/components/ui/spinner";
 import { UserPlus, LogIn } from "lucide-react";
@@ -14,6 +16,7 @@ import Link from "next/link";
 
 export default function AdminRegisterPage() {
   const { isAuthenticated, isLoading } = useAuth();
+  const { executeRecaptcha } = useRecaptcha();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -157,6 +160,7 @@ export default function AdminRegisterPage() {
     setAlert(null);
 
     try {
+      const recaptchaToken = await executeRecaptcha("admin_register");
       const response = await fetch('/api/admin/register', {
         method: 'POST',
         headers: {
@@ -167,6 +171,7 @@ export default function AdminRegisterPage() {
           email: formData.email.trim(),
           password: formData.password,
           adminCode: formData.adminCode.trim(),
+          recaptcha_token: recaptchaToken,
         }),
       });
 
@@ -451,6 +456,7 @@ export default function AdminRegisterPage() {
                   <LogIn className="w-[16px] h-[16px]" />
                   <span>Login</span>
                 </Link>
+                <RecaptchaNotice className="mt-[16px]" />
               </div>
             </Card>
           </div>

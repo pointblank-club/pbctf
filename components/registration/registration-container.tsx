@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { useRecaptcha } from "@/hooks/use-recaptcha";
 import { useToast } from "@/hooks/use-toast";
 import {
   LogIn,
@@ -32,6 +33,7 @@ import { FormSelect } from "./form-select";
 import { FormFileUpload } from "./form-file-upload";
 import { FormPhoneInput, isValidPhoneNumber } from "./form-phone-input";
 import { FormSection } from "./form-section";
+import { RecaptchaNotice } from "./recaptcha-notice";
 import { Button } from "./button";
 import { Card } from "./card";
 import { StickyAlert } from "./sticky-alert";
@@ -69,6 +71,7 @@ export function RegistrationContainer({
 }: RegistrationContainerProps) {
   const router = useRouter();
   const { register } = useAuth();
+  const { executeRecaptcha } = useRecaptcha();
   const { toast } = useToast();
   const [authMode, setAuthMode] = useState<"login" | "register">("register");
   const [alert, setAlert] = useState<{
@@ -589,6 +592,10 @@ export function RegistrationContainer({
       if (registerData.ctf) formData.append("ctf_profile", registerData.ctf);
       if (registerData.referralCode)
         formData.append("referral_code", registerData.referralCode);
+
+      // reCAPTCHA v3 background token — scored server-side, no user interaction.
+      const recaptchaToken = await executeRecaptcha("register");
+      if (recaptchaToken) formData.append("recaptcha_token", recaptchaToken);
 
       await register(formData);
 
@@ -1592,10 +1599,11 @@ export function RegistrationContainer({
       </FormSection>
 
       {/* ===================== FOOTER HINT ===================== */}
-      <div className="flex flex-wrap items-center justify-center gap-2 text-center">
+      <div className="flex flex-col items-center justify-center gap-2 text-center">
         <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-muted">
           // data auto-saved locally · safe to refresh
         </div>
+        <RecaptchaNotice />
       </div>
 
       {/* ===================== CODE OF CONDUCT MODAL ===================== */}
