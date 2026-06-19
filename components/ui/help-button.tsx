@@ -18,7 +18,12 @@ export function HelpButton() {
         <span className="text-[12.5px] font-body font-medium">Need help?</span>
       </button>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title="Need assistance?" size="md">
+      <Modal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title="Need assistance?"
+        size="md"
+      >
         <div className="flex flex-col gap-5">
           <div className="flex flex-col gap-2">
             <p className="text-[14.5px] text-ink font-body leading-relaxed">
@@ -32,7 +37,7 @@ export function HelpButton() {
           </div>
 
           <a
-            href="https://discord.gg/Und8vHaw5a"
+            href="https://discord.gg/vHjMctMRjr"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-md bg-brand text-brand-ink font-semibold text-[13px] hover:bg-brand-hover hover:shadow-glow-md transition-[background,box-shadow] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface"

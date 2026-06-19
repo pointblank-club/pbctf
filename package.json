@@ -35,6 +35,7 @@
     "next": "^13.5.8",
     "postcss": "8.4.30",
     "posthog-js": "^1.313.0",
+    "posthog-node": "^5.38.2",
     "postprocessing": "^6.39.1",
     "react": "^18.2.0",
     "react-dom": "18.2.0",
