@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { GridScan } from '../GridScan/GridScan';
+import { useRetroSound } from '../hooks/useRetroSound';
 import './AboutPointBlank.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -10,6 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 export default function AboutPointBlank() {
   const sectionRef = useRef(null);
   const [isVideoPlaying, setIsVideoPlaying] = useState(false);
+  const { playHover, playWindowOpen, playWindowClose } = useRetroSound();
 
   useGSAP(() => {
     const content = sectionRef.current.querySelector('.about__content');
@@ -56,7 +58,7 @@ export default function AboutPointBlank() {
                 <p>
                   Our mission is to foster a culture of continuous learning, hands-on hacking, and collaborative problem-solving. Whether you are a seasoned hacker or a curious beginner, Point Blank provides the perfect environment to sharpen your skills, compete at the highest level, and push the boundaries of cybersecurity.
                 </p>
-                <button className="about__play-btn--monitor" onClick={() => setIsVideoPlaying(true)} aria-label="Play Video" title="Watch Video">
+                <button className="about__play-btn--monitor" onClick={() => { playWindowOpen(); setIsVideoPlaying(true); }} onMouseEnter={playHover} aria-label="Play Video" title="Watch Video">
                   <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
                     <path d="M8 5v14l11-7z" />
                   </svg>
@@ -64,7 +66,7 @@ export default function AboutPointBlank() {
               </>
             ) : (
               <div className="about__video-container">
-                <button className="about__close-btn" onClick={() => setIsVideoPlaying(false)} aria-label="Close Video">
+                <button className="about__close-btn" onClick={() => { playWindowClose(); setIsVideoPlaying(false); }} onMouseEnter={playHover} aria-label="Close Video">
                   ✕
                 </button>
                 <div className="about__video-wrapper">

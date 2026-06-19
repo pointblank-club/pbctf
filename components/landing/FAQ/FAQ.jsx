@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
+import { useRetroSound } from '../hooks/useRetroSound';
 import './FAQ.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -56,6 +57,7 @@ export default function FAQ() {
   const [activeCategory, setActiveCategory] = useState(categories[0]);
   const [openIndex, setOpenIndex] = useState(null);
   const sectionRef = useRef(null);
+  const { playHover, playSelect, playWindowOpen, playWindowClose } = useRetroSound();
 
   useGSAP(() => {
     gsap.from('.faq__gameboy', {
@@ -72,10 +74,18 @@ export default function FAQ() {
   }, { scope: sectionRef });
 
   const toggle = (index) => {
-    setOpenIndex((prev) => (prev === index ? null : index));
+    setOpenIndex((prev) => {
+      if (prev === index) {
+        playWindowClose();
+        return null;
+      }
+      playWindowOpen();
+      return index;
+    });
   };
 
   const handleCategoryChange = (category) => {
+    playSelect();
     setActiveCategory(category);
     setOpenIndex(null); // reset open accordion when switching
   };
@@ -111,6 +121,7 @@ export default function FAQ() {
                             <button
                               className="faq__question"
                               onClick={() => toggle(i)}
+                              onMouseEnter={playHover}
                               aria-expanded={isOpen}
                             >
                               <span className="faq__prompt">
@@ -166,6 +177,7 @@ export default function FAQ() {
                   <div className="action-btn-wrapper">
                     <button 
                       className={`gameboy__btn ${activeCategory === categories[0] ? 'active' : ''}`}
+                      onMouseEnter={playHover}
                       onClick={() => handleCategoryChange(categories[0])}
                     >A</button>
                     <span className="gameboy__btn-label">{categories[0]}</span>
@@ -173,6 +185,7 @@ export default function FAQ() {
                   <div className="action-btn-wrapper btn-raised">
                     <button 
                       className={`gameboy__btn ${activeCategory === categories[1] ? 'active' : ''}`}
+                      onMouseEnter={playHover}
                       onClick={() => handleCategoryChange(categories[1])}
                     >B</button>
                     <span className="gameboy__btn-label">{categories[1]}</span>
@@ -182,6 +195,7 @@ export default function FAQ() {
                   <div className="action-btn-wrapper">
                     <button 
                       className={`gameboy__btn ${activeCategory === categories[2] ? 'active' : ''}`}
+                      onMouseEnter={playHover}
                       onClick={() => handleCategoryChange(categories[2])}
                     >X</button>
                     <span className="gameboy__btn-label">{categories[2]}</span>
@@ -189,6 +203,7 @@ export default function FAQ() {
                   <div className="action-btn-wrapper btn-raised">
                     <button 
                       className={`gameboy__btn ${activeCategory === categories[3] ? 'active' : ''}`}
+                      onMouseEnter={playHover}
                       onClick={() => handleCategoryChange(categories[3])}
                     >Y</button>
                     <span className="gameboy__btn-label">{categories[3]}</span>

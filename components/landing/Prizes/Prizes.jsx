@@ -3,6 +3,7 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { useRetroSound } from '../hooks/useRetroSound';
 import './Prizes.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -66,6 +67,7 @@ const PrizeCard = ({ tier, registerRef }) => {
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const [isHovered, setIsHovered] = useState(false);
+  const { playHover } = useRetroSound();
 
   const springConfig = { damping: 20, stiffness: 150 };
   const mouseXSpring = useSpring(x, springConfig);
@@ -98,7 +100,7 @@ const PrizeCard = ({ tier, registerRef }) => {
         id={tier.id}
         className={`prizes__device prizes__device--${tier.modifier}`}
         onMouseMove={handleMouseMove}
-        onMouseEnter={() => setIsHovered(true)}
+        onMouseEnter={() => { playHover(); setIsHovered(true); }}
         onMouseLeave={handleMouseLeave}
         style={{
           rotateX,

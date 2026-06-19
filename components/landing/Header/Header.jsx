@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRetroSound } from '../hooks/useRetroSound';
 import './Header.css';
 
 const NAV_LINKS = [
@@ -13,6 +14,15 @@ const NAV_LINKS = [
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const {
+    playHover,
+    playClick,
+    playNav,
+    playWindowOpen,
+    playWindowClose,
+    toggleMute,
+    muted,
+  } = useRetroSound();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,6 +37,14 @@ export default function Header() {
 
   const closeMenu = () => setMenuOpen(false);
 
+  const handleMenuToggle = () => {
+    setMenuOpen((prev) => {
+      if (prev) playWindowClose();
+      else playWindowOpen();
+      return !prev;
+    });
+  };
+
   return (
     <header
       id="site-header"
@@ -34,14 +52,27 @@ export default function Header() {
     >
       <div className="header__container">
         {/* Logo */}
-        <a href="#hero" className="header__logo" id="header-logo">
+        <a
+          href="#hero"
+          className="header__logo"
+          id="header-logo"
+          onMouseEnter={playHover}
+          onClick={playNav}
+        >
           <span className="header__logo-text">PBCTF5.0</span>
         </a>
 
         {/* Desktop Navigation */}
         <nav className="header__nav" aria-label="Main navigation">
           {NAV_LINKS.map((link) => (
-            <a key={link.id} id={link.id} href={link.href} className="header__link">
+            <a
+              key={link.id}
+              id={link.id}
+              href={link.href}
+              className="header__link"
+              onMouseEnter={playHover}
+              onClick={playNav}
+            >
               <span className="header__link-brackets">[</span>
               {link.label}
               <span className="header__link-brackets">]</span>
@@ -49,23 +80,57 @@ export default function Header() {
           ))}
         </nav>
 
-        {/* Desktop CTA */}
-        <a href="/register" className="btn btn--primary header__cta" id="header-cta">
-          Register Now
-        </a>
+        {/* Right-side controls */}
+        <div className="header__actions">
+          {/* Sound toggle */}
+          <button
+            id="header-sound-toggle"
+            className="header__sound-toggle"
+            onClick={toggleMute}
+            onMouseEnter={playHover}
+            aria-label={muted ? 'Unmute interface sounds' : 'Mute interface sounds'}
+            aria-pressed={!muted}
+            title={muted ? 'Sound off' : 'Sound on'}
+          >
+            {muted ? (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M11 5 6 9H2v6h4l5 4z" />
+                <line x1="23" y1="9" x2="17" y2="15" />
+                <line x1="17" y1="9" x2="23" y2="15" />
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M11 5 6 9H2v6h4l5 4z" />
+                <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+                <path d="M18.5 5.5a9 9 0 0 1 0 13" />
+              </svg>
+            )}
+          </button>
 
-        {/* Mobile Hamburger */}
-        <button
-          id="header-menu-toggle"
-          className={`header__hamburger${menuOpen ? ' header__hamburger--open' : ''}`}
-          onClick={() => setMenuOpen((prev) => !prev)}
-          aria-label={menuOpen ? 'Close menu' : 'Open menu'}
-          aria-expanded={menuOpen}
-        >
-          <span className="header__hamburger-line" />
-          <span className="header__hamburger-line" />
-          <span className="header__hamburger-line" />
-        </button>
+          {/* Desktop CTA */}
+          <a
+            href="/register"
+            className="btn btn--primary header__cta"
+            id="header-cta"
+            onMouseEnter={playHover}
+            onClick={playClick}
+          >
+            Register Now
+          </a>
+
+          {/* Mobile Hamburger */}
+          <button
+            id="header-menu-toggle"
+            className={`header__hamburger${menuOpen ? ' header__hamburger--open' : ''}`}
+            onClick={handleMenuToggle}
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+          >
+            <span className="header__hamburger-line" />
+            <span className="header__hamburger-line" />
+            <span className="header__hamburger-line" />
+          </button>
+        </div>
       </div>
 
       {/* Mobile Overlay */}
@@ -86,7 +151,7 @@ export default function Header() {
                   key={link.id}
                   href={link.href}
                   className="header__overlay-link"
-                  onClick={closeMenu}
+                  onClick={() => { playNav(); closeMenu(); }}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.1 + i * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
@@ -98,7 +163,7 @@ export default function Header() {
               <motion.a
                 href="/register"
                 className="btn btn--primary header__overlay-cta"
-                onClick={closeMenu}
+                onClick={() => { playClick(); closeMenu(); }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + NAV_LINKS.length * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}

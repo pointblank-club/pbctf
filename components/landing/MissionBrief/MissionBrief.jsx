@@ -2,6 +2,7 @@ import { useRef, useState, useEffect, useCallback } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
+import { useRetroSound } from '../hooks/useRetroSound';
 import './MissionBrief.css';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -12,6 +13,12 @@ gsap.registerPlugin(ScrollTrigger);
 function FlappyBird({ onExit }) {
   const canvasRef = useRef(null);
   const gameRef = useRef(null);
+  const { playGameJump, playGameScore, playGameOver, playClick } = useRetroSound();
+
+  // The game loop runs inside a `[]` effect, so funnel the (stable) sound
+  // callbacks through a ref to dodge any stale-closure concerns.
+  const soundRef = useRef({ playGameJump, playGameScore, playGameOver });
+  soundRef.current = { playGameJump, playGameScore, playGameOver };
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -63,14 +70,17 @@ function FlappyBird({ onExit }) {
       if (state === 'idle') {
         state = 'playing';
         bird.vy = getJump();
+        soundRef.current.playGameJump();
       } else if (state === 'playing') {
         bird.vy = getJump();
+        soundRef.current.playGameJump();
       } else if (state === 'dead') {
         pipes = [];
         frame = 0;
         score = 0;
         resetBird();
         state = 'playing';
+        soundRef.current.playGameJump();
       }
     }
 
@@ -291,6 +301,7 @@ function FlappyBird({ onExit }) {
         if (!p.passed && p.x + PIPE_W < bird.x) {
           p.passed = true;
           score++;
+          soundRef.current.playGameScore();
           if (score > best) {
             best = score;
             localStorage.setItem('flappy_best', best);
@@ -298,7 +309,10 @@ function FlappyBird({ onExit }) {
         }
       });
 
-      if (checkCollision()) state = 'dead';
+      if (checkCollision()) {
+        state = 'dead';
+        soundRef.current.playGameOver();
+      }
 
       drawBg();
       drawPipes();
@@ -331,7 +345,11 @@ function FlappyBird({ onExit }) {
         height={300}
         className="flappy-canvas"
       />
-      <button className="flappy-exit-btn" onClick={onExit} title="Exit game">
+      <button
+        className="flappy-exit-btn"
+        onClick={() => { playClick(); onExit(); }}
+        title="Exit game"
+      >
         ✕ EXIT
       </button>
     </div>
@@ -345,6 +363,7 @@ export default function MissionBrief() {
   const sectionRef = useRef(null);
   const [isOn, setIsOn] = useState(false);
   const [gameMode, setGameMode] = useState(false);
+  const { playHover, playSelect, playPowerOn, playPowerOff } = useRetroSound();
 
   useGSAP(() => {
     const section = sectionRef.current;
@@ -387,8 +406,22 @@ export default function MissionBrief() {
   }, { scope: sectionRef });
 
   function handleGameBtn() {
-    if (!isOn) setIsOn(true);
-    setGameMode(g => !g);
+    if (!isOn) {
+      setIsOn(true);
+      playPowerOn();
+    }
+    setGameMode((g) => {
+      playSelect();
+      return !g;
+    });
+  }
+
+  function handlePowerBtn() {
+    const next = !isOn;
+    if (next) playPowerOn();
+    else playPowerOff();
+    setIsOn(next);
+    if (isOn) setGameMode(false);
   }
 
   return (
@@ -454,6 +487,7 @@ export default function MissionBrief() {
                   <div
                     className={`retro-switch-round retro-switch-game ${gameMode ? 'retro-switch-game--active' : ''}`}
                     onClick={handleGameBtn}
+                    onMouseEnter={playHover}
                     role="button"
                     aria-label="Launch Flappy Bird Game"
                     title="Play Flappy Bird"
@@ -466,7 +500,8 @@ export default function MissionBrief() {
                   {/* ── POWER BUTTON ── */}
                   <div
                     className={`retro-switch-round ${isOn ? 'retro-switch-round--on' : 'retro-switch-round--off'}`}
-                    onClick={() => { setIsOn(!isOn); if (isOn) setGameMode(false); }}
+                    onClick={handlePowerBtn}
+                    onMouseEnter={playHover}
                     role="button"
                     aria-label="Power Switch"
                   >

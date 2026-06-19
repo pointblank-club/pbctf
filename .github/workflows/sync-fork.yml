@@ -18,7 +18,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Fetch all history for proper merging
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PAT_TOKEN }}
 
       - name: Configure Git
         run: |
@@ -27,7 +27,7 @@ jobs:
 
       - name: Add upstream remote
         run: |
-          UPSTREAM_REPO="https://github.com/pbdsce/Zenith.git"
+          UPSTREAM_REPO="https://github.com/pointblank-club/pbctf.git"
           
           # Check if upstream remote already exists
           if git remote | grep -q "^upstream$"; then

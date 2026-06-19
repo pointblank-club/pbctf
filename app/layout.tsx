@@ -15,7 +15,13 @@ export const metadata: Metadata = {
     "PBCTF 5.0 is a Capture the Flag competition that brings together hackers, security enthusiasts, and problem solvers across web exploitation, reverse engineering, cryptography, forensics, and more. Race the clock, capture the flags, sharpen your edge.",
   viewport: "width=device-width, initial-scale=1",
   themeColor: "#050507",
-  icons: { icon: "/images/pbctf-logo.svg" },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "32x32" },
+    ],
+    apple: "/apple-touch-icon.png",
+  },
 };
 
 export default function RootLayout({

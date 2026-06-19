@@ -2,12 +2,14 @@ import { useRef } from 'react';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { useGSAP } from '@gsap/react';
+import { useRetroSound } from '../hooks/useRetroSound';
 import './FinalCTA.css';
 
 gsap.registerPlugin(ScrollTrigger);
 
 export default function FinalCTA() {
   const sectionRef = useRef(null);
+  const { playHover, playClick } = useRetroSound();
 
   useGSAP(() => {
     const headline = sectionRef.current.querySelector('.final-cta__headline');
@@ -39,7 +41,13 @@ export default function FinalCTA() {
           compete against some of the brightest minds in cybersecurity.
         </p>
         <div className="final-cta__actions">
-          <a href="/register" className="btn btn--primary" id="cta-register-now">
+          <a
+            href="/register"
+            className="btn btn--primary"
+            id="cta-register-now"
+            onMouseEnter={playHover}
+            onClick={playClick}
+          >
             Register Now
           </a>
 
