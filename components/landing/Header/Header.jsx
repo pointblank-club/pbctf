@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRetroSound } from '../hooks/useRetroSound';
+import { useAuth } from '@/hooks/use-auth';
 import './Header.css';
 
 const NAV_LINKS = [
@@ -12,6 +13,7 @@ const NAV_LINKS = [
 ];
 
 export default function Header() {
+  const { isAuthenticated, user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const {
@@ -23,6 +25,21 @@ export default function Header() {
     toggleMute,
     muted,
   } = useRetroSound();
+
+  const firstName = (user?.name || '').trim().split(/\s+/)[0] || '';
+  const initials =
+    (user?.name || '')
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((s) => s[0]?.toUpperCase())
+      .join('') || 'U';
+  const avatarSrc = user?.profile_picture || '';
+
+  const handleLogout = () => {
+    playClick();
+    logout();
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -107,16 +124,52 @@ export default function Header() {
             )}
           </button>
 
-          {/* Desktop CTA */}
-          <a
-            href="/register"
-            className="btn btn--primary header__cta"
-            id="header-cta"
-            onMouseEnter={playHover}
-            onClick={playClick}
-          >
-            Register Now
-          </a>
+          {/* Desktop CTA (logged out) / user controls (logged in) */}
+          {isAuthenticated ? (
+            <div className="header__user">
+              <a
+                href="/dashboard/profile"
+                className="header__user-tile"
+                id="header-profile"
+                onMouseEnter={playHover}
+                onClick={playClick}
+                aria-label="Open profile"
+              >
+                {avatarSrc ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img className="header__user-avatar" src={avatarSrc} alt="" />
+                ) : (
+                  <span className="header__user-avatar header__user-avatar--initials">{initials}</span>
+                )}
+                <span className="header__user-name">{firstName}</span>
+              </a>
+              <button
+                type="button"
+                className="header__logout"
+                id="header-logout"
+                onMouseEnter={playHover}
+                onClick={handleLogout}
+                aria-label="Log out"
+              >
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                  <polyline points="16 17 21 12 16 7" />
+                  <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                <span className="header__logout-text">Logout</span>
+              </button>
+            </div>
+          ) : (
+            <a
+              href="/register"
+              className="btn btn--primary header__cta"
+              id="header-cta"
+              onMouseEnter={playHover}
+              onClick={playClick}
+            >
+              Register Now
+            </a>
+          )}
 
           {/* Mobile Hamburger */}
           <button
@@ -161,15 +214,27 @@ export default function Header() {
                 </motion.a>
               ))}
               <motion.a
-                href="/register"
+                href={isAuthenticated ? '/dashboard' : '/register'}
                 className="btn btn--primary header__overlay-cta"
                 onClick={() => { playClick(); closeMenu(); }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + NAV_LINKS.length * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               >
-                Register Now
+                {isAuthenticated ? 'Access Granted' : 'Register Now'}
               </motion.a>
+              {isAuthenticated && (
+                <motion.button
+                  type="button"
+                  className="header__overlay-logout"
+                  onClick={() => { handleLogout(); closeMenu(); }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + (NAV_LINKS.length + 1) * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  Logout
+                </motion.button>
+              )}
             </div>
           </motion.nav>
         )}

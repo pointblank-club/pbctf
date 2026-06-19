@@ -118,6 +118,7 @@ export default function DashboardLayout({
                 name: user.name,
                 email: user.email,
                 role: user.role,
+                profilePicture: user.profile_picture,
               }
             : undefined
         }

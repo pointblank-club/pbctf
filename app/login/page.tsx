@@ -11,6 +11,7 @@ import { Button } from "@/components/registration/button";
 import { StickyAlert } from "@/components/registration/sticky-alert";
 import { RecaptchaNotice } from "@/components/registration/recaptcha-notice";
 import { DotPattern } from "@/components/registration/dot-pattern";
+import { AuthHeader } from "@/components/registration/auth-header";
 import { Spinner } from "@/components/ui/spinner";
 import { ArrowRight, LogIn, Link2 } from "lucide-react";
 
@@ -128,6 +129,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-full bg-void relative overflow-hidden">
       <DotPattern />
+      <AuthHeader />
 
       <main className="relative z-10 min-h-screen w-full flex flex-col items-center justify-center px-4 sm:px-6 py-10 sm:py-16">
         <div className="w-full max-w-[460px] flex flex-col gap-6 anim-fade-up">
