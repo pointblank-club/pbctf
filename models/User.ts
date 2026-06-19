@@ -20,6 +20,7 @@ export interface IUser extends Document {
   role: "user" | "admin" | "evaluator" | "frai";
   teamCode?: string;
   hasSolvedChallenge?: boolean;
+  authProvider?: "password" | "google";
   createdAt: Date;
   updatedAt: Date;
 }
@@ -48,6 +49,13 @@ const UserSchema: Schema = new Schema(
     },
     teamCode: { type: String, index: true },
     hasSolvedChallenge: { type: Boolean, default: false },
+    // How the user authenticates. "google" accounts have no password and arrive
+    // pre-verified, so they skip email verification.
+    authProvider: {
+      type: String,
+      enum: ["password", "google"],
+      default: "password",
+    },
   },
   {
     timestamps: true,

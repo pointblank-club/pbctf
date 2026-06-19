@@ -9,6 +9,7 @@ import dbConnect from "@/lib/db";
 import User, { IUser } from "@/models/User";
 import { verifyRecaptcha } from "@/lib/recaptcha";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { getAuth as getAdminAuth } from "@/lib/firebase-admin";
 
 // Configure route
 export const dynamic = "force-dynamic";
@@ -75,7 +76,10 @@ export async function POST(request: Request) {
         {
           success: false,
           message: "Too many requests. Please try again later.",
-          error: { code: "rate_limit_exceeded", message: "Rate limit exceeded" },
+          error: {
+            code: "rate_limit_exceeded",
+            message: "Rate limit exceeded",
+          },
         },
         { status: 429 },
       );
@@ -105,15 +109,76 @@ export async function POST(request: Request) {
     const recaptchaToken = formData.get("recaptcha_token") as string | null;
     const captcha = await verifyRecaptcha(recaptchaToken, "register");
     if (!captcha.ok) {
-      console.warn("[register] reCAPTCHA rejected:", captcha.reason, captcha.score);
+      console.warn(
+        "[register] reCAPTCHA rejected:",
+        captcha.reason,
+        captcha.score,
+      );
       return NextResponse.json(
         {
           success: false,
           message: "Security check failed. Please try again.",
-          error: { code: "recaptcha_failed", message: "reCAPTCHA verification failed" },
+          error: {
+            code: "recaptcha_failed",
+            message: "reCAPTCHA verification failed",
+          },
         },
         { status: 400 },
       );
+    }
+
+    const isGoogle = formData.get("auth_provider") === "google";
+    let googleUid: string | undefined;
+    let googleEmail: string | undefined;
+    if (isGoogle) {
+      const idToken = formData.get("id_token") as string | null;
+      if (!idToken) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Missing Google sign-in token",
+            error: {
+              code: "missing_id_token",
+              message: "Missing Google sign-in token",
+            },
+          },
+          { status: 400 },
+        );
+      }
+      try {
+        const decoded = await getAdminAuth().verifyIdToken(idToken);
+        googleUid = decoded.uid;
+        googleEmail = decoded.email?.toLowerCase();
+      } catch (tokenError) {
+        console.error(
+          "[register] Google ID token verification failed:",
+          tokenError,
+        );
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Invalid Google sign-in token. Please sign in again.",
+            error: {
+              code: "invalid_id_token",
+              message: "Invalid Google sign-in token",
+            },
+          },
+          { status: 401 },
+        );
+      }
+      if (!googleEmail) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Your Google account has no email address.",
+            error: {
+              code: "google_no_email",
+              message: "Google account has no email address",
+            },
+          },
+          { status: 400 },
+        );
+      }
     }
 
     // Helper to convert File to base64
@@ -125,7 +190,10 @@ export async function POST(request: Request) {
 
     // Extract fields
     const name = formData.get("name") as string;
-    const email = formData.get("email") as string;
+    // For Google, the email comes from the verified ID token, never the client.
+    const email = isGoogle
+      ? (googleEmail as string)
+      : (formData.get("email") as string);
     const password = formData.get("password") as string;
     const discord_username = formData.get("discord_username") as string;
     const phone = formData.get("phone") as string;
@@ -166,7 +234,8 @@ export async function POST(request: Request) {
       errors.email = "Invalid email format";
     }
 
-    if (!password || !validatePassword(password)) {
+    // Google users have no password — Firebase handles their credential.
+    if (!isGoogle && (!password || !validatePassword(password))) {
       errors.password =
         "Password must be at least 8 characters and contain uppercase, lowercase, number, and special character";
     }
@@ -268,40 +337,62 @@ export async function POST(request: Request) {
       );
     }
 
-    // Create Firebase Auth user
-    let firebaseUser;
-    try {
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password,
-      );
-      firebaseUser = userCredential.user;
-
-      // Send email verification
-      await sendEmailVerification(firebaseUser);
-    } catch (firebaseError: any) {
-      if (firebaseError.code === "auth/email-already-in-use") {
+    if (isGoogle) {
+      const existingUid = await User.findOne({ uid: googleUid });
+      if (existingUid) {
         return NextResponse.json(
           {
             success: false,
-            message: "Email already exists",
-            error: { code: "email_exists", message: "Email already exists" },
+            message:
+              "This Google account is already registered. Please log in.",
+            error: {
+              code: "already_registered",
+              message: "Account already exists",
+            },
           },
           { status: 409 },
         );
       }
-      if (firebaseError.code === "auth/weak-password") {
-        return NextResponse.json(
-          {
-            success: false,
-            message: "Password is too weak",
-            error: { code: "weak_password", message: "Password is too weak" },
-          },
-          { status: 400 },
+    }
+
+    // Resolve the Firebase uid. Email/password users are created here (and sent
+    // a verification email); Google users already exist in Firebase with a
+    // verified email, so we reuse the uid from their ID token and skip both.
+    let uid: string;
+    if (isGoogle) {
+      uid = googleUid!;
+    } else {
+      try {
+        const userCredential = await createUserWithEmailAndPassword(
+          auth,
+          email,
+          password,
         );
+        await sendEmailVerification(userCredential.user);
+        uid = userCredential.user.uid;
+      } catch (firebaseError: any) {
+        if (firebaseError.code === "auth/email-already-in-use") {
+          return NextResponse.json(
+            {
+              success: false,
+              message: "Email already exists",
+              error: { code: "email_exists", message: "Email already exists" },
+            },
+            { status: 409 },
+          );
+        }
+        if (firebaseError.code === "auth/weak-password") {
+          return NextResponse.json(
+            {
+              success: false,
+              message: "Password is too weak",
+              error: { code: "weak_password", message: "Password is too weak" },
+            },
+            { status: 400 },
+          );
+        }
+        throw firebaseError;
       }
-      throw firebaseError;
     }
 
     // Upload files to Cloudinary if provided
@@ -336,7 +427,7 @@ export async function POST(request: Request) {
 
     // Create user in MongoDB
     const newUser = new User({
-      uid: firebaseUser.uid,
+      uid,
       name: name.trim(),
       email: email.toLowerCase().trim(),
       phone: phone.trim(),
@@ -353,6 +444,7 @@ export async function POST(request: Request) {
       isLooking: Boolean(isLooking),
       role: "user",
       teamCode: undefined,
+      authProvider: isGoogle ? "google" : "password",
     });
 
     await newUser.save();
@@ -360,10 +452,11 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         message: "Registration successful",
-        uid: firebaseUser.uid,
-        status: "pending_verification",
+        uid,
+        // Google emails arrive verified, so there's nothing pending for them.
+        status: isGoogle ? "active" : "pending_verification",
         user: {
-          uid: firebaseUser.uid,
+          uid,
           email: newUser.email,
           name: newUser.name,
           isAdmin: false,

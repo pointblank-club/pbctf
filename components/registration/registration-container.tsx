@@ -3,6 +3,8 @@
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
+import { signOut } from "firebase/auth";
+import { auth } from "@/Firebase";
 import { useAuth } from "@/hooks/use-auth";
 import { useRecaptcha } from "@/hooks/use-recaptcha";
 import { useToast } from "@/hooks/use-toast";
@@ -34,6 +36,7 @@ import { FormFileUpload } from "./form-file-upload";
 import { FormPhoneInput, isValidPhoneNumber } from "./form-phone-input";
 import { FormSection } from "./form-section";
 import { RecaptchaNotice } from "./recaptcha-notice";
+import { GoogleButton } from "./google-button";
 import { Button } from "./button";
 import { Card } from "./card";
 import { StickyAlert } from "./sticky-alert";
@@ -70,7 +73,14 @@ export function RegistrationContainer({
   onSuccess,
 }: RegistrationContainerProps) {
   const router = useRouter();
-  const { register } = useAuth();
+  const {
+    register,
+    registerWithGoogle,
+    signInWithGoogle,
+    getToken,
+    firebaseUser,
+    user,
+  } = useAuth();
   const { executeRecaptcha } = useRecaptcha();
   const { toast } = useToast();
   const [authMode, setAuthMode] = useState<"login" | "register">("register");
@@ -147,6 +157,23 @@ export function RegistrationContainer({
   // Errors
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Google SSO. authMethod "google" means the user authenticated via the Google
+  // popup; we then collect the remaining profile fields, lock the name, and skip
+  // the password/account step entirely. googleData holds the verified identity
+  // for display + prefill (a fresh ID token is fetched at submit via getToken()).
+  const [authMethod, setAuthMethod] = useState<"email" | "google">("email");
+  const [googleData, setGoogleData] = useState<{
+    email: string;
+    name: string;
+    uid: string;
+  } | null>(null);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  // Account step progressive disclosure: the password fields appear only once
+  // the email field has been focused (or already carries a value).
+  const [accountExpanded, setAccountExpanded] = useState(false);
+  // Guards the auto-enter-Google-mode effect so it runs at most once.
+  const googleHydratedRef = useRef(false);
   const [isCodeOfConductModalOpen, setIsCodeOfConductModalOpen] =
     useState(false);
   const [acceptedCodeOfConduct, setAcceptedCodeOfConduct] = useState(false);
@@ -226,6 +253,103 @@ export function RegistrationContainer({
       console.error("Error saving form data to localStorage:", error);
     }
   }, [registerData]);
+
+  // Auto-enter Google mode when the user arrives already signed in with Google
+  // but without a profile — e.g. they clicked "Continue with Google" on the
+  // login page and were redirected here to finish registering. Prefill name +
+  // email, lock the name, and jump straight to the Identity step.
+  useEffect(() => {
+    if (googleHydratedRef.current) return;
+    if (authMethod === "google") return;
+    // `user` is the Mongo profile; if it exists they're fully registered.
+    if (!firebaseUser || user) return;
+    const cameFromGoogle = firebaseUser.providerData.some(
+      (p) => p.providerId === "google.com",
+    );
+    if (!cameFromGoogle) return;
+
+    googleHydratedRef.current = true;
+    const gEmail = firebaseUser.email ?? "";
+    const gName = firebaseUser.displayName ?? "";
+    setGoogleData({ email: gEmail, name: gName, uid: firebaseUser.uid });
+    setAuthMethod("google");
+    setRegisterData((prev: typeof registerData) => ({ ...prev, email: gEmail, name: gName }));
+    setCurrentStepIndex(1); // Identity
+  }, [firebaseUser, user, authMethod]);
+
+  // Clears errors for the account fields (used when switching to Google mode,
+  // where password/confirm no longer apply).
+  const clearAccountErrors = () => {
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next.email;
+      delete next.password;
+      delete next.confirmPassword;
+      delete next.name;
+      return next;
+    });
+  };
+
+  // "Continue with Google" — open the popup, then either send an already
+  // registered user to the dashboard or drop a new user into the Identity step.
+  const handleGoogleSignIn = async () => {
+    setGoogleLoading(true);
+    setAlert(null);
+    try {
+      const res = await signInWithGoogle();
+      if (res.hasProfile) {
+        // Already registered — just sign them in.
+        router.push("/dashboard");
+        return;
+      }
+      googleHydratedRef.current = true;
+      setGoogleData({ email: res.email, name: res.name, uid: res.uid });
+      setAuthMethod("google");
+      setRegisterData((prev: typeof registerData) => ({
+        ...prev,
+        email: res.email,
+        name: res.name,
+      }));
+      clearAccountErrors();
+      setCurrentStepIndex(1); // Identity
+    } catch (err: any) {
+      if (err?.code === "popup_cancelled") {
+        // User dismissed the popup — stay put silently.
+        return;
+      }
+      if (err?.code === "link_password_required") {
+        setAlert({
+          type: "error",
+          message:
+            "This email is already registered with a password. Please log in instead.",
+        });
+        return;
+      }
+      setAlert({
+        type: "error",
+        message: err?.message || "Google sign-in failed. Please try again.",
+      });
+    } finally {
+      setGoogleLoading(false);
+    }
+  };
+
+  // Switch back to email/password registration. Sign the Google session out so
+  // the auto-enter effect above doesn't immediately re-enter Google mode.
+  const resetToEmailMode = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error("Failed to sign out Google session:", error);
+    }
+    googleHydratedRef.current = false;
+    setGoogleData(null);
+    setAuthMethod("email");
+    setAccountExpanded(false);
+    setRegisterData((prev: typeof registerData) => ({ ...prev, email: "", name: "" }));
+    clearAccountErrors();
+    setCurrentStepIndex(0);
+  };
 
   // DEBUG: Auto-fill function
   const handleAutoFill = () => {
@@ -379,8 +503,10 @@ export function RegistrationContainer({
     const requiredFields: Array<keyof typeof registerData> = [
       "name",
       "email",
-      "password",
-      "confirmPassword",
+      // Google users have no password — it's handled by Firebase.
+      ...(authMethod === "google"
+        ? []
+        : (["password", "confirmPassword"] as Array<keyof typeof registerData>)),
       "discord_username",
       "phone",
       "age",
@@ -437,6 +563,10 @@ export function RegistrationContainer({
 
   const validateStep = (stepId: StepId): Record<string, string> => {
     const stepErrors: Record<string, string> = {};
+    // In Google mode the account step is satisfied by the Google sign-in.
+    if (stepId === "account" && authMethod === "google") {
+      return stepErrors;
+    }
     const fields = stepFieldMap[stepId];
 
     fields.forEach((field) => {
@@ -572,11 +702,24 @@ export function RegistrationContainer({
       } else if (phoneDigits.length === 11 && phoneDigits.startsWith("0")) {
         formattedPhone = `+91${phoneDigits.substring(1)}`;
       }
+      const isGoogle = authMethod === "google";
+
+      // For Google, fetch a FRESH ID token at submit time — the one from the
+      // initial popup may have expired while the user filled out the form.
+      let googleIdToken: string | null = null;
+      if (isGoogle) {
+        googleIdToken = await getToken();
+        if (!googleIdToken) {
+          throw new Error(
+            "Your Google session expired. Please sign in with Google again.",
+          );
+        }
+      }
+
       // Create FormData for API request
       const formData = new FormData();
       formData.append("name", registerData.name);
       formData.append("email", registerData.email);
-      formData.append("password", registerData.password);
       formData.append("discord_username", registerData.discord_username);
       formData.append("phone", formattedPhone);
       formData.append("age", registerData.age);
@@ -584,6 +727,14 @@ export function RegistrationContainer({
       formData.append("bio", registerData.bio);
       formData.append("github_link", registerData.github);
       formData.append("linkedin_link", registerData.linkedin);
+
+      if (isGoogle) {
+        // Server trusts the verified token (email + uid), not the password.
+        formData.append("auth_provider", "google");
+        formData.append("id_token", googleIdToken as string);
+      } else {
+        formData.append("password", registerData.password);
+      }
 
       if (resume) formData.append("resume", resume);
       if (profilePhoto) formData.append("profile_picture", profilePhoto);
@@ -597,7 +748,11 @@ export function RegistrationContainer({
       const recaptchaToken = await executeRecaptcha("register");
       if (recaptchaToken) formData.append("recaptcha_token", recaptchaToken);
 
-      await register(formData);
+      if (isGoogle) {
+        await registerWithGoogle(formData);
+      } else {
+        await register(formData);
+      }
 
       // Clear localStorage on successful registration
       try {
@@ -915,6 +1070,12 @@ export function RegistrationContainer({
   const progressPct = ((currentStepIndex + 1) / STEPS.length) * 100;
   const stepNumber = String(currentStepIndex + 1).padStart(2, "0");
 
+  // Account-step progressive disclosure: password fields (and the step nav)
+  // appear once the email is focused or already has a value.
+  const accountFieldsVisible =
+    authMethod === "email" &&
+    (accountExpanded || registerData.email.trim().length > 0);
+
   // Reusable mini-row for review step
   const reviewRow = (
     label: string,
@@ -1139,63 +1300,114 @@ export function RegistrationContainer({
           {/* ---------- STEP 1: ACCOUNT ---------- */}
           {currentStep.id === "account" && (
             <div className="flex flex-col gap-4 anim-fade-up">
-              <p className="text-[13px] text-ink-secondary leading-[1.55]">
-                Choose how you&apos;ll sign in. Email becomes your operator
-                handle.
-              </p>
-              <FormInput
-                label="Email Address"
-                type="email"
-                placeholder="your.email@example.com"
-                required
-                value={registerData.email}
-                onChange={(e) =>
-                  setRegisterData({
-                    ...registerData,
-                    email: e.target.value,
-                  })
-                }
-                onBlur={handleFieldBlur("email")}
-                error={errors.email}
-              />
-              <FormInput
-                label="Password"
-                type="password"
-                placeholder="8+ chars · upper · lower · number · symbol"
-                required
-                value={registerData.password}
-                onChange={(e) =>
-                  setRegisterData({
-                    ...registerData,
-                    password: e.target.value,
-                  })
-                }
-                onBlur={handleFieldBlur("password")}
-                error={errors.password}
-              />
-              <FormInput
-                label="Confirm Password"
-                type="password"
-                placeholder="Re-enter password"
-                required
-                value={registerData.confirmPassword}
-                onChange={(e) =>
-                  setRegisterData({
-                    ...registerData,
-                    confirmPassword: e.target.value,
-                  })
-                }
-                onBlur={handleFieldBlur("confirmPassword")}
-                error={errors.confirmPassword}
-              />
-              <div className="flex items-start gap-2 mt-1 p-3 rounded-md border border-[var(--border-hairline)] bg-surface-inset/60">
-                <Lock className="w-3.5 h-3.5 text-brand mt-0.5 shrink-0" />
-                <p className="text-[12px] text-ink-muted leading-[1.5]">
-                  Passwords are never saved to your browser. Everything else
-                  auto-saves locally so you can refresh without losing
-                  progress.
-                </p>
-              </div>
+              {authMethod === "google" && googleData ? (
+                /* ----- Google-connected state ----- */
+                <>
+                  <p className="text-[13px] text-ink-secondary leading-[1.55]">
+                    You&apos;re signed in with Google. We&apos;ll use this to
+                    create your account.
+                  </p>
+                  <div className="flex items-center gap-3 p-3.5 rounded-md border border-brand/35 bg-brand/[0.04]">
+                    <span className="inline-flex items-center justify-center w-9 h-9 rounded-md border border-brand/40 bg-surface-1 shrink-0">
+                      <CircleCheck className="w-4 h-4 text-brand" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-brand mb-0.5">
+                        Google connected
+                      </div>
+                      <div className="text-[13px] text-ink truncate">
+                        {googleData.email}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={resetToEmailMode}
+                    disabled={isSubmitting}
+                    className="self-start text-[12px] text-ink-muted hover:text-brand transition-colors font-body underline underline-offset-2 disabled:opacity-50"
+                  >
+                    Use a different method
+                  </button>
+                </>
+              ) : (
+                /* ----- Email / Google chooser with progressive disclosure ----- */
+                <>
+                  <p className="text-[13px] text-ink-secondary leading-[1.55]">
+                    Choose how you&apos;ll sign in. Email becomes your operator
+                    handle.
+                  </p>
+                  <GoogleButton
+                    onClick={handleGoogleSignIn}
+                    loading={googleLoading}
+                    disabled={isSubmitting}
+                  />
+                  <div className="flex items-center gap-3 py-0.5">
+                    <span className="h-px flex-1 bg-[var(--border-hairline)]" />
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-muted">
+                      or
+                    </span>
+                    <span className="h-px flex-1 bg-[var(--border-hairline)]" />
+                  </div>
+                  <FormInput
+                    label="Email Address"
+                    type="email"
+                    placeholder="your.email@example.com"
+                    required
+                    value={registerData.email}
+                    onChange={(e) =>
+                      setRegisterData({
+                        ...registerData,
+                        email: e.target.value,
+                      })
+                    }
+                    onFocus={() => setAccountExpanded(true)}
+                    onBlur={handleFieldBlur("email")}
+                    error={errors.email}
+                  />
+                  {accountFieldsVisible && (
+                    <div className="flex flex-col gap-4 anim-fade-up">
+                      <FormInput
+                        label="Password"
+                        type="password"
+                        placeholder="8+ chars · upper · lower · number · symbol"
+                        required
+                        value={registerData.password}
+                        onChange={(e) =>
+                          setRegisterData({
+                            ...registerData,
+                            password: e.target.value,
+                          })
+                        }
+                        onBlur={handleFieldBlur("password")}
+                        error={errors.password}
+                      />
+                      <FormInput
+                        label="Confirm Password"
+                        type="password"
+                        placeholder="Re-enter password"
+                        required
+                        value={registerData.confirmPassword}
+                        onChange={(e) =>
+                          setRegisterData({
+                            ...registerData,
+                            confirmPassword: e.target.value,
+                          })
+                        }
+                        onBlur={handleFieldBlur("confirmPassword")}
+                        error={errors.confirmPassword}
+                      />
+                      <div className="flex items-start gap-2 mt-1 p-3 rounded-md border border-[var(--border-hairline)] bg-surface-inset/60">
+                        <Lock className="w-3.5 h-3.5 text-brand mt-0.5 shrink-0" />
+                        <p className="text-[12px] text-ink-muted leading-[1.5]">
+                          Passwords are never saved to your browser. Everything
+                          else auto-saves locally so you can refresh without
+                          losing progress.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
             </div>
           )}
 
@@ -1205,20 +1417,28 @@ export function RegistrationContainer({
               <p className="text-[13px] text-ink-secondary leading-[1.55]">
                 Recruiters and teammates use this info to recognize you.
               </p>
-              <FormInput
-                label="Full Name"
-                placeholder="John Doe"
-                required
-                value={registerData.name}
-                onChange={(e) =>
-                  setRegisterData({
-                    ...registerData,
-                    name: e.target.value,
-                  })
-                }
-                onBlur={handleFieldBlur("name")}
-                error={errors.name}
-              />
+              <div className="flex flex-col gap-1.5">
+                <FormInput
+                  label="Full Name"
+                  placeholder="John Doe"
+                  required
+                  value={registerData.name}
+                  onChange={(e) =>
+                    setRegisterData({
+                      ...registerData,
+                      name: e.target.value,
+                    })
+                  }
+                  onBlur={handleFieldBlur("name")}
+                  error={errors.name}
+                  disabled={authMethod === "google"}
+                />
+                {authMethod === "google" && (
+                  <p className="font-mono text-[10.5px] text-ink-muted tracking-[0.02em] pl-0.5">
+                    {"// pulled from your Google account"}
+                  </p>
+                )}
+              </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormInput
                   label="Age"
@@ -1424,11 +1644,13 @@ export function RegistrationContainer({
                   &gt; account
                 </div>
                 {reviewRow("Email", registerData.email, 0)}
-                {reviewRow(
-                  "Password",
-                  registerData.password ? "••••••••" : "",
-                  0,
-                )}
+                {authMethod === "google"
+                  ? reviewRow("Sign-in", "Google", 0)
+                  : reviewRow(
+                      "Password",
+                      registerData.password ? "••••••••" : "",
+                      0,
+                    )}
               </div>
 
               <div className="rounded-md border border-[var(--border-soft)] bg-surface-inset/50 p-4">
@@ -1556,7 +1778,15 @@ export function RegistrationContainer({
           )}
 
           {/* ===================== NAV CONTROLS ===================== */}
-          {currentStep.id !== "review" && (
+          {/* On the account step in email mode, the nav is withheld until the
+              email is focused (progressive disclosure). Google mode and all
+              other steps always show it. */}
+          {currentStep.id !== "review" &&
+            !(
+              currentStep.id === "account" &&
+              authMethod === "email" &&
+              !accountFieldsVisible
+            ) && (
             <div className="flex items-center justify-between gap-3 pt-2 mt-1">
               <Button
                 type="button"

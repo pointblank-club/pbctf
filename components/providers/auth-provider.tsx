@@ -6,10 +6,15 @@ import {
     User as FirebaseUser,
     signOut as firebaseSignOut,
     signInWithEmailAndPassword,
+    signInWithPopup,
+    linkWithCredential,
+    fetchSignInMethodsForEmail,
+    GoogleAuthProvider,
+    AuthCredential,
     sendEmailVerification,
     sendPasswordResetEmail
 } from "firebase/auth";
-import { auth } from "@/Firebase";
+import { auth, googleProvider } from "@/Firebase";
 import { useRouter } from "next/navigation";
 import { VerifyEmail } from "@/components/auth/verify-email";
 import posthog from "posthog-js";
@@ -40,6 +45,17 @@ interface UserProfile {
     [key: string]: any;
 }
 
+// Result of a Google popup sign-in. `hasProfile` tells the caller whether a
+// PBCTF (Mongo) profile already exists for this Google account — false means the
+// user is authenticated with Firebase but still needs to finish registration.
+export interface GoogleSignInResult {
+    hasProfile: boolean;
+    idToken: string;
+    email: string;
+    name: string;
+    uid: string;
+}
+
 interface AuthContextType {
     user: UserProfile | null;
     // The raw Firebase user, exposed so consumers (like the dashboard) can
@@ -49,6 +65,13 @@ interface AuthContextType {
     loading: boolean;
     login: (email: string, password: string, recaptchaToken?: string | null) => Promise<void>;
     register: (formData: FormData) => Promise<void>;
+    // Google SSO. signInWithGoogle opens the popup and reports whether a profile
+    // exists; linkGoogleWithPassword resolves the "same email already has a
+    // password" case; registerWithGoogle creates the Mongo profile for an
+    // already-signed-in Google user.
+    signInWithGoogle: () => Promise<GoogleSignInResult>;
+    linkGoogleWithPassword: (email: string, password: string, pendingCred: AuthCredential) => Promise<GoogleSignInResult>;
+    registerWithGoogle: (formData: FormData) => Promise<void>;
     logout: () => Promise<void>;
     refreshUser: () => Promise<void>;
     getToken: () => Promise<string | null>;
@@ -62,6 +85,9 @@ const AuthContext = createContext<AuthContextType>({
     loading: true,
     login: async () => { },
     register: async () => { },
+    signInWithGoogle: async () => ({ hasProfile: false, idToken: "", email: "", name: "", uid: "" }),
+    linkGoogleWithPassword: async () => ({ hasProfile: false, idToken: "", email: "", name: "", uid: "" }),
+    registerWithGoogle: async () => { },
     logout: async () => { },
     refreshUser: async () => { },
     getToken: async () => null,
@@ -267,6 +293,133 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     }, []);
 
+    // Probe whether a PBCTF (Mongo) profile already exists for the given Firebase
+    // ID token. A 200 means the user is fully registered; a 404 means they're
+    // authenticated with Firebase but still need to complete registration.
+    const probeProfile = useCallback(async (idToken: string): Promise<boolean> => {
+        try {
+            const res = await fetch(API_ENDPOINTS.userProfile, {
+                headers: { Authorization: `Bearer ${idToken}` },
+            });
+            return res.ok;
+        } catch (error) {
+            console.error('Profile probe failed:', error);
+            return false;
+        }
+    }, []);
+
+    const signInWithGoogle = useCallback(async (): Promise<GoogleSignInResult> => {
+        try {
+            const result = await signInWithPopup(auth, googleProvider);
+            const fbUser = result.user;
+            const idToken = await fbUser.getIdToken();
+            const hasProfile = await probeProfile(idToken);
+            return {
+                hasProfile,
+                idToken,
+                email: fbUser.email ?? '',
+                name: fbUser.displayName ?? '',
+                uid: fbUser.uid,
+            };
+        } catch (error: any) {
+            // Same email already registered with a password provider. Surface a
+            // typed error carrying the pending credential so the caller can ask
+            // for the password and link the accounts (see linkGoogleWithPassword).
+            if (error?.code === 'auth/account-exists-with-different-credential') {
+                const email = (error.customData?.email as string | undefined) ?? '';
+                const pendingCred = GoogleAuthProvider.credentialFromError(error);
+                const methods = email ? await fetchSignInMethodsForEmail(auth, email) : [];
+                const linkError: any = new Error(
+                    'This email is already registered with a password. Enter your password to link Google sign-in.'
+                );
+                linkError.code = 'link_password_required';
+                linkError.email = email;
+                linkError.pendingCred = pendingCred;
+                linkError.methods = methods;
+                throw linkError;
+            }
+            // User dismissed the popup — treat as a silent cancel, not an error.
+            if (
+                error?.code === 'auth/popup-closed-by-user' ||
+                error?.code === 'auth/cancelled-popup-request'
+            ) {
+                const cancel: any = new Error('Google sign-in was cancelled.');
+                cancel.code = 'popup_cancelled';
+                throw cancel;
+            }
+            throw error;
+        }
+    }, [probeProfile]);
+
+    const linkGoogleWithPassword = useCallback(async (
+        email: string,
+        password: string,
+        pendingCred: AuthCredential,
+    ): Promise<GoogleSignInResult> => {
+        // Authenticate with the existing password, then attach the Google
+        // credential so future Google sign-ins resolve to the same account.
+        const cred = await signInWithEmailAndPassword(auth, email, password);
+        await linkWithCredential(cred.user, pendingCred);
+        const idToken = await cred.user.getIdToken(true);
+        const hasProfile = await probeProfile(idToken);
+        return {
+            hasProfile,
+            idToken,
+            email: cred.user.email ?? email,
+            name: cred.user.displayName ?? '',
+            uid: cred.user.uid,
+        };
+    }, [probeProfile]);
+
+    const registerWithGoogle = useCallback(async (formData: FormData) => {
+        try {
+            setLoading(true);
+            const response = await fetch(API_ENDPOINTS.register, {
+                method: 'POST',
+                body: formData,
+            });
+
+            let data;
+            try {
+                data = await response.json();
+            } catch (jsonError) {
+                setLoading(false);
+                throw new Error(`Registration failed with status ${response.status}. Please try again.`);
+            }
+
+            if (!response.ok) {
+                setLoading(false);
+                let errorMessage = data?.message || data?.error || `Registration failed with status ${response.status}. Please try again.`;
+                if (data?.errors && typeof data.errors === 'object' && Object.keys(data.errors).length > 0) {
+                    const errorKeys = Object.keys(data.errors);
+                    if (errorKeys.length === 1) {
+                        errorMessage = data.errors[errorKeys[0]];
+                    }
+                }
+                const error = new Error(errorMessage);
+                if (data?.errors && typeof data.errors === 'object') {
+                    (error as any).fieldErrors = data.errors;
+                }
+                throw error;
+            }
+
+            // The Google popup already established the Firebase session, so unlike
+            // the email path there's nothing to sign in — just load the freshly
+            // created profile so `user` populates and the app redirects.
+            if (auth.currentUser) {
+                await fetchUserProfile(auth.currentUser, true);
+            }
+            setLoading(false);
+        } catch (error) {
+            setLoading(false);
+            console.error('Auth provider registerWithGoogle error:', error);
+            if (error instanceof Error) {
+                throw error;
+            }
+            throw new Error(String(error) || 'Registration failed. Please try again.');
+        }
+    }, []);
+
     const logout = useCallback(async () => {
         try {
             // 1. Firebase: drops its own session keys + token refresh state.
@@ -357,12 +510,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         loading,
         login,
         register,
+        signInWithGoogle,
+        linkGoogleWithPassword,
+        registerWithGoogle,
         logout,
         refreshUser,
         getToken,
         sendVerificationEmail,
         resetPassword
-    }), [user, firebaseUser, loading, login, register, logout, refreshUser, getToken, sendVerificationEmail, resetPassword]);
+    }), [user, firebaseUser, loading, login, register, signInWithGoogle, linkGoogleWithPassword, registerWithGoogle, logout, refreshUser, getToken, sendVerificationEmail, resetPassword]);
 
     return (
         <AuthContext.Provider value={contextValue}>

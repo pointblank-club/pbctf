@@ -9,6 +9,7 @@ interface FormInputProps {
   value: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onBlur?: (e: React.FocusEvent<HTMLInputElement>) => void;
+  onFocus?: (e: React.FocusEvent<HTMLInputElement>) => void;
   error?: string;
   disabled?: boolean;
 }
@@ -21,6 +22,7 @@ export function FormInput({
   value,
   onChange,
   onBlur,
+  onFocus,
   error,
   disabled = false,
 }: FormInputProps) {
@@ -45,6 +47,7 @@ export function FormInput({
           value={value}
           onChange={onChange}
           onBlur={onBlur}
+          onFocus={onFocus}
           disabled={disabled}
           className={[
             "w-full px-4 py-3 rounded-md",

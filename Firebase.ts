@@ -21,6 +21,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
+// Shared Google provider. `select_account` forces the account chooser every time
+// so a user signed into multiple Google accounts isn't silently logged into the
+// wrong one.
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: "select_account" });
+
 let analytics: Analytics | undefined;
 if (typeof window !== "undefined") {
     isSupported().then((supported) => {
@@ -30,4 +36,4 @@ if (typeof window !== "undefined") {
     });
 }
 
-export { app, auth, analytics, logEvent};
+export { app, auth, googleProvider, analytics, logEvent};
