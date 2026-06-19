@@ -2,7 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { AuthProvider } from "@/components/providers/auth-provider";
 import { Toaster } from "@/components/ui/toaster";
-import { HelpButton } from "@/components/ui/help-button";
+import { HelpButtonGate } from "@/components/ui/help-button-gate";
 import { Analytics } from "@vercel/analytics/next";
 import { PostHogProvider } from "@/components/providers/PostHogProvider";
 
@@ -56,7 +56,7 @@ export default function RootLayout({
           <AuthProvider>
             {children}
             <Toaster />
-            <HelpButton />
+            <HelpButtonGate />
           </AuthProvider>
           <Analytics />
         </PostHogProvider>

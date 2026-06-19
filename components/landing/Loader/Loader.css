@@ -1,0 +1,151 @@
+/* ===================================================================
+   Premium 2D Loader — Green Tiles & Progress Bar
+   =================================================================== */
+
+.pbctf-landing .premium-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: #030604;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono, 'JetBrains Mono', monospace);
+  color: var(--primary, #00FF88);
+  transition: opacity 0.6s ease-out, visibility 0.6s ease-out, transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+  overflow: hidden;
+}
+
+/* Exit animation: slides up and fades out */
+.pbctf-landing .premium-loader--exit {
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-40px) scale(1.02);
+  pointer-events: none;
+}
+
+/* --- Background Pattern --- */
+.pbctf-landing .premium-loader__bg {
+  position: absolute;
+  inset: 0;
+  /* Green tile pattern */
+  background-image: 
+    linear-gradient(rgba(0, 255, 136, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px;
+  background-position: center;
+  z-index: 0;
+  animation: bg-pan 20s linear infinite;
+}
+
+@keyframes bg-pan {
+  from { background-position: 0 0; }
+  to { background-position: 40px 40px; }
+}
+
+/* --- Vignette Overlay --- */
+.pbctf-landing .premium-loader__vignette {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, transparent 30%, #030604 100%);
+  z-index: 1;
+}
+
+/* --- Content Container --- */
+.pbctf-landing .premium-loader__content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90%;
+  max-width: 480px;
+}
+
+/* --- Branding --- */
+.pbctf-landing .premium-loader__brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+  animation: pulse-glow 2s ease-in-out infinite alternate;
+}
+
+@keyframes pulse-glow {
+  from { text-shadow: 0 0 10px rgba(0, 255, 136, 0.2); }
+  to { text-shadow: 0 0 30px rgba(0, 255, 136, 0.6); }
+}
+
+.pbctf-landing .premium-loader__brand .bracket {
+  font-size: 2.5rem;
+  font-weight: 300;
+  color: rgba(0, 255, 136, 0.5);
+}
+
+.pbctf-landing .premium-loader__brand .text {
+  font-family: var(--font-heading, 'Space Grotesk', sans-serif);
+  font-size: 3rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #ffffff;
+}
+
+.pbctf-landing .premium-loader__brand .version {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #00FF88;
+}
+
+/* --- Status Text --- */
+.pbctf-landing .premium-loader__status {
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  color: rgba(255, 255, 255, 0.6);
+  margin-bottom: 1.5rem;
+  text-transform: uppercase;
+}
+
+/* --- Progress Bar --- */
+.pbctf-landing .premium-loader__bar-container {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  position: relative;
+  overflow: visible;
+  margin-bottom: 1rem;
+}
+
+.pbctf-landing .premium-loader__bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: #00FF88;
+  border-radius: 2px;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 10px rgba(0, 255, 136, 0.8);
+}
+
+/* A soft glow underneath the bar */
+.pbctf-landing .premium-loader__bar-glow {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  height: 20px;
+  background: #00FF88;
+  filter: blur(15px);
+  opacity: 0.4;
+  transform: translateY(-50%);
+  transition: width 0.1s linear;
+  pointer-events: none;
+}
+
+/* --- Percentage --- */
+.pbctf-landing .premium-loader__percentage {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #00FF88;
+  text-shadow: 0 0 15px rgba(0, 255, 136, 0.5);
+  font-variant-numeric: tabular-nums;
+}

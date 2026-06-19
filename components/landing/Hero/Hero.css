@@ -1,0 +1,290 @@
+/* ===================================================================
+   Hero — Centered Green & Black Synthwave sunset Scene Layout
+   =================================================================== */
+
+.pbctf-landing .hero {
+  position: relative;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* --- Synthwave Backdrop (Green & Black Theme) --- */
+.pbctf-landing .synthwave-sky {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, #000000 0%, #020804 35%, #05140b 70%, #092615 100%);
+  z-index: 0;
+}
+
+.pbctf-landing .synthwave-sun {
+  position: absolute;
+  bottom: 40%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: clamp(220px, 35vw, 380px);
+  height: clamp(220px, 35vw, 380px);
+  background: linear-gradient(to bottom, #8CFF00 0%, #00FF88 50%, #000000 100%);
+  border-radius: 50%;
+  box-shadow: 0 0 50px rgba(0, 255, 136, 0.3);
+  z-index: 1;
+}
+
+.pbctf-landing .synthwave-sun::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-linear-gradient(to bottom,
+      transparent 0px,
+      transparent 12px,
+      #050505 12px,
+      #050505 16px);
+}
+
+.pbctf-landing .synthwave-mountains {
+  position: absolute;
+  bottom: 40%;
+  left: 0;
+  width: 100%;
+  height: 140px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.pbctf-landing .synthwave-horizon {
+  position: absolute;
+  bottom: 40%;
+  width: 100%;
+  height: 2px;
+  background: #00FF88;
+  box-shadow: 0 0 10px #00FF88, 0 0 20px #00FF88, 0 0 35px #00FF88;
+  z-index: 3;
+}
+
+.pbctf-landing .synthwave-grid {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 40%;
+  background: #050505;
+  z-index: 1;
+  overflow: hidden;
+  border-top: 1px solid rgba(0, 255, 136, 0.1);
+}
+
+.pbctf-landing .synthwave-grid::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Fades out the grid lines at the left, right, and bottom edges */
+  background: radial-gradient(ellipse at top center, transparent 0%, transparent 40%, #050505 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.pbctf-landing .synthwave-grid-lines {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  left: -50%;
+  top: -50%;
+  background-image:
+    linear-gradient(rgba(0, 255, 136, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.18) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: center center;
+  transform: perspective(200px) rotateX(55deg) translateZ(0);
+  transform-origin: center center;
+  will-change: transform, background-position;
+  backface-visibility: hidden;
+  animation: grid-scroll-straight 2.5s linear infinite;
+}
+
+@keyframes grid-scroll-straight {
+  0% {
+    background-position-y: 0px;
+  }
+
+  100% {
+    background-position-y: 50px;
+  }
+}
+
+/* --- Centered Layout --- */
+.pbctf-landing .hero__container--centered {
+  position: absolute;
+  bottom: 40%;
+  left: 50%;
+  width: clamp(220px, 35vw, 380px);
+  height: clamp(220px, 35vw, 380px);
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  pointer-events: none;
+}
+
+.pbctf-landing .hero__content--centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  pointer-events: auto;
+}
+
+.pbctf-landing .hero__headline--centered {
+  font-family: var(--font-hero);
+  font-size: clamp(4.5rem, 9.5vw, 7.5rem);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.01em;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.pbctf-landing .hero__headline-neon {
+  color: #ffffff;
+  text-shadow:
+    0 0 10px rgba(0, 255, 136, 0.8),
+    0 0 20px rgba(0, 255, 136, 0.4),
+    0 0 35px rgba(140, 255, 0, 0.8),
+    0 0 50px rgba(140, 255, 0, 0.5);
+}
+
+.pbctf-landing .hero__tagline--centered {
+  font-family: var(--font-mono);
+  font-size: clamp(0.9rem, 2vw, 1.25rem);
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  margin-top: 0.5rem;
+  opacity: 0.9;
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.4);
+}
+
+.pbctf-landing .hero__actions-wrapper {
+  position: absolute;
+  bottom: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+}
+
+.pbctf-landing .hero__actions {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* --- Scroll Indicator --- */
+.pbctf-landing .hero__scroll-indicator {
+  position: absolute;
+  bottom: var(--space-10);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  animation: hero-bounce 2s var(--ease-in-out) infinite;
+  z-index: 10;
+}
+
+.pbctf-landing .hero__scroll-chevron {
+  width: 16px;
+  height: 16px;
+  border-right: 1.5px solid var(--muted-dark);
+  border-bottom: 1.5px solid var(--muted-dark);
+  transform: rotate(45deg);
+}
+
+@keyframes hero-bounce {
+
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+    opacity: 0.5;
+  }
+
+  50% {
+    transform: translateX(-50%) translateY(10px);
+    opacity: 1;
+  }
+}
+
+/* --- Cinematic Letterbox --- */
+.pbctf-landing .hero__letterbox {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  background: #000;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.pbctf-landing .hero__letterbox--top {
+  top: 0;
+}
+
+.pbctf-landing .hero__letterbox--bottom {
+  bottom: 0;
+}
+
+/* ===================================================================
+   Mobile Responsive — Hero adjustments
+   =================================================================== */
+@media (max-width: 768px) {
+  .pbctf-landing .synthwave-sun {
+    width: clamp(160px, 55vw, 240px);
+    height: clamp(160px, 55vw, 240px);
+    bottom: 38%;
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.2);
+  }
+
+  .pbctf-landing .hero__container--centered {
+    width: clamp(160px, 55vw, 240px);
+    height: clamp(160px, 55vw, 240px);
+    bottom: 38%;
+  }
+
+  .pbctf-landing .hero__headline--centered {
+    font-size: clamp(2.8rem, 12vw, 4.5rem);
+  }
+
+  .pbctf-landing .hero__actions-wrapper {
+    bottom: 18%;
+  }
+
+  .pbctf-landing .hero__actions {
+    gap: var(--space-3);
+  }
+
+  .pbctf-landing .btn {
+    padding: var(--space-3) var(--space-6);
+    font-size: var(--text-xs);
+  }
+
+  .pbctf-landing .synthwave-mountains {
+    height: 90px;
+    bottom: 38%;
+  }
+
+  .pbctf-landing .synthwave-horizon {
+    bottom: 38%;
+  }
+
+  .pbctf-landing .synthwave-grid {
+    height: 38%;
+  }
+
+  .pbctf-landing .hero__scroll-indicator {
+    bottom: var(--space-6);
+  }
+}

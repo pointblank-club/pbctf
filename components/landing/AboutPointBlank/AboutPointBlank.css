@@ -1,0 +1,182 @@
+.pbctf-landing .about {
+  position: relative;
+  overflow: hidden;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pbctf-landing .about__bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  -webkit-mask-image: radial-gradient(ellipse at center, black 20%, transparent 80%);
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 80%);
+  opacity: 0.7;
+}
+
+.pbctf-landing .about__container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+}
+
+.pbctf-landing .about__content {
+  position: relative;
+  max-width: 650px;
+  margin: 0 auto;
+  text-align: center;
+  background: rgba(10, 10, 12, 0.7);
+  padding: 2.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(0, 255, 136, 0.05);
+}
+
+.pbctf-landing .about__title {
+  font-size: clamp(1.75rem, 3vw, 2.5rem);
+  margin-bottom: 1.5rem;
+}
+
+.pbctf-landing .about__text-box {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.pbctf-landing .about__text-box p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.95rem;
+  line-height: 1.6;
+  text-align: left;
+}
+
+.pbctf-landing .highlight-point {
+  color: var(--primary);
+}
+
+/* --- Video Embed --- */
+.pbctf-landing .about__play-btn--monitor {
+  position: absolute;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  
+  /* Dark matte plastic casing */
+  background: #222;
+  border: 1px solid #111;
+  box-shadow: 
+    0 4px 6px rgba(0,0,0,0.8), /* Drop shadow */
+    inset 0 1px 2px rgba(255,255,255,0.1), /* Top edge highlight */
+    inset 0 -1px 2px rgba(0,0,0,0.8), /* Bottom edge shadow */
+    inset 1px 0 2px rgba(255,255,255,0.05), /* Left edge highlight */
+    inset -1px 0 2px rgba(0,0,0,0.6); /* Right edge shadow */
+  
+  color: var(--primary); /* Bright visible color */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.1s ease-out; /* Fast, snappy transition for tactile feel */
+  z-index: 10;
+}
+
+.pbctf-landing .about__play-btn--monitor:hover {
+  color: #fff;
+  box-shadow: 
+    0 4px 6px rgba(0,0,0,0.8),
+    inset 0 1px 2px rgba(255,255,255,0.15),
+    inset 0 -1px 2px rgba(0,0,0,0.8),
+    inset 1px 0 2px rgba(255,255,255,0.08),
+    inset -1px 0 2px rgba(0,0,0,0.6),
+    0 0 10px rgba(0, 255, 136, 0.3);
+}
+
+/* Active state: "push down" */
+.pbctf-landing .about__play-btn--monitor:active {
+  transform: translateY(2px);
+  box-shadow: 
+    0 1px 2px rgba(0,0,0,0.8), /* Shorter drop shadow */
+    inset 0 2px 4px rgba(0,0,0,0.9), /* Inner shadow to look pushed in */
+    inset 0 -1px 2px rgba(255,255,255,0.1); /* Bottom inner edge highlight */
+}
+
+.pbctf-landing .about__play-btn--monitor svg {
+  margin-left: 2px;
+  filter: drop-shadow(0 0 4px rgba(0, 255, 136, 0.4));
+}
+
+.pbctf-landing .about__video-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+}
+
+.pbctf-landing .about__close-btn {
+  align-self: flex-end;
+  background: transparent;
+  color: var(--muted);
+  border: none;
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.pbctf-landing .about__close-btn:hover {
+  color: #ff4444;
+}
+
+.pbctf-landing .about__video-wrapper {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+  height: 0;
+  overflow: hidden;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.pbctf-landing .about__video-wrapper iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none; /* Disables all YouTube UI interactions */
+}
+
+
+@media (max-width: 768px) {
+  .pbctf-landing .about__content {
+    padding: 1.5rem;
+    padding-bottom: 3.5rem;
+  }
+  
+  .pbctf-landing .about__text-box p {
+    font-size: 0.9rem;
+  }
+
+  .pbctf-landing .about__play-btn--monitor {
+    bottom: 1rem;
+    right: 1rem;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .pbctf-landing .about__play-btn--monitor svg {
+    width: 14px;
+    height: 14px;
+  }
+}

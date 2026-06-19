@@ -1,0 +1,67 @@
+/* ===================================================================
+   Final CTA Section
+   =================================================================== */
+
+.pbctf-landing .final-cta {
+  text-align: center;
+  padding: var(--space-32) 0;
+  overflow: hidden;
+}
+
+.pbctf-landing .final-cta .container {
+  max-width: 700px;
+}
+
+/* --- Background Glow --- */
+@keyframes cta-pulse {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 0.6;
+  }
+}
+
+.pbctf-landing .final-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(ellipse at center, var(--accent-gold-dim) 0%, transparent 70%);
+  animation: cta-pulse 4s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+/* --- Headline --- */
+.pbctf-landing .final-cta__headline {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+/* --- Description --- */
+.pbctf-landing .final-cta__text {
+  font-size: var(--text-lg);
+  color: var(--muted);
+  line-height: 1.7;
+  margin-top: var(--space-6);
+  max-width: 560px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* --- Button Group --- */
+.pbctf-landing .final-cta__actions {
+  margin-top: var(--space-10);
+  display: flex;
+  gap: var(--space-4);
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.pbctf-landing .final-cta__actions .btn--primary {
+  padding: var(--space-5) var(--space-10);
+}

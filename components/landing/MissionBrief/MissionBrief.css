@@ -1,0 +1,665 @@
+/* ===================================================================
+   MissionBrief — Narrative introduction section
+   =================================================================== */
+
+.pbctf-landing .mission-brief__header {
+  text-align: center;
+  margin-bottom: var(--space-12);
+}
+
+.pbctf-landing .mission-brief__layout {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
+}
+
+/* --- Left: Narrative Text --- */
+.pbctf-landing .mission-brief__content {
+  flex: 1;
+}
+
+.pbctf-landing .mission-brief__paragraph {
+  color: var(--text-secondary);
+  font-size: var(--text-base);
+  line-height: 1.8;
+  margin-bottom: var(--space-6);
+}
+
+.pbctf-landing .mission-brief__paragraph:last-child {
+  margin-bottom: 0;
+}
+
+/* --- Right: Visual --- */
+.pbctf-landing .mission-brief__visual {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+/* --- Layout for Terminal --- */
+.pbctf-landing .mission-brief__layout-terminal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  padding: 0 var(--space-4);
+}
+
+/* --- Retro Computer Structure --- */
+.pbctf-landing .retro-computer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  transform-style: preserve-3d;
+}
+
+.pbctf-landing .retro-computer__monitor {
+  position: relative;
+  width: 100%;
+  background: #1d221e; /* dark tech plastic with green hint */
+  border: 6px solid #282f2a;
+  border-radius: 30px;
+  padding: 24px 24px 12px 24px;
+  box-shadow: 
+    0 10px 0 0 #121513, /* 3D bevel depth */
+    0 10px 1px 0 rgba(0, 0, 0, 0.4),
+    0 25px 50px rgba(0, 0, 0, 0.85),
+    inset 0 4px 10px rgba(255, 255, 255, 0.1),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.6);
+  transform-style: preserve-3d;
+}
+
+.pbctf-landing .retro-computer__screen-bezel {
+  background: #0b0f0c;
+  border-radius: 16px;
+  padding: 16px;
+  border-bottom: 2px solid #2b332d;
+  box-shadow: inset 0 8px 16px rgba(0,0,0,0.9);
+}
+
+.pbctf-landing .retro-computer__screen {
+  position: relative;
+  background: #010603;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  overflow: hidden;
+  padding: 24px;
+  min-height: 380px;
+  box-shadow: inset 0 0 40px rgba(0, 255, 136, 0.15);
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.4s ease;
+}
+
+/* Off state */
+.pbctf-landing .retro-computer__screen--off {
+  background: #000000 !important;
+  box-shadow: none !important;
+  border-color: rgba(0, 255, 136, 0.05) !important;
+  transition: all 0.3s ease;
+}
+
+.pbctf-landing .retro-computer__screen--off .terminal-header, .pbctf-landing .retro-computer__screen--off .terminal-body, .pbctf-landing .retro-computer__screen--off .crt-overlay, .pbctf-landing .retro-computer__screen--off .crt-glow {
+  opacity: 0 !important;
+  pointer-events: none;
+  transition: opacity 0.15s ease-out;
+}
+
+.pbctf-landing .retro-computer__screen--off::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #000;
+  z-index: 10;
+  animation: crt-power-off 0.45s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+}
+
+@keyframes crt-power-off {
+  0% {
+    transform: scaleY(1) scaleX(1);
+    background: #05140b;
+    filter: brightness(2);
+    opacity: 1;
+  }
+  40% {
+    transform: scaleY(0.01) scaleX(1);
+    background: #00ff88;
+    filter: brightness(3);
+    opacity: 1;
+  }
+  80% {
+    transform: scaleY(0.01) scaleX(0.01);
+    background: #ffffff;
+    filter: brightness(5);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleY(0) scaleX(0);
+    background: #000;
+    filter: brightness(0);
+    opacity: 0;
+  }
+}
+
+/* On state with flash */
+.pbctf-landing .retro-computer__screen--on .terminal-body {
+  opacity: 1;
+  transition: opacity 0.5s ease-in;
+}
+
+.pbctf-landing .retro-computer__screen--on::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #00ff88;
+  z-index: 10;
+  pointer-events: none;
+  animation: crt-power-on 0.35s ease-out forwards;
+}
+
+@keyframes crt-power-on {
+  0% {
+    opacity: 0.9;
+  }
+  40% {
+    opacity: 0.15;
+  }
+  70% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* CRT Effects */
+.pbctf-landing .crt-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.3) 50%
+  );
+  background-size: 100% 4px;
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.pbctf-landing .crt-glow {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle, 
+    rgba(0, 255, 136, 0.04) 0%, 
+    transparent 85%
+  );
+  z-index: 4;
+  pointer-events: none;
+}
+
+/* Terminal Header */
+.pbctf-landing .terminal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.15);
+  padding-bottom: 12px;
+  margin-bottom: 20px;
+  font-family: var(--font-mono);
+}
+
+.pbctf-landing .terminal-dots {
+  display: flex;
+  gap: 6px;
+}
+
+.pbctf-landing .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  opacity: 0.6;
+}
+.pbctf-landing .dot-close { background: #ff5f56; }
+.pbctf-landing .dot-min { background: #ffbd2e; }
+.pbctf-landing .dot-max { background: #27c93f; }
+
+.pbctf-landing .terminal-title {
+  font-size: 12px;
+  color: rgba(0, 255, 136, 0.6);
+  letter-spacing: 0.05em;
+}
+
+/* Terminal Body */
+.pbctf-landing .terminal-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.pbctf-landing .terminal-prompt {
+  font-family: var(--font-mono);
+  font-size: 14px;
+  color: var(--primary);
+  text-shadow: 0 0 5px rgba(0, 255, 136, 0.5);
+  margin-bottom: 16px;
+}
+
+.pbctf-landing .terminal-prompt--footer {
+  margin-bottom: 0;
+  margin-top: 12px;
+}
+
+.pbctf-landing .terminal-cursor {
+  animation: cursor-blink 1s infinite step-end;
+}
+
+@keyframes cursor-blink {
+  from, to { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+.pbctf-landing .mission-brief__content {
+  font-family: var(--font-mono);
+}
+
+.pbctf-landing .mission-brief__paragraph {
+  color: rgba(0, 255, 136, 0.8);
+  text-shadow: 0 0 3px rgba(0, 255, 136, 0.2);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.pbctf-landing .mission-brief__paragraph:last-child {
+  margin-bottom: 0;
+}
+
+/* Bezel Controls */
+.pbctf-landing .retro-computer__bezel-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 8px 0 8px;
+  border-top: 1px solid #2c332e;
+}
+
+.pbctf-landing .brand-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: #4a544e;
+  letter-spacing: 0.15em;
+  font-weight: bold;
+}
+
+.pbctf-landing .bezel-knobs {
+  display: flex;
+  gap: 12px;
+}
+
+.pbctf-landing .knob {
+  width: 16px;
+  height: 16px;
+  background: #1c221e;
+  border-radius: 50%;
+  border: 2px solid #2f3731;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+  cursor: pointer;
+}
+
+.pbctf-landing .power-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pbctf-landing .power-led {
+  width: 10px;
+  height: 10px;
+  background: #00ff88;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #00ff88, 0 0 2px #fff;
+  animation: power-glow 2s infinite alternate;
+}
+
+.pbctf-landing .power-label {
+  font-size: 8px;
+  color: #4a544e;
+  font-weight: bold;
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+}
+
+@keyframes power-glow {
+  from { opacity: 0.8; box-shadow: 0 0 6px #00ff88; }
+  to { opacity: 1; box-shadow: 0 0 12px #00ff88, 0 0 2px #fff; }
+}
+
+.pbctf-landing .power-control-panel {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pbctf-landing .retro-switch-round {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #0d100e;
+  border: 3px solid #282f2a;
+  box-shadow: 
+    0 2px 0 #121513, /* 3D bevel bottom drop */
+    inset 0 2px 4px rgba(0, 0, 0, 0.8);
+  position: relative;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  transition: all 0.15s ease;
+}
+
+.pbctf-landing .retro-switch-round__btn {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3a423d, #252b27);
+  border: 1px solid #1a201c;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    0 3px 5px rgba(0,0,0,0.5), 
+    inset 0 1px 0 rgba(255,255,255,0.1);
+  transition: all 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.pbctf-landing .retro-switch-round__icon {
+  font-size: 11px;
+  color: #555;
+  font-family: var(--font-mono);
+  font-weight: 900;
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+/* Active (ON) State */
+.pbctf-landing .retro-switch-round--on .retro-switch-round__btn {
+  transform: translateY(1.5px);
+  background: linear-gradient(135deg, #2e3531, #1e2220);
+  box-shadow: 
+    0 1px 1px rgba(0,0,0,0.4), 
+    inset 0 2px 4px rgba(0,0,0,0.8);
+  border-color: #121614;
+}
+
+.pbctf-landing .retro-switch-round--on .retro-switch-round__icon {
+  color: #00ff88;
+  text-shadow: 0 0 6px rgba(0, 255, 136, 0.8);
+}
+
+/* Hover effect when popped out (OFF state) */
+.pbctf-landing .retro-switch-round--off:hover .retro-switch-round__btn {
+  background: linear-gradient(135deg, #444c47, #2c332e);
+  box-shadow: 
+    0 4px 6px rgba(0,0,0,0.6), 
+    inset 0 1px 0 rgba(255,255,255,0.15);
+}
+
+.pbctf-landing .power-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.pbctf-landing .power-indicator:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.pbctf-landing .power-led {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.pbctf-landing .power-indicator--on .power-led {
+  background: #00ff88;
+  box-shadow: 0 0 10px #00ff88, 0 0 2px #fff;
+  animation: power-glow 2s infinite alternate;
+}
+
+.pbctf-landing .power-indicator--off .power-led {
+  background: #3a1e1e;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.8);
+  animation: none;
+}
+
+.pbctf-landing .power-label {
+  font-size: 8px;
+  color: #4a544e;
+  font-weight: bold;
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+}
+
+@keyframes power-glow {
+  from { opacity: 0.8; box-shadow: 0 0 6px #00ff88; }
+  to { opacity: 1; box-shadow: 0 0 12px #00ff88, 0 0 2px #fff; }
+}
+
+/* Stand / Base */
+.pbctf-landing .retro-computer__stand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.pbctf-landing .retro-computer__neck {
+  width: 120px;
+  height: 35px;
+  background: #101411;
+  border-left: 4px solid #1a201c;
+  border-right: 4px solid #1a201c;
+  box-shadow: 
+    0 10px 0 #090b0a,
+    0 15px 15px rgba(0,0,0,0.6);
+  z-index: 1;
+  transform: translateZ(-15px);
+}
+
+.pbctf-landing .retro-computer__base {
+  width: 280px;
+  height: 16px;
+  background: #1b201c;
+  border-radius: 8px 8px 4px 4px;
+  border: 1px solid #282f2a;
+  box-shadow: 
+    0 8px 0 0 #0d0f0e,
+    0 12px 24px rgba(0,0,0,0.7);
+  z-index: 2;
+  transform: translateZ(5px);
+}
+
+/* ---------------------------------------------------------------
+   Game Button — green dot style, sits next to power button
+   --------------------------------------------------------------- */
+
+.pbctf-landing .retro-switch-game__dot {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #1c2e1e;
+  border: 2px solid #2a3e2e;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.7);
+  transition: background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pbctf-landing .retro-switch-game:hover .retro-switch-game__dot {
+  background: rgba(0, 255, 136, 0.35);
+  box-shadow: 0 0 8px rgba(0,255,136,0.4), inset 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.pbctf-landing .retro-switch-game--active .retro-switch-round__btn {
+  transform: translateY(1.5px);
+  background: linear-gradient(135deg, #1a2e1e, #101e12);
+  box-shadow: 0 1px 1px rgba(0,0,0,0.4), inset 0 2px 4px rgba(0,0,0,0.8);
+}
+
+.pbctf-landing .retro-switch-game--active .retro-switch-game__dot {
+  background: #00ff88;
+  border-color: #00cc66;
+  box-shadow:
+    0 0 10px #00ff88,
+    0 0 20px rgba(0,255,136,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.3);
+}
+
+/* ---------------------------------------------------------------
+   Flappy Bird Canvas
+   --------------------------------------------------------------- */
+.pbctf-landing .flappy-wrapper {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 6;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.pbctf-landing .flappy-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pbctf-landing .flappy-exit-btn {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: rgba(0,0,0,0.7);
+  border: 1px solid rgba(0,255,136,0.25);
+  color: rgba(0,255,136,0.6);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  z-index: 20;
+  transition: all 0.2s ease;
+}
+
+.pbctf-landing .flappy-exit-btn:hover {
+  background: rgba(255,68,102,0.15);
+  border-color: rgba(255,68,102,0.5);
+  color: #ff4466;
+}
+
+/* ===================================================================
+   Mobile Responsive — Scaled-down monitor & touch scroll fix
+   =================================================================== */
+@media (max-width: 768px) {
+  .pbctf-landing .mission-brief__layout-terminal {
+    padding: 0;
+  }
+
+  .pbctf-landing .retro-computer {
+    max-width: 100%;
+  }
+
+  .pbctf-landing .retro-computer__monitor {
+    border-width: 4px;
+    border-radius: 18px;
+    padding: 14px 12px 8px 12px;
+    box-shadow:
+      0 6px 0 0 #121513,
+      0 6px 1px 0 rgba(0, 0, 0, 0.4),
+      0 14px 30px rgba(0, 0, 0, 0.85),
+      inset 0 2px 6px rgba(255, 255, 255, 0.1),
+      inset 0 -2px 6px rgba(0, 0, 0, 0.6);
+  }
+
+  .pbctf-landing .retro-computer__screen-bezel {
+    border-radius: 10px;
+    padding: 10px;
+  }
+
+  .pbctf-landing .retro-computer__screen {
+    padding: 14px;
+    min-height: 260px;
+    border-radius: 6px;
+    /* Allow page scrolling when swiping over the screen */
+    touch-action: pan-y;
+  }
+
+  .pbctf-landing .terminal-header {
+    gap: 8px;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+  }
+
+  .pbctf-landing .terminal-title {
+    font-size: 10px;
+  }
+
+  .pbctf-landing .terminal-prompt {
+    font-size: 12px;
+    margin-bottom: 10px;
+  }
+
+  .pbctf-landing .mission-brief__paragraph {
+    font-size: 12px;
+    line-height: 1.5;
+    margin-bottom: 10px;
+  }
+
+  .pbctf-landing .retro-computer__bezel-controls {
+    padding: 8px 4px 0 4px;
+  }
+
+  .pbctf-landing .brand-label {
+    font-size: 9px;
+  }
+
+  .pbctf-landing .retro-switch-round {
+    width: 30px;
+    height: 30px;
+  }
+
+  .pbctf-landing .retro-switch-round__btn {
+    width: 20px;
+    height: 20px;
+  }
+
+  .pbctf-landing .power-control-panel {
+    gap: 10px;
+  }
+
+  /* Smaller stand on mobile */
+  .pbctf-landing .retro-computer__neck {
+    width: 80px;
+    height: 24px;
+  }
+
+  .pbctf-landing .retro-computer__base {
+    width: 180px;
+    height: 12px;
+  }
+}
+

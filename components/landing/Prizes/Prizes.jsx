@@ -1,0 +1,253 @@
+import { useRef, useState } from 'react';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useGSAP } from '@gsap/react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import './Prizes.css';
+
+gsap.registerPlugin(ScrollTrigger);
+
+/* ---------------------------------------------------------------
+   Prize tier data
+   --------------------------------------------------------------- */
+const TIERS = [
+  {
+    id: 'prize-second',
+    rankNumber: '02',
+    amount: 15000,
+    label: 'SECOND PLACE',
+    modifier: 'second',
+    color: '#A0E0B0'
+  },
+  {
+    id: 'prize-first',
+    rankNumber: '01',
+    amount: 25000,
+    label: 'FIRST PLACE',
+    modifier: 'first',
+    color: 'var(--primary)'
+  },
+  {
+    id: 'prize-third',
+    rankNumber: '03',
+    amount: 5000,
+    label: 'THIRD PLACE',
+    modifier: 'third',
+    color: '#A0E0B0'
+  },
+];
+
+/* Total prize pool */
+const TOTAL_POOL = TIERS.reduce((sum, t) => sum + t.amount, 0);
+
+/* ---------------------------------------------------------------
+   Helper: format with ₹ and Indian locale
+   --------------------------------------------------------------- */
+function formatINR(value) {
+  return '₹' + Math.round(value).toLocaleString('en-IN');
+}
+
+/* ---------------------------------------------------------------
+   Decorative Barcode Element
+   --------------------------------------------------------------- */
+function Barcode() {
+  return (
+    <div className="prizes__barcode">
+      <div className="prizes__barcode-bars"></div>
+      <span className="prizes__barcode-text">AUTH_OK // PB5.0</span>
+    </div>
+  );
+}
+
+/* ---------------------------------------------------------------
+   Interactive Prize Card Component (Data Chip)
+   --------------------------------------------------------------- */
+const PrizeCard = ({ tier, registerRef }) => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const [isHovered, setIsHovered] = useState(false);
+
+  const springConfig = { damping: 20, stiffness: 150 };
+  const mouseXSpring = useSpring(x, springConfig);
+  const mouseYSpring = useSpring(y, springConfig);
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ['6deg', '-6deg']);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ['-6deg', '6deg']);
+  
+  // Reflection glint effect
+  const background = useTransform(
+    [mouseXSpring, mouseYSpring],
+    ([x, y]) => `radial-gradient(circle at ${(x + 0.5) * 100}% ${(y + 0.5) * 100}%, rgba(255,255,255,0.04) 0%, transparent 60%)`
+  );
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    x.set((e.clientX - rect.left) / rect.width - 0.5);
+    y.set((e.clientY - rect.top) / rect.height - 0.5);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+    setIsHovered(false);
+  };
+
+  return (
+    <div className={`prizes__card-wrapper prizes__card-wrapper--${tier.modifier}`}>
+      <motion.article
+        id={tier.id}
+        className={`prizes__device prizes__device--${tier.modifier}`}
+        onMouseMove={handleMouseMove}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={handleMouseLeave}
+        style={{
+          rotateX,
+          rotateY,
+        }}
+      >
+        <motion.div className="prizes__device-glint" style={{ background, opacity: isHovered ? 1 : 0 }} />
+        
+        {/* Hardware Details */}
+        <div className="prizes__device-screw prizes__device-screw--tl"></div>
+        <div className="prizes__device-screw prizes__device-screw--tr"></div>
+        <div className="prizes__device-screw prizes__device-screw--bl"></div>
+        <div className="prizes__device-screw prizes__device-screw--br"></div>
+        <div className="prizes__device-led"></div>
+
+        
+        {/* 1st Place specific animations */}
+        {tier.modifier === 'first' && (
+          <>
+            <div className="prizes__device-glow-bg" />
+          </>
+        )}
+
+        {/* Inner CRT Screen */}
+        <div className="prizes__screen">
+          <div className="prizes__screen-scanlines"></div>
+          <div className="prizes__screen-content">
+            {/* Tech Badge */}
+            <div className="prizes__tech-badge">
+              <span className="bracket">[</span> TIER // {tier.rankNumber} <span className="bracket">]</span>
+            </div>
+            
+            {/* Main Amount */}
+            <div className="prizes__amount-wrapper">
+              <p
+                className="prizes__amount"
+                ref={(el) => registerRef(tier.id, el)}
+              >
+                ₹0
+              </p>
+              <p className="prizes__label"><span className="prizes__prompt">&gt;</span> {tier.label}</p>
+            </div>
+
+            <Barcode />
+          </div>
+        </div>
+      </motion.article>
+    </div>
+  );
+};
+
+/* ---------------------------------------------------------------
+   Prizes — main section
+   --------------------------------------------------------------- */
+export default function Prizes() {
+  const sectionRef = useRef(null);
+  const amountRefs = useRef({});
+  const totalRef = useRef(null);
+
+  const registerRef = (id, el) => {
+    amountRefs.current[id] = el;
+  };
+
+  useGSAP(() => {
+    const ctx = sectionRef.current;
+    if (!ctx) return;
+
+    /* --- Card entrance --- */
+    const wrappers = ctx.querySelectorAll('.prizes__card-wrapper');
+    gsap.set(wrappers, { opacity: 0, y: 60 });
+    gsap.to(wrappers, {
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      stagger: 0.15,
+      ease: 'power3.out',
+      scrollTrigger: {
+        trigger: ctx,
+        start: 'top 75%',
+      },
+    });
+
+    /* --- Count-up animation for cards --- */
+    TIERS.forEach((tier) => {
+      const el = amountRefs.current[tier.id];
+      if (!el) return;
+
+      const proxy = { val: 0 };
+      gsap.to(proxy, {
+        val: tier.amount,
+        duration: 2.5,
+        ease: 'power2.out',
+        delay: tier.modifier === 'first' ? 0.2 : 0.5,
+        scrollTrigger: {
+          trigger: ctx,
+          start: 'top 75%',
+        },
+        onUpdate() {
+          el.textContent = formatINR(proxy.val);
+        },
+      });
+    });
+
+    /* --- Count-up for total pool --- */
+    if (totalRef.current) {
+      const totalProxy = { val: 0 };
+      gsap.to(totalProxy, {
+        val: TOTAL_POOL,
+        duration: 3,
+        ease: 'power2.out',
+        delay: 0.1,
+        scrollTrigger: {
+          trigger: ctx,
+          start: 'top 75%',
+        },
+        onUpdate() {
+          totalRef.current.textContent = Math.round(totalProxy.val).toLocaleString('en-IN');
+        },
+      });
+    }
+
+  }, { scope: sectionRef });
+
+  return (
+    <section id="prizes" className="section prizes" ref={sectionRef}>
+      <div className="container">
+        {/* Header */}
+        <header className="prizes__header">
+          <h2 className="section__title">Prize Pool</h2>
+        </header>
+
+        {/* Total Prize Pool */}
+        <div className="prizes__total">
+          <div className="prizes__total-label">Total Prize Pool</div>
+          <div className="prizes__total-amount">
+            <span className="prizes__total-currency">₹</span>
+            <span ref={totalRef}>0</span>
+          </div>
+          <div className="prizes__total-divider" />
+        </div>
+
+        {/* Tiers */}
+        <div className="prizes__tiers">
+          {TIERS.map((tier) => (
+            <PrizeCard key={tier.id} tier={tier} registerRef={registerRef} />
+          ))}
+        </div>
+
+      </div>
+    </section>
+  );
+}

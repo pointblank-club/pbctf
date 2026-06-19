@@ -1,0 +1,11 @@
+.pbctf-landing .stars-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -5; /* Keep it far behind everything else */
+  pointer-events: none;
+  background: transparent;
+  opacity: 0.8; /* Subtle blending */
+}

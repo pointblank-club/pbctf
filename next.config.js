@@ -74,6 +74,15 @@ const nextConfig = {
       config.module.rules.push(fileLoaderRule)
     }
 
+    // face-api.js (landing GridScan) references Node-only modules; stub them
+    // out of the browser bundle.
+    config.resolve = config.resolve || {}
+    config.resolve.fallback = {
+      ...(config.resolve.fallback || {}),
+      fs: false,
+      encoding: false,
+    }
+
     return config
   },
 }

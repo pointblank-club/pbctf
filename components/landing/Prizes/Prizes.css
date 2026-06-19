@@ -1,0 +1,428 @@
+/* ===================================================================
+   Prizes — Hardware Device Redesign
+   =================================================================== */
+
+.pbctf-landing .prizes {
+  overflow: hidden;
+  position: relative;
+}
+
+/* Subtle background glow for the whole section */
+.pbctf-landing .prizes::before {
+  content: '';
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  width: 600px;
+  height: 600px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, var(--primary-dim) 0%, transparent 60%);
+  opacity: 0.3;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.pbctf-landing .prizes__header {
+  text-align: center;
+  margin-bottom: var(--space-6);
+}
+
+/* --- Total Prize Pool Display --- */
+.pbctf-landing .prizes__total {
+  text-align: center;
+  margin-bottom: var(--space-16);
+}
+
+.pbctf-landing .prizes__total-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted-dark);
+  margin-bottom: var(--space-3);
+}
+
+.pbctf-landing .prizes__total-amount {
+  font-family: var(--font-heading);
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 800;
+  color: var(--primary);
+  letter-spacing: -0.02em;
+  text-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+  line-height: 1;
+}
+
+.pbctf-landing .prizes__total-currency {
+  font-size: 0.6em;
+  color: var(--muted);
+  font-weight: 500;
+  vertical-align: super;
+  margin-right: 4px;
+}
+
+.pbctf-landing .prizes__total-divider {
+  width: 80px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  margin: var(--space-4) auto 0;
+  opacity: 0.5;
+}
+
+/* --- Tier Row --- */
+.pbctf-landing .prizes__tiers {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-6);
+  perspective: 1200px;
+}
+
+/* Mobile ordering: 1st, 2nd, 3rd */
+.pbctf-landing .prizes__card-wrapper--first { order: -1; }
+.pbctf-landing .prizes__card-wrapper--second { order: 0; }
+.pbctf-landing .prizes__card-wrapper--third { order: 1; }
+
+@media (min-width: 769px) {
+  .pbctf-landing .prizes__tiers {
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-end;
+    gap: var(--space-6);
+  }
+
+  /* Desktop podium: 2nd, 1st, 3rd */
+  .pbctf-landing .prizes__card-wrapper--second { order: -1; }
+  .pbctf-landing .prizes__card-wrapper--first { order: 0; }
+  .pbctf-landing .prizes__card-wrapper--third { order: 1; }
+}
+
+/* --- Card Wrapper (For 3D Perspective) --- */
+.pbctf-landing .prizes__card-wrapper {
+  width: 100%;
+  max-width: 360px;
+  z-index: 1;
+}
+
+@media (min-width: 769px) {
+  .pbctf-landing .prizes__card-wrapper {
+    min-width: 280px;
+    width: auto;
+    flex: 0 1 320px;
+  }
+  
+  .pbctf-landing .prizes__card-wrapper--first {
+    flex: 0 1 380px;
+    z-index: 2;
+  }
+}
+
+/* ===================================================================
+   Hardware Device Chassis
+   =================================================================== */
+.pbctf-landing .prizes__device {
+  position: relative;
+  background: linear-gradient(145deg, #1f2723 0%, #0d120f 100%);
+  border: 1px solid #2a352f;
+  border-bottom-width: 4px;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: left;
+  width: 100%;
+  height: 100%;
+  box-shadow: 
+    0 15px 35px rgba(0,0,0,0.6),
+    inset 0 2px 5px rgba(255,255,255,0.05);
+  transition: box-shadow 0.4s;
+}
+
+.pbctf-landing .prizes__device:hover {
+  box-shadow: 
+    0 24px 50px rgba(0,0,0,0.8),
+    inset 0 2px 5px rgba(255,255,255,0.05);
+}
+
+.pbctf-landing .prizes__device-glint {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-normal) var(--ease-out);
+  z-index: 0;
+}
+
+/* Hardware accents */
+.pbctf-landing .prizes__device-screw {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #0a0e0c;
+  border-radius: 50%;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,1), 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.pbctf-landing .prizes__device-screw--tl { top: 8px; left: 8px; }
+.pbctf-landing .prizes__device-screw--tr { top: 8px; right: 8px; }
+.pbctf-landing .prizes__device-screw--bl { bottom: 8px; left: 8px; }
+.pbctf-landing .prizes__device-screw--br { bottom: 8px; right: 8px; }
+
+.pbctf-landing .prizes__device-led {
+  position: absolute;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 4px;
+  border-radius: 2px;
+  background: #440000;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.8);
+  transition: background 0.3s, box-shadow 0.3s;
+}
+
+
+
+/* ===================================================================
+   CRT Screen Display
+   =================================================================== */
+.pbctf-landing .prizes__screen {
+  position: relative;
+  background: #050806;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 16px;
+  margin-top: 6px;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  transition: border-color 0.4s, box-shadow 0.4s;
+}
+
+.pbctf-landing .prizes__screen-scanlines {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%,
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+  border-radius: 4px;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.pbctf-landing .prizes__screen-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.pbctf-landing .prizes__prompt {
+  color: var(--primary);
+  opacity: 0.7;
+  margin-right: 6px;
+}
+
+/* --- Tech Badge --- */
+.pbctf-landing .prizes__tech-badge {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  margin-bottom: var(--space-8);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.pbctf-landing .prizes__tech-badge .bracket {
+  opacity: 0.5;
+  font-weight: 400;
+}
+
+/* --- Prize Amount --- */
+.pbctf-landing .prizes__amount-wrapper {
+  margin-bottom: var(--space-6);
+}
+
+.pbctf-landing .prizes__amount {
+  font-family: var(--font-heading);
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: var(--space-3);
+  letter-spacing: -0.02em;
+  font-size: clamp(2rem, 5vw, 3rem);
+  color: #fff;
+  transition: text-shadow 0.4s;
+}
+
+.pbctf-landing .prizes__label {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  transition: color 0.4s;
+}
+
+/* --- Barcode Decorative --- */
+.pbctf-landing .prizes__barcode {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  opacity: 0.4;
+}
+
+.pbctf-landing .prizes__barcode-bars {
+  height: 12px;
+  width: 100px;
+  background-image: repeating-linear-gradient(
+    90deg,
+    #fff,
+    #fff 2px,
+    transparent 2px,
+    transparent 4px,
+    #fff 4px,
+    #fff 5px,
+    transparent 5px,
+    transparent 8px
+  );
+}
+
+.pbctf-landing .prizes__barcode-text {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  color: #fff;
+}
+
+/* ===================================================================
+   1st Place — Hero Device
+   =================================================================== */
+@media (min-width: 769px) {
+  .pbctf-landing .prizes__device--first {
+    padding: var(--space-10) var(--space-8);
+  }
+  .pbctf-landing .prizes__device--first .prizes__screen {
+    min-height: 180px;
+  }
+}
+
+.pbctf-landing .prizes__device--first:hover {
+  box-shadow: 
+    0 24px 60px rgba(0, 255, 136, 0.15),
+    inset 0 2px 5px rgba(255,255,255,0.05);
+}
+
+.pbctf-landing .prizes__device--first .prizes__device-led {
+  background: var(--primary);
+  box-shadow: 0 0 10px var(--primary);
+}
+
+.pbctf-landing .prizes__device--first .prizes__screen {
+  border-color: rgba(0, 255, 136, 0.5);
+  box-shadow: 
+    inset 0 0 30px rgba(0, 255, 136, 0.1),
+    0 0 15px rgba(0, 255, 136, 0.05);
+}
+
+.pbctf-landing .prizes__device--first .prizes__tech-badge {
+  color: var(--primary);
+}
+
+.pbctf-landing .prizes__device--first .prizes__amount {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  text-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+}
+
+.pbctf-landing .prizes__device--first .prizes__label {
+  color: var(--primary);
+  text-shadow: 0 0 10px rgba(0, 255, 136, 0.2);
+}
+
+.pbctf-landing .prizes__device--first .prizes__barcode {
+  opacity: 0.8;
+}
+.pbctf-landing .prizes__device--first .prizes__barcode-bars {
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--primary),
+    var(--primary) 2px,
+    transparent 2px,
+    transparent 4px,
+    var(--primary) 4px,
+    var(--primary) 5px,
+    transparent 5px,
+    transparent 8px
+  );
+}
+.pbctf-landing .prizes__device--first .prizes__barcode-text {
+  color: var(--primary);
+}
+
+.pbctf-landing .prizes__device-glow-bg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150%;
+  height: 150%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, var(--primary-glow) 0%, transparent 60%);
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: 0;
+}
+
+
+
+
+/* ===================================================================
+   2nd Place Device
+   =================================================================== */
+.pbctf-landing .prizes__device--second .prizes__device-led {
+  background: #A0E0B0;
+  box-shadow: 0 0 10px #A0E0B0;
+}
+
+.pbctf-landing .prizes__device--second .prizes__screen {
+  border-color: rgba(160, 224, 176, 0.4);
+  box-shadow: 
+    inset 0 0 30px rgba(160, 224, 176, 0.05),
+    0 0 15px rgba(160, 224, 176, 0.05);
+}
+
+.pbctf-landing .prizes__device--second .prizes__tech-badge {
+  color: #A0E0B0;
+}
+
+.pbctf-landing .prizes__device--second .prizes__prompt {
+  color: #A0E0B0;
+}
+
+/* ===================================================================
+   3rd Place Device
+   =================================================================== */
+.pbctf-landing .prizes__device--third .prizes__device-led {
+  background: #A0E0B0;
+  box-shadow: 0 0 10px #A0E0B0;
+}
+
+.pbctf-landing .prizes__device--third .prizes__screen {
+  border-color: rgba(160, 224, 176, 0.4);
+  box-shadow: 
+    inset 0 0 30px rgba(160, 224, 176, 0.05),
+    0 0 15px rgba(160, 224, 176, 0.05);
+}
+
+.pbctf-landing .prizes__device--third .prizes__tech-badge {
+  color: #A0E0B0;
+}
+
+.pbctf-landing .prizes__device--third .prizes__prompt {
+  color: #A0E0B0;
+}

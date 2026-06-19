@@ -1,0 +1,238 @@
+/* ===================================================================
+   Venue Section
+   =================================================================== */
+
+.pbctf-landing .venue__header {
+  text-align: center;
+  margin-bottom: var(--space-12);
+}
+
+.pbctf-landing .venue__layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-12);
+  margin-top: var(--space-6);
+}
+
+@media (min-width: 960px) {
+  .pbctf-landing .venue__layout {
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-10);
+  }
+}
+
+/* --- Venue Card Glassmorphism --- */
+.pbctf-landing .venue__card {
+  background: linear-gradient(145deg, rgba(13, 20, 16, 0.7) 0%, rgba(8, 13, 10, 0.8) 100%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  padding: var(--space-6);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.pbctf-landing .venue__card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--primary), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.pbctf-landing .venue__card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 255, 136, 0.15);
+  box-shadow: 0 10px 40px -10px rgba(0, 255, 136, 0.1);
+}
+
+.pbctf-landing .venue__card:hover::before {
+  opacity: 1;
+}
+
+/* --- Left: Image & Details --- */
+.pbctf-landing .venue__image-wrapper {
+  aspect-ratio: 16 / 10;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--bg-elevated);
+  position: relative;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.pbctf-landing .venue__image-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, transparent 50%);
+  z-index: 1;
+  pointer-events: none;
+}
+
+.pbctf-landing .venue__image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pbctf-landing .venue__card:hover .venue__image-wrapper img {
+  transform: scale(1.05);
+}
+
+.pbctf-landing .venue__info {
+  margin-top: var(--space-6);
+  padding: 0 var(--space-2);
+}
+
+.pbctf-landing .venue__name {
+  font-family: var(--font-heading);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  color: #fff;
+}
+
+.pbctf-landing .venue__address {
+  font-size: var(--text-sm);
+  color: var(--muted);
+  line-height: 1.8;
+  white-space: pre-line;
+  margin-top: var(--space-3);
+}
+
+/* --- Right: Map & Radio --- */
+.pbctf-landing .venue__map-wrapper {
+  aspect-ratio: 16 / 10;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+  background: #000;
+  margin-bottom: var(--space-6);
+}
+
+.pbctf-landing .venue__map-wrapper iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  filter: invert(90%) hue-rotate(180deg) contrast(1.1) brightness(0.9);
+}
+
+/* --- Radio Module --- */
+.pbctf-landing .venue__radio-module {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(0, 255, 136, 0.1);
+  border-radius: 8px;
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.pbctf-landing .venue__radio-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+}
+
+.pbctf-landing .venue__radio-label {
+  color: var(--muted);
+}
+
+.pbctf-landing .venue__radio-status {
+  color: var(--primary);
+  text-shadow: 0 0 5px var(--primary);
+  animation: pulse-status 2s infinite;
+}
+
+@keyframes pulse-status {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.pbctf-landing .venue__radio-controls--knob {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-2) 0;
+}
+
+/* 3D Round Knob */
+.pbctf-landing .venue__3d-knob {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: #050806;
+  box-shadow: 
+    inset 4px 4px 8px rgba(0, 0, 0, 0.8),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+}
+
+.pbctf-landing .venue__3d-knob-dial {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #18201b, #0c100e);
+  box-shadow: 
+    4px 4px 8px rgba(0, 0, 0, 0.8),
+    -2px -2px 6px rgba(255, 255, 255, 0.08),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.15),
+    inset -1px -1px 2px rgba(0, 0, 0, 0.6);
+  position: relative;
+  cursor: grab;
+  border: 1px solid rgba(0, 255, 136, 0.1);
+}
+
+.pbctf-landing .venue__3d-knob-dial:active {
+  cursor: grabbing;
+}
+
+/* Indicator dot on the dial */
+.pbctf-landing .venue__3d-knob-indicator {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 6px var(--primary);
+}
+
+.pbctf-landing .venue__volume-display {
+  display: flex;
+  gap: 6px;
+  align-items: flex-end;
+  height: 24px;
+}
+
+.pbctf-landing .venue__volume-bar {
+  width: 8px;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+}
+
+.pbctf-landing .venue__volume-bar:nth-child(2) { height: 12px; }
+.pbctf-landing .venue__volume-bar:nth-child(3) { height: 16px; }
+.pbctf-landing .venue__volume-bar:nth-child(4) { height: 20px; }
+.pbctf-landing .venue__volume-bar:nth-child(5) { height: 24px; }
+
+.pbctf-landing .venue__volume-bar.active {
+  background: var(--primary);
+  box-shadow: 0 0 8px var(--primary);
+}
