@@ -172,10 +172,10 @@ export function NavBar({ user, onLogout, onNavigate, isAuthLoading }: NavBarProp
   return (
     <header
       className={[
-        "sticky top-0 z-50 w-full",
-        "bg-[rgba(5,5,5,0.78)] backdrop-blur-[20px]",
-        "border-b border-[rgba(0,255,136,0.15)]",
-        "shadow-[0_10px_40px_rgba(0,0,0,0.5)]",
+        "sticky top-0 w-full transition-all duration-300",
+        menuOpen
+          ? "z-[101] bg-transparent border-transparent shadow-none"
+          : "z-50 bg-[rgba(5,5,5,0.78)] backdrop-blur-[20px] border-b border-[rgba(0,255,136,0.15)] shadow-[0_10px_40px_rgba(0,0,0,0.5)]",
       ].join(" ")}
     >
       <div className="w-full px-[clamp(1.25rem,4vw,2.5rem)]">
@@ -291,11 +291,13 @@ export function NavBar({ user, onLogout, onNavigate, isAuthLoading }: NavBarProp
 
             {/* Mobile Hamburger */}
             <button
-              className="md:hidden flex items-center justify-center w-10 h-10 rounded-md text-ink hover:text-brand transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+              className="md:hidden flex flex-col justify-center items-end gap-[5px] w-[44px] h-[44px] cursor-pointer relative z-[100] bg-white/[0.03] border border-white/[0.05] rounded-[var(--radius-sm)] transition-all duration-300 px-[10px] hover:bg-[rgba(0,255,136,0.08)] hover:border-[rgba(0,255,136,0.4)] hover:shadow-[0_0_15px_rgba(0,255,136,0.15)] group"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? "Close menu" : "Open menu"}
             >
-              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              <span className={`block h-[2px] rounded-[1px] transition-all duration-300 ease-out ${menuOpen ? 'w-[24px] translate-y-[7px] -rotate-45 bg-brand' : 'w-[24px] bg-ink group-hover:w-[24px] group-hover:bg-brand'}`} />
+              <span className={`block h-[2px] rounded-[1px] transition-all duration-300 ease-out ${menuOpen ? 'w-0 opacity-0' : 'w-[14px] bg-ink group-hover:w-[24px] group-hover:bg-brand'}`} />
+              <span className={`block h-[2px] rounded-[1px] transition-all duration-300 ease-out ${menuOpen ? 'w-[24px] -translate-y-[7px] rotate-45 bg-brand' : 'w-[20px] bg-ink group-hover:w-[24px] group-hover:bg-brand'}`} />
             </button>
           </div>
         </div>
@@ -304,90 +306,83 @@ export function NavBar({ user, onLogout, onNavigate, isAuthLoading }: NavBarProp
       {/* Mobile Overlay */}
       <AnimatePresence>
         {menuOpen && (
-          <motion.div
-            className="fixed inset-0 top-[64px] z-40 flex flex-col bg-surface-1/95 backdrop-blur-xl border-t border-[var(--border-soft)] p-6 md:hidden overflow-y-auto"
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.2 }}
+          <motion.nav
+            className="fixed inset-0 bg-[rgba(5,5,5,0.95)] z-[99] flex items-center justify-center overflow-hidden"
+            aria-label="Mobile navigation"
+            initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+            animate={{ opacity: 1, backdropFilter: 'blur(32px)' }}
+            exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
+            transition={{ duration: 0.4 }}
           >
-            <div className="flex flex-col gap-4">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,255,136,0.05),transparent_60%)] pointer-events-none" />
+            <div className="relative flex flex-col gap-6 w-full max-w-[400px] p-8">
               {nav.map((item, i) => (
                 <motion.button
                   key={item.view}
-                  className={[
-                    "flex items-center w-full px-4 py-3 rounded-md text-left font-body uppercase tracking-wider text-[14px]",
-                    isActive(item.match)
-                      ? "bg-brand/10 text-brand border border-brand/30"
-                      : "text-ink-secondary hover:bg-surface-2 hover:text-ink",
-                  ].join(" ")}
+                  className="font-heading text-[clamp(1.5rem,5vw,2rem)] font-bold text-muted hover:text-ink flex items-center gap-4 transition-all duration-300 group"
                   onClick={() => {
                     handleNav(item.view);
                     setMenuOpen(false);
                   }}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + i * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 >
-                  <span className="font-mono text-brand/50 mr-3 text-[11px]">0{i + 1}</span>
-                  {item.label}
+                  <span className="font-mono text-[var(--text-xs)] text-brand opacity-50 font-medium group-hover:opacity-100 transition-opacity duration-300">
+                    0{i + 1}
+                  </span>
+                  <span className="group-hover:pl-2 transition-all duration-300">{item.label}</span>
                 </motion.button>
               ))}
 
               {!isPrivilegedRole && user && (
                 <motion.button
-                  className={[
-                    "flex items-center w-full px-4 py-3 rounded-md text-left font-body uppercase tracking-wider text-[14px]",
-                    isActive("/dashboard/profile")
-                      ? "bg-brand/10 text-brand border border-brand/30"
-                      : "text-ink-secondary hover:bg-surface-2 hover:text-ink",
-                  ].join(" ")}
+                  className="font-heading text-[clamp(1.5rem,5vw,2rem)] font-bold text-muted hover:text-ink flex items-center gap-4 transition-all duration-300 group"
                   onClick={() => {
                     handleNav("/dashboard/profile");
                     setMenuOpen(false);
                   }}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: nav.length * 0.05 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + nav.length * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
                 >
-                  <span className="font-mono text-brand/50 mr-3 text-[11px]">0{nav.length + 1}</span>
-                  Profile
+                  <span className="font-mono text-[var(--text-xs)] text-brand opacity-50 font-medium group-hover:opacity-100 transition-opacity duration-300">
+                    0{nav.length + 1}
+                  </span>
+                  <span className="group-hover:pl-2 transition-all duration-300">Profile</span>
                 </motion.button>
               )}
 
-              <div className="mt-4 pt-4 border-t border-[var(--border-soft)] flex flex-col gap-3">
-                {user ? (
-                  <motion.button
-                    className="flex items-center justify-center w-full px-4 py-3 rounded-md bg-surface-2 text-ink-secondary hover:text-brand hover:bg-surface-3 transition-colors uppercase font-body text-[13px] tracking-wider"
-                    onClick={() => {
-                      onLogout();
-                      setMenuOpen(false);
-                    }}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Logout
-                  </motion.button>
-                ) : (
-                  <motion.button
-                    className="flex items-center justify-center w-full px-4 py-3 rounded-md bg-brand text-brand-ink uppercase font-body font-bold text-[13px] tracking-wider"
-                    onClick={() => {
-                      onNavigate?.("login");
-                      setMenuOpen(false);
-                    }}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                  >
-                    <LogIn className="w-4 h-4 mr-2" />
-                    Login
-                  </motion.button>
-                )}
-              </div>
+              {user ? (
+                <motion.button
+                  type="button"
+                  className="mt-6 self-start bg-transparent border-none cursor-pointer font-mono font-semibold text-[var(--text-sm)] uppercase tracking-[0.05em] text-muted hover:text-brand transition-colors duration-300"
+                  onClick={() => {
+                    onLogout();
+                    setMenuOpen(false);
+                  }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + (nav.length + 1) * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  Logout
+                </motion.button>
+              ) : (
+                <motion.button
+                  className="mt-6 px-10 py-4 text-[var(--text-sm)] text-center self-start shadow-[0_0_20px_rgba(0,255,136,0.2)] bg-brand text-brand-ink uppercase font-body font-bold tracking-wider rounded"
+                  onClick={() => {
+                    onNavigate?.("login");
+                    setMenuOpen(false);
+                  }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + (nav.length + 1) * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  Login
+                </motion.button>
+              )}
             </div>
-          </motion.div>
+          </motion.nav>
         )}
       </AnimatePresence>
     </header>
