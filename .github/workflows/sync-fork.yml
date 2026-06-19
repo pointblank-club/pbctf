@@ -27,7 +27,7 @@ jobs:
 
       - name: Add upstream remote
         run: |
-          UPSTREAM_REPO="https://github.com/pbdsce/Zenith.git"
+          UPSTREAM_REPO="https://github.com/pointblank-club/pbctf.git"
           
           # Check if upstream remote already exists
           if git remote | grep -q "^upstream$"; then
@@ -46,7 +46,7 @@ jobs:
       - name: Merge upstream changes
         run: |
           CURRENT_BRANCH="${{ steps.branch.outputs.branch }}"
-          UPSTREAM_BRANCH="prod"  # Upstream default branch
+          UPSTREAM_BRANCH="staging"  # Upstream default branch
           
           git checkout $CURRENT_BRANCH
           
