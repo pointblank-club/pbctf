@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
 import { RegistrationContainer } from "@/components/registration/registration-container";
 import { DotPattern } from "@/components/registration/dot-pattern";
+import { AuthHeader } from "@/components/registration/auth-header";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function RegisterPage() {
@@ -26,8 +27,9 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen w-full bg-void relative overflow-hidden">
       <DotPattern />
+      <AuthHeader />
 
-      <main className="relative z-10 w-full min-h-screen flex flex-col items-center px-4 sm:px-6 md:px-8 py-10 sm:py-14">
+      <main className="relative z-10 w-full min-h-screen flex flex-col items-center px-4 sm:px-6 md:px-8 pt-24 pb-10 sm:pt-28 sm:pb-14">
         <div className="w-full max-w-[1000px] flex flex-col gap-7 items-center anim-fade-up">
           <RegistrationContainer />
         </div>
