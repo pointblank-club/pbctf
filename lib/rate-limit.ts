@@ -1,19 +1,16 @@
+import requestIp from "request-ip";
 import dbConnect from "@/lib/db";
 import RateLimit from "@/models/RateLimit";
 
 /**
- * Resolve the real client IP. On Netlify the only trustworthy value is
- * x-nf-client-connection-ip (set by the edge). x-forwarded-for is
- * client-spoofable, so it's a last resort and we take the left-most hop only.
+ * Resolve the real client IP.
  */
 export function getClientIp(request: Request): string {
   const netlify = request.headers.get("x-nf-client-connection-ip");
   if (netlify) return netlify.trim();
 
-  const xff = request.headers.get("x-forwarded-for");
-  if (xff) return xff.split(",")[0].trim();
-
-  return request.headers.get("x-real-ip")?.trim() || "unknown";
+  const headers = Object.fromEntries(request.headers);
+  return requestIp.getClientIp({ headers })?.trim() || "unknown";
 }
 
 /**
