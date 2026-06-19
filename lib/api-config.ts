@@ -1,21 +1,19 @@
 /**
- * API Configuration for Zenith Event Management System
- * 
- * All endpoints are relative to the Next.js app (no external backend)
+ * API endpoint map for the PBCTF app.
+ *
+ * All endpoints are relative to the Next.js app (no external backend).
+ * Keep this in sync with the route handlers under `app/api/`.
  */
-
-export const API_BASE_URL = '';
 
 export const API_ENDPOINTS = {
   // ===== AUTHENTICATION =====
   register: '/api/registration',              // POST (FormData)
   login: '/api/user/login',                   // POST (JSON)
-  
+
   // ===== USER ENDPOINTS =====
   userProfile: '/api/user/profile',                    // GET, PUT
   lookingForTeam: '/api/user/looking-for-team',        // GET, PUT
   userRsvp: '/api/user/rsvp',                          // PUT
-  userRsvpStatus: '/api/user/rsvp-status',             // GET
   users: '/api/users',                                 // GET (by ID)
   userFlag: '/api/user/flag',                          // GET, POST
 
@@ -30,38 +28,20 @@ export const API_ENDPOINTS = {
   removeMember: '/api/team/remove-member',             // PUT
   deleteTeam: '/api/team/delete',                      // DELETE
   getTeam: (teamCode: string) => `/api/team/${teamCode}`,  // GET
-  getTeamMembers: (teamCode: string) => `/api/team/${teamCode}/members`,  // GET (for users looking for teams)
-  
+
   // ===== ADMIN ENDPOINTS =====
   adminParticipants: '/api/admin/participants',        // GET
-  adminParticipantDetails: (id: string) => `/api/admin/participants/${id}`,  // GET
   adminTeams: '/api/admin/teams',                      // GET
   adminTeamDetails: (teamCode: string) => `/api/admin/teams/${teamCode}`,    // GET
   adminUpdateTeam: (teamCode: string) => `/api/admin/teams/${teamCode}`,     // PUT
   adminEvaluators: '/api/admin/evaluators',            // GET
   adminAssignEvaluators: '/api/admin/evaluators/assign',  // PUT
-  adminFinalizeTeams: '/api/admin/finalize-teams',     // PUT
   adminExport: '/api/admin/export',                    // GET
-  adminProblemStatements: '/api/admin/problem-statements',  // POST
-  adminUpdateProblemStatement: (id: string) => `/api/admin/problem-statements/${id}`,  // PUT
-  
-  // ===== EVALUATOR ENDPOINTS =====
-  evaluatorRegister: '/api/evaluator/register',
-  evaluatorTeams: '/api/evaluator/teams',              // GET
-  evaluatorTeamDetails: (teamCode: string) => `/api/evaluator/teams/${teamCode}`,  // GET
-  evaluatorEvaluate: '/api/evaluator/evaluate',
-  evaluatorVote: '/api/evaluator/vote',        // PUT
-  evaluatorUpdateEvaluation: (teamCode: string) => `/api/evaluator/evaluate/${teamCode}/update`,  // PUT
   adminPromoteUser: '/api/admin/users/promote',        // PUT
-  // ===== PROBLEM STATEMENT ENDPOINTS =====
-  problemStatements: '/api/problem-statements',        // GET
-  problemStatementDetails: (id: string) => `/api/problem-statements/${id}`,  // GET
-};
 
-/**
- * Helper function to build full API URL
- * (Not needed since we're using relative paths in same Next.js app)
- */
-export function getApiUrl(endpoint: string): string {
-  return endpoint;
-}
+  // ===== EVALUATOR ENDPOINTS =====
+  evaluatorRegister: '/api/evaluator/register',        // POST
+  evaluatorTeams: '/api/evaluator/teams',              // GET
+  evaluatorEvaluate: '/api/evaluator/evaluate',        // POST
+  evaluatorVote: '/api/evaluator/vote',                // PUT
+};
