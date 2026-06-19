@@ -6,13 +6,15 @@ import crypto from "crypto";
 
 export const dynamic = 'force-dynamic';
 
-const FLAG_SECRET = process.env.FLAG_SECRET || "pbctf_default_secret_key_2026";
 const FLAG_PREFIX ="pbctf";
 
 // Logic for generating the dynamic flag using hmac
 function generateFlag(sessionId: string): string {
+  if (!process.env.FLAG_SECRET) {
+    throw new Error("FLAG_SECRET is not configured");
+  }
   const hmac = crypto
-    .createHmac("sha256", FLAG_SECRET)
+    .createHmac("sha256", process.env.FLAG_SECRET)
     .update(sessionId)
     .digest("hex");
   return `${FLAG_PREFIX}{${hmac.slice(0, 24)}}`;

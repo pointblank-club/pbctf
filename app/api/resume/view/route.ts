@@ -8,12 +8,13 @@ function isAllowedResumeUrl(url: string): boolean {
     const u = new URL(url);
 
     // Only allow Cloudinary hosted resumes from our folder.
-    const isCloudinary = u.hostname.endsWith("res.cloudinary.com");
-    if (!isCloudinary) return false;
+    if (u.protocol !== "https:") return false;
+    if (u.hostname !== "res.cloudinary.com") return false;
 
     // Example path:
     // /<cloud_name>/raw/upload/v123/zenith/resumes/<public_id>
-    // We only need to ensure it contains our resumes folder.
+    // We only need to ensure it contains our resumes folder. pathname excludes
+    // the host/query, so these substring checks can't be host-spoofed.
     const path = u.pathname;
     return path.includes("/raw/upload/") && path.includes("/zenith/resumes/");
   } catch {
@@ -36,14 +37,17 @@ export async function GET(request: NextRequest) {
   }
 
   if (!isAllowedResumeUrl(url)) {
-    return NextResponse.json({ message: "Invalid resume url" }, { status: 400 });
+    return NextResponse.json(
+      { message: "Invalid resume url" },
+      { status: 400 },
+    );
   }
 
   const upstream = await fetch(url, { cache: "no-store" });
   if (!upstream.ok) {
     return NextResponse.json(
       { message: "Failed to fetch resume" },
-      { status: upstream.status }
+      { status: upstream.status },
     );
   }
 
@@ -52,9 +56,8 @@ export async function GET(request: NextRequest) {
     status: 200,
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": "inline; filename=\"resume.pdf\"",
+      "Content-Disposition": 'inline; filename="resume.pdf"',
       "Cache-Control": "no-store",
     },
   });
 }
-

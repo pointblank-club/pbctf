@@ -26,19 +26,21 @@ import crypto from "crypto";
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
-const FLAG_SECRET = process.env.FLAG_SECRET || "pbctf_default_secret_key_2026";
 const FLAG_PREFIX = "pbctf";
 
 function generateFlag(sessionId: string): string {
+  if (!process.env.FLAG_SECRET) {
+    throw new Error("FLAG_SECRET is not configured");
+  }
   const hmac = crypto
-    .createHmac("sha256", FLAG_SECRET)
+    .createHmac("sha256", process.env.FLAG_SECRET)
     .update(sessionId)
     .digest("hex");
   return `${FLAG_PREFIX}{${hmac.slice(0, 24)}}`;
 }
 
 function isoIfDate(v: any) {
-  return v instanceof Date ? v.toISOString() : v ?? null;
+  return v instanceof Date ? v.toISOString() : (v ?? null);
 }
 
 export async function GET(request: NextRequest) {
@@ -66,14 +68,16 @@ export async function GET(request: NextRequest) {
     ]);
 
     if (!user) {
-      return NextResponse.json(
-        { message: "User not found" },
-        { status: 404 },
-      );
+      return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    // Pre-compute the warm-up flag in parallel with everything else.
-    const flag = generateFlag(uid);
+    // Pre-compute the warm-up flag in parallel with everything else. If
+    let flag: string | null = null;
+    try {
+      flag = generateFlag(uid);
+    } catch (flagError) {
+      console.error("bootstrap flag generation skipped:", flagError);
+    }
 
     // Phase 2: anything that depends on the user's teamCode.
     let team: any = null;
@@ -254,9 +258,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error: any) {
     console.error("bootstrap error:", error);
-    return NextResponse.json(
-      { message: "Server error" },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
 }
