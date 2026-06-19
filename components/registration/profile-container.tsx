@@ -193,7 +193,15 @@ export function ProfileContainer() {
     };
 
     fetchProfile();
-  }, [user, isAuthenticated, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAuthenticated, user?.uid, router]);
+
+  const userResumeLink = (user as any)?.resume_link;
+  const userProfilePicture = (user as any)?.profile_picture;
+  useEffect(() => {
+    if (userResumeLink) setCurrentResumeUrl(userResumeLink);
+    if (userProfilePicture) setCurrentPhotoUrl(userProfilePicture);
+  }, [userResumeLink, userProfilePicture]);
 
   const toBase64 = (file: File) =>
     new Promise<string>((resolve, reject) => {
@@ -321,13 +329,24 @@ export function ProfileContainer() {
       if (!response.ok || (!data.success && data.status !== "success")) {
         throw new Error(data.message || "Failed to update profile");
       }
+      
+      if (resumeFile) {
+        setResumeFileName(resumeFile.name);
+        setResumeFile(null);
+      }
+      if (profilePhoto) {
+        setProfilePhotoFileName(profilePhoto.name);
+        setProfilePhoto(null);
+      }
 
       setAlert({
         type: "success",
         message: "Profile updated successfully!",
       });
 
-      // Refresh user data in context
+      // Refresh global user data. This no longer re-triggers this page's
+      // loading spinner (the fetch effect is keyed on user?.uid, not the whole
+      // user object), so the success banner stays visible after the commit.
       await refreshUser();
 
       setTimeout(() => setAlert(null), 3000);

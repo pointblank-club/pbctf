@@ -253,7 +253,7 @@ function StatusStrip({
 }
 
 export function DashboardContainer() {
-  const { user, firebaseUser, isLoading: authLoading, getToken } = useAuth();
+  const { user, firebaseUser, isLoading: authLoading, getToken, refreshUser } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [team, setTeam] = useState<Team | null>(null);
@@ -563,6 +563,7 @@ export function DashboardContainer() {
           title: "Challenge Solved!",
           description: "Congratulations! You captured the warm-up flag.",
         });
+        await refreshUser();
       } else {
         setFlagError(data.message || "Incorrect flag. Try again!");
       }
@@ -724,7 +725,7 @@ export function DashboardContainer() {
     }
   };
 
-  if (authLoading || isLoading || !user) {
+  if (isLoading || !user) {
     return (
       <div className="flex flex-col gap-6 w-full">
         {/* Status strip skeleton */}
