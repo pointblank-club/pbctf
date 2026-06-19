@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authenticateUser, createAuthErrorResponse, requireAdmin, requireEmailVerified } from "@/lib/middleware/auth";
+import { authenticateUser, createAuthErrorResponse, requireAdmin, requireEmailVerified, requireRegistrationOpen } from "@/lib/middleware/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
@@ -42,6 +42,14 @@ export async function PUT(request: NextRequest) {
     const emailError = requireEmailVerified(authResult);
     if (emailError) {
       return createAuthErrorResponse(emailError);
+    }
+
+    // Admins keep their override after the deadline; participants do not.
+    if (authResult.user.role !== 'admin') {
+      const deadlineError = requireRegistrationOpen();
+      if (deadlineError) {
+        return createAuthErrorResponse(deadlineError);
+      }
     }
 
     const body = await request.json();

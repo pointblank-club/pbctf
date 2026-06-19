@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
+import { REGISTRATION_DEADLINE, RSVP_DEADLINE } from "@/lib/constants";
 
-export const dynamic = 'force-dynamic';
-
-// Submission deadline: Extended
-const SUBMISSION_DEADLINE = new Date('2026-07-19T10:00:00+05:30');
-const RSVP_DEADLINE = new Date('2026-07-21T23:59:00+05:30');
+export const dynamic = "force-dynamic";
 
 /**
  * GET /api/config/deadline
@@ -14,26 +11,21 @@ const RSVP_DEADLINE = new Date('2026-07-21T23:59:00+05:30');
 export async function GET(request: NextRequest) {
   try {
     const serverTime = new Date();
-    const isSubmissionExpired = serverTime > SUBMISSION_DEADLINE;
+    const isSubmissionExpired = serverTime > REGISTRATION_DEADLINE;
     const isRsvpExpired = serverTime > RSVP_DEADLINE;
 
     return NextResponse.json({
       success: true,
       data: {
-        deadline: SUBMISSION_DEADLINE.toISOString(),
+        deadline: REGISTRATION_DEADLINE.toISOString(),
         serverTime: serverTime.toISOString(),
         isExpired: isSubmissionExpired,
-        deadlineIST: "July 19, 2026, 10:00:00 AM IST",
         rsvpDeadline: RSVP_DEADLINE.toISOString(),
         isRsvpExpired,
-        rsvpDeadlineIST: "July 21, 2026, 11:59:00 PM IST",
       },
     });
   } catch (error: any) {
     console.error("Deadline config error:", error);
-    return NextResponse.json(
-      { message: "Server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: "Server error" }, { status: 500 });
   }
 }

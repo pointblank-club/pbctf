@@ -3,6 +3,7 @@ import { getAuth } from '@/lib/firebase-admin';
 import dbConnect from '@/lib/db';
 import User, { IUser } from '@/models/User';
 import Team from '@/models/Team';
+import { isRegistrationClosed } from '@/lib/constants';
 
 // Types for authenticated requests
 export interface AuthenticatedUser {
@@ -146,6 +147,24 @@ export function requireEvaluator(authResult: AuthResult): AuthError | null {
     return {
       success: false,
       error: { code: 'FORBIDDEN', message: 'Evaluator access required' },
+      status: 403,
+    };
+  }
+  return null;
+}
+
+/**
+ * Reject the request if the registration / team-formation deadline has passed.
+ */
+export function requireRegistrationOpen(): AuthError | null {
+  if (isRegistrationClosed()) {
+    return {
+      success: false,
+      error: {
+        code: 'REGISTRATION_CLOSED',
+        message:
+          'The registration deadline has passed. Team changes are no longer allowed.',
+      },
       status: 403,
     };
   }

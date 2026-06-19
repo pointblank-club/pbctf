@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authenticateUser, createAuthErrorResponse, requireEmailVerified } from "@/lib/middleware/auth";
+import { authenticateUser, createAuthErrorResponse, requireEmailVerified, requireRegistrationOpen } from "@/lib/middleware/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
@@ -49,6 +49,11 @@ export async function PUT(request: NextRequest) {
     const emailError = requireEmailVerified(authResult);
     if (emailError) {
       return createAuthErrorResponse(emailError);
+    }
+
+    const deadlineError = requireRegistrationOpen();
+    if (deadlineError) {
+      return createAuthErrorResponse(deadlineError);
     }
 
     const body = await request.json();

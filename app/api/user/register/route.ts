@@ -10,6 +10,7 @@ import User, { IUser } from "@/models/User";
 import { verifyRecaptcha } from "@/lib/recaptcha";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { getAuth as getAdminAuth } from "@/lib/firebase-admin";
+import { isRegistrationClosed } from "@/lib/constants";
 
 // Configure route
 export const dynamic = "force-dynamic";
@@ -85,8 +86,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const REGISTRATION_DEADLINE = new Date("2026-07-19T10:00:00+05:30");
-    if (new Date() > REGISTRATION_DEADLINE) {
+    if (isRegistrationClosed()) {
       return NextResponse.json(
         {
           success: false,

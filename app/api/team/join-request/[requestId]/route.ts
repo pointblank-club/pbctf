@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { authenticateUser } from "@/lib/middleware/auth";
+import { authenticateUser, createAuthErrorResponse, requireRegistrationOpen } from "@/lib/middleware/auth";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
@@ -18,6 +18,11 @@ export async function PUT(
         { message: authResult.error.message },
         { status: authResult.status }
       );
+    }
+
+    const deadlineError = requireRegistrationOpen();
+    if (deadlineError) {
+      return createAuthErrorResponse(deadlineError);
     }
 
     const body = await request.json();
@@ -183,6 +188,11 @@ export async function DELETE(
         { message: authResult.error.message },
         { status: authResult.status }
       );
+    }
+
+    const deadlineError = requireRegistrationOpen();
+    if (deadlineError) {
+      return createAuthErrorResponse(deadlineError);
     }
 
     await dbConnect();

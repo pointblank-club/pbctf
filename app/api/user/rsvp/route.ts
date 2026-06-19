@@ -3,6 +3,7 @@ import { authenticateUser, createAuthErrorResponse, requireEmailVerified } from 
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
+import { isRsvpClosed } from "@/lib/constants";
 
 export const dynamic = 'force-dynamic';
 
@@ -41,10 +42,7 @@ export async function PUT(request: NextRequest) {
         { status: 400 }
       );
     }
-    // Keep this in sync with app/api/config/deadline/route.ts (RSVP_DEADLINE).
-    const RSVP_DEADLINE = new Date('2026-07-21T23:59:00+05:30');
-    const now = new Date();
-    if (now > RSVP_DEADLINE) {
+    if (isRsvpClosed()) {
       return NextResponse.json(
         {
           message: "RSVP deadline has passed",
