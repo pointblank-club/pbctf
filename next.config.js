@@ -1,3 +1,19 @@
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  "base-uri 'self'",
+  "object-src 'none'",
+  "frame-ancestors 'self'",
+  "form-action 'self'",
+  "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.google.com https://www.gstatic.com",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  "img-src 'self' data: blob: https://res.cloudinary.com https://firebasestorage.googleapis.com https://*.googleusercontent.com https://www.gstatic.com",
+  "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebaseapp.com https://cdn.jsdelivr.net https://www.google.com",
+  "frame-src 'self' https://www.google.com https://*.firebaseapp.com https://accounts.google.com",
+  "worker-src 'self' blob:",
+  "upgrade-insecure-requests",
+].join("; ");
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
@@ -32,6 +48,8 @@ const nextConfig = {
         source: '/:path*',
         headers: [
           { key: 'Strict-Transport-Security', value: "max-age=63072000" },
+          { key: 'Content-Security-Policy', value: contentSecurityPolicy },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'Access-Control-Allow-Origin', value: process.env.NEXT_PUBLIC_DOMAIN },
           { key: 'Access-Control-Allow-Credentials', value: 'true' },
           { key: 'Access-Control-Allow-Methods', value: "GET,POST,PUT,PATCH,DELETE,OPTIONS" },
