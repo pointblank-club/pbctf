@@ -278,6 +278,9 @@ export async function POST(request: Request) {
     if (portfolio_link && !validateURL(portfolio_link)) {
       errors.portfolio_link = "Invalid portfolio URL";
     }
+    if (ctf_profile && !validateURL(ctf_profile)) {
+      errors.ctf_profile = "Invalid CTF profile URL";
+    }
 
     if (Object.keys(errors).length > 0) {
       console.error("Registration validation errors:", errors);
