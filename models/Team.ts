@@ -176,6 +176,7 @@ const TeamSchema: Schema = new Schema(
 TeamSchema.index({ "evaluations.tier": 1 });
 TeamSchema.index({ "memberRSVPs.uid": 1 });
 TeamSchema.index({ createdAt: -1 });
+TeamSchema.index({ "teamMembers.uid": 1 }, { unique: true });
 
 TeamSchema.pre("save", async function (this: ITeam) {
   this.memberCount = this.teamMembers.length;

@@ -7,6 +7,9 @@ import TeamJoinRequest from "@/models/TeamJoinRequest";
 
 export const dynamic = 'force-dynamic';
 
+// Max team members
+const MAX_TEAM_MEMBERS = 2;
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: { requestId: string } }
@@ -86,13 +89,6 @@ export async function PUT(
     }
 
     if (action === 'accept') {
-      if (team.memberCount >= 2) {
-        return NextResponse.json(
-          { message: "Team is full" },
-          { status: 409 }
-        );
-      }
-
       const requestingUser = await User.findOne({ uid: joinRequest.userId });
       if (!requestingUser) {
         return NextResponse.json(
@@ -101,29 +97,76 @@ export async function PUT(
         );
       }
 
-      if (requestingUser.teamCode) {
-        joinRequest.status = 'declined';
-        joinRequest.respondedAt = new Date();
-        joinRequest.respondedBy = authResult.user.uid;
-        await joinRequest.save();
+      const targetCode = team.teamCode;
 
+      // Atomically seat the requesting user. The conditional update enforces the
+      // size cap (a seat must be free), guards against re-adding the same member,
+      // and respects the team status — all in one document write, so a racing
+      // accept/join cannot oversize the team. The unique teamMembers.uid index is
+      // the DB backstop that prevents seating a user who is already in another team.
+      let updatedTeam;
+      try {
+        const seatFilter: Record<string, any> = {
+          teamCode: targetCode,
+          teamStatus: { $nin: ['submitted', 'shortlisted', 'rsvped'] },
+          "teamMembers.uid": { $ne: joinRequest.userId },
+        };
+        seatFilter[`teamMembers.${MAX_TEAM_MEMBERS - 1}`] = { $exists: false };
+
+        updatedTeam = await Team.findOneAndUpdate(
+          seatFilter,
+          {
+            $push: {
+              teamMembers: {
+                uid: joinRequest.userId,
+                joinedAt: new Date(),
+                role: 'Member',
+              },
+            },
+            $inc: { memberCount: 1 },
+          },
+          { new: true }
+        );
+      } catch (err: any) {
+        // Duplicate key on teamMembers.uid => user already belongs to another team.
+        if (err?.code === 11000) {
+          joinRequest.status = 'declined';
+          joinRequest.respondedAt = new Date();
+          joinRequest.respondedBy = authResult.user.uid;
+          await joinRequest.save();
+
+          return NextResponse.json(
+            { message: "User is already in another team. Request/Invite declined." },
+            { status: 409 }
+          );
+        }
+        throw err;
+      }
+
+      if (!updatedTeam) {
+        // No seat taken — distinguish "already a member here" from "team full".
+        const current = await Team.findOne({ teamCode: targetCode });
+        if (current?.teamMembers?.some((m: any) => m.uid === joinRequest.userId)) {
+          joinRequest.status = 'declined';
+          joinRequest.respondedAt = new Date();
+          joinRequest.respondedBy = authResult.user.uid;
+          await joinRequest.save();
+
+          return NextResponse.json(
+            { message: "User is already in this team. Request/Invite declined." },
+            { status: 409 }
+          );
+        }
         return NextResponse.json(
-          { message: "User is already in another team. Request/Invite declined." },
+          { message: "Team is full" },
           { status: 409 }
         );
       }
 
-      team.teamMembers.push({
-        uid: joinRequest.userId,
-        joinedAt: new Date(),
-        role: 'Member',
-      });
-
-      await team.save();
-
+      // Keep the user's cached teamCode in sync (the team array is the authority).
       await User.findOneAndUpdate(
         { uid: joinRequest.userId },
-        { teamCode: team.teamCode, isLooking: false }
+        { teamCode: targetCode, isLooking: false }
       );
 
       joinRequest.status = 'accepted';
@@ -148,8 +191,8 @@ export async function PUT(
         message: isInvite ? "Invitation accepted. You have joined the team." : "Join request accepted. User added to team.",
         data: {
           requestId: joinRequest._id.toString(),
-          teamCode: team.teamCode,
-          teamName: team.teamName,
+          teamCode: updatedTeam.teamCode,
+          teamName: updatedTeam.teamName,
           status: 'accepted',
         },
       });

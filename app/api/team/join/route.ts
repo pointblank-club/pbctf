@@ -110,14 +110,59 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    // Add user to team
-    team.teamMembers.push({
-      uid: authResult.user.uid,
-      joinedAt: new Date(),
-      role: 'Member',
-    });
+    const targetCode = team.teamCode;
 
-    await team.save();
+    let updatedTeam;
+    try {
+      const seatFilter: Record<string, any> = {
+        teamCode: targetCode,
+        teamStatus: { $ne: "submitted" },
+        "teamMembers.uid": { $ne: authResult.user.uid },
+      };
+      seatFilter[`teamMembers.${MAX_TEAM_MEMBERS - 1}`] = { $exists: false };
+
+      updatedTeam = await Team.findOneAndUpdate(
+        seatFilter,
+        {
+          $push: {
+            teamMembers: {
+              uid: authResult.user.uid,
+              joinedAt: new Date(),
+              role: "Member",
+            },
+          },
+          $inc: { memberCount: 1 },
+        },
+        { new: true }
+      );
+    } catch (err: any) {
+      if (err?.code === 11000) {
+        return NextResponse.json(
+          { message: "User already in a team" },
+          { status: 400 }
+        );
+      }
+      throw err;
+    }
+
+    if (!updatedTeam) {
+      const current = await Team.findOne({ teamCode: targetCode });
+      if (!current) {
+        return NextResponse.json({ message: "Invalid team code" }, { status: 404 });
+      }
+      if (current.teamMembers?.some((m: any) => m.uid === authResult.user.uid)) {
+        return NextResponse.json({ message: "User already in a team" }, { status: 400 });
+      }
+      if (current.teamStatus === "submitted") {
+        return NextResponse.json({ message: "Team already submitted" }, { status: 409 });
+      }
+      return NextResponse.json({ message: "Team is full" }, { status: 409 });
+    }
+
+    await User.findOneAndUpdate(
+      { uid: authResult.user.uid },
+      { teamCode: targetCode, isLooking: false }
+    );
 
     // Cancel all pending join requests for this user
     await TeamJoinRequest.updateMany(
@@ -131,17 +176,11 @@ export async function PUT(request: NextRequest) {
       }
     );
 
-    // Update user's teamCode and isLooking
-    await User.findOneAndUpdate(
-      { uid: authResult.user.uid },
-      { teamCode: team.teamCode, isLooking: false }
-    );
-
-    // Get team members with names
-    const memberUids = team.teamMembers.map((m: any) => m.uid);
+    // Get team members with names (from the authoritative post-update document)
+    const memberUids = updatedTeam.teamMembers.map((m: any) => m.uid);
     const members = await User.find({ uid: { $in: memberUids } }).select('uid name');
-    
-    const formattedMembers = team.teamMembers.map((member: any) => {
+
+    const formattedMembers = updatedTeam.teamMembers.map((member: any) => {
       const userInfo = members.find((u: any) => u.uid === member.uid);
       return {
         id: member.uid,
@@ -154,10 +193,10 @@ export async function PUT(request: NextRequest) {
       success: true,
       message: "Successfully joined team",
       data: {
-        teamCode: team.teamCode,
-        teamName: team.teamName,
+        teamCode: updatedTeam.teamCode,
+        teamName: updatedTeam.teamName,
         teamMembers: formattedMembers,
-        memberCount: team.memberCount,
+        memberCount: updatedTeam.memberCount,
       },
     });
 

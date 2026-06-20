@@ -5,6 +5,7 @@ import path from "path";
 import os from "os";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
+import Team from "@/models/Team";
 import {
   authenticateUser,
   createAuthErrorResponse,
@@ -172,6 +173,43 @@ export async function GET(
           status: "error",
         },
         { status: 404 },
+      );
+    }
+
+    // A profile is visible when any of these hold:
+    //   - the requester is an admin or evaluator
+    //   - the requester is viewing their own profile
+    //   - the requester and target are on the same team
+    //   - the target is personally "looking for a team" (isLooking)
+    //   - the target's team is discoverable (looking for members)
+    // Otherwise the profile is private.
+    const requester = authResult.user;
+    const isPrivileged =
+      requester.role === "admin" || requester.role === "evaluator";
+    const isSelf = requester.uid === user.uid;
+    const isTeammate =
+      !!requester.teamCode &&
+      !!user.teamCode &&
+      requester.teamCode === user.teamCode;
+
+    let canView = user.isLooking || isPrivileged || isSelf || isTeammate;
+
+    // Expose members of a team that is itself looking for members, so the team
+    // can be browsed from the Discover page.
+    if (!canView && user.teamCode) {
+      const team = await Team.findOne({ teamCode: user.teamCode }).select(
+        "isLooking",
+      );
+      canView = !!team?.isLooking;
+    }
+
+    if (!canView) {
+      return NextResponse.json(
+        {
+          message: "This profile is private",
+          status: "error",
+        },
+        { status: 403 },
       );
     }
 
