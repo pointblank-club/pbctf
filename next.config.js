@@ -11,7 +11,6 @@ const contentSecurityPolicy = [
   "connect-src 'self' https://*.googleapis.com https://*.firebaseio.com wss://*.firebaseio.com https://*.firebaseapp.com https://cdn.jsdelivr.net https://www.google.com",
   "frame-src 'self' https://www.google.com https://*.firebaseapp.com https://accounts.google.com",
   "worker-src 'self' blob:",
-  "upgrade-insecure-requests",
 ].join("; ");
 
 /** @type {import('next').NextConfig} */
