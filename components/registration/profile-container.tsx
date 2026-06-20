@@ -4,6 +4,7 @@ import { HudFrame } from "./hud-frame";
 import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/hooks/use-auth";
+import { useRecaptcha } from "@/hooks/use-recaptcha";
 import {
   Home,
   Lock,
@@ -42,6 +43,7 @@ import { DISCORD_USERNAME_REGEX, FILE_SIZE } from "@/lib/constants";
 
 export function ProfileContainer() {
   const { user, isAuthenticated, refreshUser, getToken } = useAuth();
+  const { executeRecaptcha } = useRecaptcha();
   const { toast } = useToast();
   const router = useRouter();
   const [profileData, setProfileData] = useState({
@@ -297,6 +299,9 @@ export function ProfileContainer() {
         photoBase64 = await toBase64(profilePhoto);
       }
 
+      // reCAPTCHA v3 background token — scored server-side, no user interaction.
+      const recaptchaToken = await executeRecaptcha("update_profile");
+
       const payload = {
         name: profileData.name,
         email: profileData.email,
@@ -312,6 +317,7 @@ export function ProfileContainer() {
         isLooking: profileData.isLooking,
         resume: resumeBase64,
         profile_picture: photoBase64,
+        recaptcha_token: recaptchaToken,
       };
 
       // Call Next.js API route

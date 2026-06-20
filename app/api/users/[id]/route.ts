@@ -12,6 +12,7 @@ import {
   requireAdmin,
   requireEmailVerified,
 } from "@/lib/middleware/auth";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs"; // specify nodejs runtime
@@ -144,6 +145,41 @@ const parseForm = async (
   return { fields, files };
 };
 
+// Validate an optional profile link. Empty/undefined is allowed (the field can
+// be cleared); a provided value must be a well-formed absolute http(s) URL with
+// a real hostname — non-web schemes (javascript:, data:, mailto:, …) are
+// rejected so we never store a value that breaks or could be used for injection.
+function isValidLinkUrl(value: unknown): boolean {
+  if (value === undefined || value === null) return true;
+  if (typeof value !== "string") return false;
+  const trimmed = value.trim();
+  if (!trimmed) return true;
+  let parsed: URL;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    return false;
+  }
+  return (
+    (parsed.protocol === "https:" || parsed.protocol === "http:") &&
+    parsed.hostname.includes(".") &&
+    /^[a-zA-Z0-9.-]+$/.test(parsed.hostname)
+  );
+}
+
+// Same as isValidLinkUrl, but the host must be (a subdomain of) one of
+// `domains`. Used for fields that must point at a specific site (GitHub /
+// LinkedIn). A leading `www.` is ignored.
+function isValidLinkDomain(value: unknown, domains: string[]): boolean {
+  if (value === undefined || value === null) return true;
+  if (typeof value !== "string" || !value.trim()) return true;
+  if (!isValidLinkUrl(value)) return false;
+  const host = new URL(value.trim())
+    .hostname.toLowerCase()
+    .replace(/^www\./, "");
+  return domains.some((d) => host === d || host.endsWith(`.${d}`));
+}
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } },
@@ -260,7 +296,70 @@ export async function PUT(
     }
 
     const { fields, files } = await parseForm(req);
+
+    // reCAPTCHA v3 background score check — reject likely-bot/scripted uploads.
+    const captcha = await verifyRecaptcha(fields.recaptcha_token, "update_user");
+    if (!captcha.ok) {
+      console.warn(
+        "[users/[id]] reCAPTCHA rejected:",
+        captcha.reason,
+        captcha.score,
+      );
+      return NextResponse.json(
+        {
+          message: "reCAPTCHA verification failed",
+          status: "error",
+          error: {
+            code: "recaptcha_failed",
+            message: "reCAPTCHA verification failed",
+          },
+        },
+        { status: 400 },
+      );
+    }
+
     const updates: Record<string, any> = { ...fields };
+    delete updates.recaptcha_token;
+
+    // Validate profile links. Empty clears the field; a provided value must be
+    // a well-formed http(s) URL (and the correct site for GitHub / LinkedIn).
+    if (!isValidLinkDomain(updates.github_link, ["github.com"])) {
+      return NextResponse.json(
+        {
+          message: "Please enter a valid GitHub URL (e.g. https://github.com/username)",
+          status: "error",
+        },
+        { status: 400 },
+      );
+    }
+    if (!isValidLinkDomain(updates.linkedin_link, ["linkedin.com"])) {
+      return NextResponse.json(
+        {
+          message:
+            "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/username)",
+          status: "error",
+        },
+        { status: 400 },
+      );
+    }
+    if (!isValidLinkUrl(updates.portfolio_link)) {
+      return NextResponse.json(
+        {
+          message: "Please enter a valid portfolio URL (https://…)",
+          status: "error",
+        },
+        { status: 400 },
+      );
+    }
+    if (!isValidLinkUrl(updates.ctf_profile)) {
+      return NextResponse.json(
+        {
+          message: "Please enter a valid CTF profile URL (https://…)",
+          status: "error",
+        },
+        { status: 400 },
+      );
+    }
 
     await dbConnect();
 

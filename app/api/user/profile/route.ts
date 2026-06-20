@@ -9,6 +9,7 @@ import { cloudinaryV2 } from "@/c";
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
+import { verifyRecaptcha } from "@/lib/recaptcha";
 
 // Configure route
 export const dynamic = "force-dynamic";
@@ -98,6 +99,41 @@ async function deleteFromCloudinary(
   }
 }
 
+// Validate an optional profile link. Empty/undefined is allowed (the field can
+// be cleared); a provided value must be a well-formed absolute http(s) URL with
+// a real hostname — non-web schemes (javascript:, data:, mailto:, …) are
+// rejected so we never store a value that breaks or could be used for injection.
+function isValidLinkUrl(value: unknown): boolean {
+  if (value === undefined || value === null) return true;
+  if (typeof value !== "string") return false;
+  const trimmed = value.trim();
+  if (!trimmed) return true;
+  let parsed: URL;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    return false;
+  }
+  return (
+    (parsed.protocol === "https:" || parsed.protocol === "http:") &&
+    parsed.hostname.includes(".") &&
+    /^[a-zA-Z0-9.-]+$/.test(parsed.hostname)
+  );
+}
+
+// Same as isValidLinkUrl, but the host must be (a subdomain of) one of
+// `domains`. Used for fields that must point at a specific site (GitHub /
+// LinkedIn). A leading `www.` is ignored.
+function isValidLinkDomain(value: unknown, domains: string[]): boolean {
+  if (value === undefined || value === null) return true;
+  if (typeof value !== "string" || !value.trim()) return true;
+  if (!isValidLinkUrl(value)) return false;
+  const host = new URL(value.trim())
+    .hostname.toLowerCase()
+    .replace(/^www\./, "");
+  return domains.some((d) => host === d || host.endsWith(`.${d}`));
+}
+
 /**
  * GET /api/user/profile
  * Get authenticated user's profile
@@ -183,6 +219,29 @@ export async function PUT(request: NextRequest) {
 
     const body = await request.json();
 
+    // reCAPTCHA v3 background score check — reject likely-bot/scripted uploads.
+    const captcha = await verifyRecaptcha(
+      body.recaptcha_token,
+      "update_profile",
+    );
+    if (!captcha.ok) {
+      console.warn(
+        "[user/profile] reCAPTCHA rejected:",
+        captcha.reason,
+        captcha.score,
+      );
+      return NextResponse.json(
+        {
+          message: "reCAPTCHA verification failed",
+          error: {
+            code: "recaptcha_failed",
+            message: "reCAPTCHA verification failed",
+          },
+        },
+        { status: 400 },
+      );
+    }
+
     // Fields that can be updated
     const {
       name,
@@ -199,6 +258,37 @@ export async function PUT(request: NextRequest) {
       ctf_profile,
       isLooking,
     } = body;
+
+    // Validate profile links. Empty clears the field; a provided value must be
+    // a well-formed http(s) URL (and the correct site for GitHub / LinkedIn).
+    if (!isValidLinkDomain(github_link, ["github.com"])) {
+      return createErrorResponse(
+        "Please enter a valid GitHub URL (e.g. https://github.com/username)",
+        "invalid_url",
+        400,
+      );
+    }
+    if (!isValidLinkDomain(linkedin_link, ["linkedin.com"])) {
+      return createErrorResponse(
+        "Please enter a valid LinkedIn URL (e.g. https://linkedin.com/in/username)",
+        "invalid_url",
+        400,
+      );
+    }
+    if (!isValidLinkUrl(portfolio_link)) {
+      return createErrorResponse(
+        "Please enter a valid portfolio URL (https://…)",
+        "invalid_url",
+        400,
+      );
+    }
+    if (!isValidLinkUrl(ctf_profile)) {
+      return createErrorResponse(
+        "Please enter a valid CTF profile URL (https://…)",
+        "invalid_url",
+        400,
+      );
+    }
 
     await dbConnect();
     const user = await User.findOne({ uid: authResult.user.uid });

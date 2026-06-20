@@ -6,9 +6,6 @@ import RateLimit from "@/models/RateLimit";
  * Resolve the real client IP.
  */
 export function getClientIp(request: Request): string {
-  const netlify = request.headers.get("x-nf-client-connection-ip");
-  if (netlify) return netlify.trim();
-
   const headers = Object.fromEntries(request.headers);
   return requestIp.getClientIp({ headers })?.trim() || "unknown";
 }
