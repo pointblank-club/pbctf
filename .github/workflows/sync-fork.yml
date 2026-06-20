@@ -4,15 +4,16 @@ on:
   schedule:
     # Runs every minute (minimum interval for GitHub Actions cron)
     # Note: GitHub Actions doesn't support intervals less than 1 minute
-    - cron: '*/1 * * * *'
+    - cron: "*/1 * * * *"
   workflow_dispatch: # Allows manual triggering
 
 jobs:
   sync:
+    if: github.repository == 'ShreyashSri/pbctf'
     runs-on: ubuntu-latest
     permissions:
       contents: write # Required to push to the repository
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -28,7 +29,7 @@ jobs:
       - name: Add upstream remote
         run: |
           UPSTREAM_REPO="https://github.com/pointblank-club/pbctf.git"
-          
+
           # Check if upstream remote already exists
           if git remote | grep -q "^upstream$"; then
             git remote set-url upstream "$UPSTREAM_REPO"
@@ -46,10 +47,10 @@ jobs:
       - name: Merge upstream changes
         run: |
           CURRENT_BRANCH="${{ steps.branch.outputs.branch }}"
-          UPSTREAM_BRANCH="prod"  # Upstream default branch
-          
+          UPSTREAM_BRANCH="staging"  # Upstream default branch
+
           git checkout $CURRENT_BRANCH
-          
+
           # Try to merge from upstream branch
           if git merge "upstream/$UPSTREAM_BRANCH" --no-edit; then
             echo "Successfully merged upstream/$UPSTREAM_BRANCH into $CURRENT_BRANCH"

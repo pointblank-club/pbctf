@@ -1,9 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(node -e \"console.log\\(require\\('./package.json'\\).engines || '\\(none\\)'\\)\")",
-      "Bash(node -e \"const j = require\\('jose'\\); console.log\\('require\\(jose\\) OK on', process.version, '— exports:', Object.keys\\(j\\).length\\)\")",
-      "Bash(node -e \"console.log\\(JSON.stringify\\(require\\('./package.json'\\).engines\\)\\)\")"
-    ]
-  }
-}
