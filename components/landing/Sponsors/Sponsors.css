@@ -165,7 +165,7 @@
   display: flex;
   gap: var(--space-8);
   width: max-content;
-  animation: ticker-scroll 28s linear infinite;
+  animation: ticker-scroll 38s linear infinite;
 }
 
 .pbctf-landing .sponsors__ticker-track:hover .sponsors__ticker-inner {
