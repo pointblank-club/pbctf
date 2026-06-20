@@ -23,20 +23,33 @@ const validateAge = (age: string) => {
   const ageNum = parseInt(age);
   return !isNaN(ageNum) && ageNum > 0 && ageNum < 120;
 };
-const validateURL = (url: string) => {
+
+const isValidLinkUrl = (value: unknown): boolean => {
+  if (value === undefined || value === null) return true;
+  if (typeof value !== "string") return false;
+  const trimmed = value.trim();
+  if (!trimmed) return true;
+  let parsed: URL;
   try {
-    const parsedUrl = new URL(url);
-    // Check for valid hostname (at least one dot and valid characters)
-    if (
-      !parsedUrl.hostname.includes(".") ||
-      !/^[a-zA-Z0-9.-]+$/.test(parsedUrl.hostname)
-    ) {
-      return false;
-    }
-    return true;
+    parsed = new URL(trimmed);
   } catch {
     return false;
   }
+  return (
+    (parsed.protocol === "https:" || parsed.protocol === "http:") &&
+    parsed.hostname.includes(".") &&
+    /^[a-zA-Z0-9.-]+$/.test(parsed.hostname)
+  );
+};
+
+const isValidLinkDomain = (value: unknown, domains: string[]): boolean => {
+  if (value === undefined || value === null) return true;
+  if (typeof value !== "string" || !value.trim()) return true;
+  if (!isValidLinkUrl(value)) return false;
+  const host = new URL(value.trim()).hostname
+    .toLowerCase()
+    .replace(/^www\./, "");
+  return domains.some((d) => host === d || host.endsWith(`.${d}`));
 };
 const validateReferralCode = (code: string) => {
   const referralCodesEnv = process.env.VALID_REFERRAL_CODES || "";
@@ -216,7 +229,7 @@ export async function POST(request: Request) {
           message: "Too many requests. Please try again later.",
           error: "Rate limit exceeded",
         },
-        { status: 429 }
+        { status: 429 },
       );
     }
 
@@ -239,7 +252,11 @@ export async function POST(request: Request) {
     // the score + action, before any Firebase/Cloudinary/DB writes.
     const captcha = await verifyRecaptcha(recaptcha_token, "register");
     if (!captcha.ok) {
-      console.warn("[registration] reCAPTCHA rejected:", captcha.reason, captcha.score);
+      console.warn(
+        "[registration] reCAPTCHA rejected:",
+        captcha.reason,
+        captcha.score,
+      );
       return NextResponse.json(
         {
           message: "reCAPTCHA validation failed",
@@ -390,18 +407,23 @@ export async function POST(request: Request) {
     }
 
     // Validate password (min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char)
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
     if (!passwordRegex.test(password)) {
       return NextResponse.json(
         {
-          message: "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
+          message:
+            "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
           error: "Weak password",
         },
         { status: 400 },
       );
     }
 
-    if (data.github_link && !validateURL(data.github_link)) {
+    if (
+      data.github_link &&
+      !isValidLinkDomain(data.github_link, ["github.com"])
+    ) {
       return NextResponse.json(
         {
           message: "Invalid GitHub profile URL format.",
@@ -411,7 +433,10 @@ export async function POST(request: Request) {
       );
     }
 
-    if (data.linkedin_link && !validateURL(data.linkedin_link)) {
+    if (
+      data.linkedin_link &&
+      !isValidLinkDomain(data.linkedin_link, ["linkedin.com"])
+    ) {
       return NextResponse.json(
         {
           message: "Invalid LinkedIn profile URL format.",
@@ -421,7 +446,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (data.ctf_profile && !validateURL(data.ctf_profile)) {
+    if (data.ctf_profile && !isValidLinkUrl(data.ctf_profile)) {
       return NextResponse.json(
         {
           message: "Invalid CTF profile URL format.",
@@ -431,7 +456,7 @@ export async function POST(request: Request) {
       );
     }
 
-    if (data.portfolio_link && !validateURL(data.portfolio_link)) {
+    if (data.portfolio_link && !isValidLinkUrl(data.portfolio_link)) {
       return NextResponse.json(
         {
           message: "Invalid Portfolio URL format.",

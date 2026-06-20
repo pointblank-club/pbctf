@@ -38,13 +38,33 @@ const validatePassword = (password: string) => {
   if (!/[^A-Za-z0-9]/.test(password)) return false;
   return true;
 };
-const validateURL = (url: string) => {
+
+const isValidLinkUrl = (value: unknown): boolean => {
+  if (value === undefined || value === null) return true;
+  if (typeof value !== "string") return false;
+  const trimmed = value.trim();
+  if (!trimmed) return true;
+  let parsed: URL;
   try {
-    new URL(url);
-    return true;
+    parsed = new URL(trimmed);
   } catch {
     return false;
   }
+  return (
+    (parsed.protocol === "https:" || parsed.protocol === "http:") &&
+    parsed.hostname.includes(".") &&
+    /^[a-zA-Z0-9.-]+$/.test(parsed.hostname)
+  );
+};
+
+const isValidLinkDomain = (value: unknown, domains: string[]): boolean => {
+  if (value === undefined || value === null) return true;
+  if (typeof value !== "string" || !value.trim()) return true;
+  if (!isValidLinkUrl(value)) return false;
+  const host = new URL(value.trim()).hostname
+    .toLowerCase()
+    .replace(/^www\./, "");
+  return domains.some((d) => host === d || host.endsWith(`.${d}`));
 };
 
 // Upload base64 file to Cloudinary
@@ -269,16 +289,16 @@ export async function POST(request: Request) {
     }
 
     // Optional URL validations
-    if (github_link && !validateURL(github_link)) {
+    if (github_link && !isValidLinkDomain(github_link, ["github.com"])) {
       errors.github_link = "Invalid GitHub URL";
     }
-    if (linkedin_link && !validateURL(linkedin_link)) {
+    if (linkedin_link && !isValidLinkDomain(linkedin_link, ["linkedin.com"])) {
       errors.linkedin_link = "Invalid LinkedIn URL";
     }
-    if (portfolio_link && !validateURL(portfolio_link)) {
+    if (portfolio_link && !isValidLinkUrl(portfolio_link)) {
       errors.portfolio_link = "Invalid portfolio URL";
     }
-    if (ctf_profile && !validateURL(ctf_profile)) {
+    if (ctf_profile && !isValidLinkUrl(ctf_profile)) {
       errors.ctf_profile = "Invalid CTF profile URL";
     }
 
