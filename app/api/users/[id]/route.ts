@@ -175,6 +175,28 @@ export async function GET(
       );
     }
 
+    // Access control: a profile is public only while the user is "looking for a
+    // team" (isLooking). Otherwise it is private and visible only to admins,
+    // evaluators, the user themselves, or their own teammates.
+    const requester = authResult.user;
+    const isPrivileged =
+      requester.role === "admin" || requester.role === "evaluator";
+    const isSelf = requester.uid === user.uid;
+    const isTeammate =
+      !!requester.teamCode &&
+      !!user.teamCode &&
+      requester.teamCode === user.teamCode;
+
+    if (!user.isLooking && !isPrivileged && !isSelf && !isTeammate) {
+      return NextResponse.json(
+        {
+          message: "This profile is private",
+          status: "error",
+        },
+        { status: 403 },
+      );
+    }
+
     return NextResponse.json({
       message: "User found",
       status: "success",
