@@ -126,7 +126,7 @@
 }
 
 .pbctf-landing .sponsors__logo--paytm {
-  width: 80px;
+  width: 105px;
   height: auto;
 }
 
@@ -156,7 +156,7 @@
   overflow: hidden;
   -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
   mask-image: linear-gradient(90deg, transparent 0%, black 10%, black 90%, transparent 100%);
-  padding: 12px 0;
+  padding: 20px 0;
   border-top: 1px solid rgba(0, 255, 136, 0.08);
   border-bottom: 1px solid rgba(0, 255, 136, 0.08);
 }
@@ -180,27 +180,27 @@
 .pbctf-landing .sponsors__ticker-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  white-space: nowrap;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  color: rgba(255, 255, 255, 0.35);
-  transition: color 0.3s ease;
-}
-
-.pbctf-landing .sponsors__ticker-item:hover {
-  color: rgba(255, 255, 255, 0.7);
-}
-
-.pbctf-landing .sponsors__ticker-dot {
-  display: inline-block;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #ffffff;
-  opacity: 0.5;
   flex-shrink: 0;
+}
+
+.pbctf-landing .sponsors__ticker-logo {
+  display: block;
+  height: 56px;
+  width: auto;
+  max-width: 220px;
+  object-fit: contain;
+  opacity: 1;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.pbctf-landing .sponsors__ticker-item:hover .sponsors__ticker-logo {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+/* K7's brand colours clash with the dark theme — render it as a clean white (b&w) mark */
+.pbctf-landing .sponsors__ticker-logo--k7 {
+  filter: brightness(0) invert(1);
 }
 
 /* CTA block */
