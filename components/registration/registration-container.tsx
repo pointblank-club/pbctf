@@ -42,6 +42,7 @@ import { Card } from "./card";
 import { StickyAlert } from "./sticky-alert";
 import { Spinner } from "@/components/ui/spinner";
 import { Modal } from "./modal";
+import { API_ENDPOINTS } from "@/lib/api-config";
 
 import { HudFrame } from "./hud-frame";
 // PRODUCTION MODE - Debug features disabled
@@ -157,6 +158,9 @@ export function RegistrationContainer({
   // Errors
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // True while a reCAPTCHA-guarded availability check (email / Discord) is in
+  // flight, so the "Continue" button can show progress and block double-clicks.
+  const [checkingAvailability, setCheckingAvailability] = useState(false);
 
   // Google SSO. authMethod "google" means the user authenticated via the Google
   // popup; we then collect the remaining profile fields, lock the name, and skip
@@ -596,7 +600,25 @@ export function RegistrationContainer({
     return "pending";
   };
 
-  const goNext = () => {
+  const isFieldTaken = async (
+    field: "email" | "discord_username",
+    value: string,
+  ): Promise<boolean> => {
+    try {
+      const token = await executeRecaptcha("check_registration");
+      const params = new URLSearchParams({ [field]: value });
+      if (token) params.set("recaptcha_token", token);
+      const res = await fetch(`${API_ENDPOINTS.register}?${params.toString()}`);
+      if (!res.ok) return false;
+      const data = await res.json();
+      return data?.exists === true;
+    } catch (error) {
+      console.error("[registration] availability check failed:", error);
+      return false;
+    }
+  };
+
+  const goNext = async () => {
     const stepId = STEPS[currentStepIndex].id;
     const stepErrors = validateStep(stepId);
 
@@ -608,6 +630,42 @@ export function RegistrationContainer({
       });
       setTimeout(() => setAlert(null), 3000);
       return;
+    }
+
+    const checks: Array<{
+      field: "email" | "discord_username";
+      value: string;
+      message: string;
+    }> = [];
+    if (stepId === "account" && authMethod === "email") {
+      checks.push({
+        field: "email",
+        value: registerData.email.trim(),
+        message: "This email is already registered.",
+      });
+    }
+    if (stepId === "identity") {
+      checks.push({
+        field: "discord_username",
+        value: registerData.discord_username.trim(),
+        message: "This Discord username is already registered.",
+      });
+    }
+
+    if (checks.length > 0) {
+      setCheckingAvailability(true);
+      try {
+        for (const check of checks) {
+          if (await isFieldTaken(check.field, check.value)) {
+            setErrors((prev) => ({ ...prev, [check.field]: check.message }));
+            setAlert({ type: "error", message: check.message });
+            setTimeout(() => setAlert(null), 3000);
+            return;
+          }
+        }
+      } finally {
+        setCheckingAvailability(false);
+      }
     }
 
     setAlert(null);
@@ -1869,9 +1927,23 @@ export function RegistrationContainer({
                 {STEPS.length - currentStepIndex - 1} step
                 {STEPS.length - currentStepIndex - 1 === 1 ? "" : "s"} to go
               </div>
-              <Button type="button" variant="primary" onClick={goNext}>
-                Continue
-                <ChevronRight className="w-4 h-4 ml-1.5" />
+              <Button
+                type="button"
+                variant="primary"
+                onClick={goNext}
+                disabled={checkingAvailability}
+              >
+                {checkingAvailability ? (
+                  <>
+                    <Spinner size="sm" className="mr-2" />
+                    Checking…
+                  </>
+                ) : (
+                  <>
+                    Continue
+                    <ChevronRight className="w-4 h-4 ml-1.5" />
+                  </>
+                )}
               </Button>
             </div>
           )}

@@ -604,6 +604,26 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const email = searchParams.get("email");
   const discord_username = searchParams.get("discord_username");
+  const recaptcha_token = searchParams.get("recaptcha_token");
+
+  // reCAPTCHA v3 — fail closed (rejects when the token is missing) and check
+  // the score + action before any DB lookups. GET carries the token as a query
+  // param since there is no request body.
+  const captcha = await verifyRecaptcha(recaptcha_token, "check_registration");
+  if (!captcha.ok) {
+    console.warn(
+      "[registration:check] reCAPTCHA rejected:",
+      captcha.reason,
+      captcha.score,
+    );
+    return NextResponse.json(
+      {
+        message: "reCAPTCHA validation failed",
+        error: "Security check failed. Please try again.",
+      },
+      { status: 400 },
+    );
+  }
 
   if (!email && !discord_username) {
     return NextResponse.json(
