@@ -154,7 +154,9 @@ export function DiscoverContainer() {
           (profileSettled.value as Response).ok
         ) {
           try {
-            const userProfileData = await (profileSettled.value as Response).json();
+            const userProfileData = await (
+              profileSettled.value as Response
+            ).json();
             const profileData = userProfileData.success
               ? userProfileData.data
               : userProfileData;
@@ -201,7 +203,10 @@ export function DiscoverContainer() {
             console.error("Error parsing team:", error);
           }
         } else if (teamSettled.status === "rejected") {
-          console.error("Error verifying team lead status:", teamSettled.reason);
+          console.error(
+            "Error verifying team lead status:",
+            teamSettled.reason,
+          );
         }
         setUserHasTeam(userHasTeamValue);
         // Reset lead status if the team fetch came back negative -- guards
@@ -216,7 +221,9 @@ export function DiscoverContainer() {
           (requestsSettled.value as Response).ok
         ) {
           try {
-            const requestsData = await (requestsSettled.value as Response).json();
+            const requestsData = await (
+              requestsSettled.value as Response
+            ).json();
             if (
               requestsData.success &&
               requestsData.data &&
@@ -251,22 +258,22 @@ export function DiscoverContainer() {
           // Teams looking for members -- only for non-leads who can see the list
           shouldFetchLists && !userIsLead
             ? fetch(
-              `${API_ENDPOINTS.lookingForMembers}${queryParams}${queryParams ? "&" : "?"}page=${teamsPage}&limit=${ITEMS_PER_PAGE}`,
-              { method: "GET", headers },
-            )
+                `${API_ENDPOINTS.lookingForMembers}${queryParams}${queryParams ? "&" : "?"}page=${teamsPage}&limit=${ITEMS_PER_PAGE}`,
+                { method: "GET", headers },
+              )
             : Promise.resolve(null as any),
           // Operators looking for teams
           shouldFetchLists
             ? fetch(
-              `${API_ENDPOINTS.lookingForTeam}${queryParams}${queryParams ? "&" : "?"}page=${participantsPage}&limit=${ITEMS_PER_PAGE}`,
-              { method: "GET", headers },
-            )
+                `${API_ENDPOINTS.lookingForTeam}${queryParams}${queryParams ? "&" : "?"}page=${participantsPage}&limit=${ITEMS_PER_PAGE}`,
+                { method: "GET", headers },
+              )
             : Promise.resolve(null as any),
           // Sent invites by this team -- only if user is the lead of their team
           isLeadLocal && user?.teamCode
             ? fetch(`${API_ENDPOINTS.joinRequest}?teamCode=${user.teamCode}`, {
-              headers,
-            })
+                headers,
+              })
             : Promise.resolve(null as any),
         ]);
         const [teamsSettled, participantsSettled, sentInvitesSettled] = phase2;
@@ -316,7 +323,9 @@ export function DiscoverContainer() {
           (participantsSettled.value as Response).ok
         ) {
           try {
-            const participantsData = await (participantsSettled.value as Response).json();
+            const participantsData = await (
+              participantsSettled.value as Response
+            ).json();
             if (
               participantsData.success &&
               participantsData.data &&
@@ -359,7 +368,9 @@ export function DiscoverContainer() {
           (sentInvitesSettled.value as Response).ok
         ) {
           try {
-            const invitesData = await (sentInvitesSettled.value as Response).json();
+            const invitesData = await (
+              sentInvitesSettled.value as Response
+            ).json();
             if (
               invitesData.success &&
               invitesData.data &&
@@ -504,12 +515,13 @@ export function DiscoverContainer() {
           const basicDetails = {
             teamCode: basicTeamData.teamCode,
             teamName: basicTeamData.teamName,
-            teamLead: basicTeamData.teamLead || { id: '', name: 'Unknown' },
-            teamMembers: basicTeamData.teamMembers?.map(m => ({
-              uid: m.id,
-              name: m.name,
-              role: 'Member',
-            })) || [],
+            teamLead: basicTeamData.teamLead || { id: "", name: "Unknown" },
+            teamMembers:
+              basicTeamData.teamMembers?.map((m) => ({
+                uid: m.id,
+                name: m.name,
+                role: "Member",
+              })) || [],
             memberCount: basicTeamData.currentMembers,
             maxMembers: basicTeamData.maxMembers,
             teamStatus: "pending",
@@ -540,12 +552,13 @@ export function DiscoverContainer() {
             const basicDetails = {
               teamCode: basicTeamData.teamCode,
               teamName: basicTeamData.teamName,
-              teamLead: basicTeamData.teamLead || { id: '', name: 'Unknown' },
-              teamMembers: basicTeamData.teamMembers?.map(m => ({
-                uid: m.id,
-                name: m.name,
-                role: 'Member',
-              })) || [],
+              teamLead: basicTeamData.teamLead || { id: "", name: "Unknown" },
+              teamMembers:
+                basicTeamData.teamMembers?.map((m) => ({
+                  uid: m.id,
+                  name: m.name,
+                  role: "Member",
+                })) || [],
               memberCount: basicTeamData.currentMembers,
               maxMembers: basicTeamData.maxMembers,
               teamStatus: "pending",
@@ -561,12 +574,13 @@ export function DiscoverContainer() {
           const basicDetails = {
             teamCode: basicTeamData.teamCode,
             teamName: basicTeamData.teamName,
-            teamLead: basicTeamData.teamLead || { id: '', name: 'Unknown' },
-            teamMembers: basicTeamData.teamMembers?.map(m => ({
-              uid: m.id,
-              name: m.name,
-              role: 'Member',
-            })) || [],
+            teamLead: basicTeamData.teamLead || { id: "", name: "Unknown" },
+            teamMembers:
+              basicTeamData.teamMembers?.map((m) => ({
+                uid: m.id,
+                name: m.name,
+                role: "Member",
+              })) || [],
             memberCount: basicTeamData.currentMembers,
             maxMembers: basicTeamData.maxMembers,
             teamStatus: "pending",
@@ -587,12 +601,13 @@ export function DiscoverContainer() {
         const basicDetails: TeamDetails = {
           teamCode: basicTeamData.teamCode,
           teamName: basicTeamData.teamName,
-          teamLead: basicTeamData.teamLead || { id: '', name: 'Unknown' },
-          teamMembers: basicTeamData.teamMembers?.map(m => ({
-            uid: m.id,
-            name: m.name,
-            role: 'Member',
-          })) || [],
+          teamLead: basicTeamData.teamLead || { id: "", name: "Unknown" },
+          teamMembers:
+            basicTeamData.teamMembers?.map((m) => ({
+              uid: m.id,
+              name: m.name,
+              role: "Member",
+            })) || [],
           memberCount: basicTeamData.currentMembers,
           maxMembers: basicTeamData.maxMembers,
           teamStatus: "pending",
@@ -730,9 +745,13 @@ export function DiscoverContainer() {
                 </div>
                 <h1 className="font-heading text-[30px] sm:text-[38px] font-bold text-ink tracking-tight leading-[1.05]">
                   {isTeamLead ? (
-                    <>Recruit your <span className="text-brand">crew</span>.</>
+                    <>
+                      Recruit your <span className="text-brand">crew</span>.
+                    </>
                   ) : (
-                    <>Find your <span className="text-brand">people</span>.</>
+                    <>
+                      Find your <span className="text-brand">people</span>.
+                    </>
                   )}
                 </h1>
                 <p className="text-[13px] text-ink-secondary font-body max-w-[52ch] leading-relaxed">
@@ -752,7 +771,11 @@ export function DiscoverContainer() {
             </div>
           </div>
 
-          {userHasTeam && (!isTeamLead || (isTeamLead && teamCapacity && teamCapacity.current >= teamCapacity.max)) ? (
+          {userHasTeam &&
+          (!isTeamLead ||
+            (isTeamLead &&
+              teamCapacity &&
+              teamCapacity.current >= teamCapacity.max)) ? (
             <Card hudCorners>
               <div className="flex flex-col items-center justify-center px-6 py-12 text-center gap-4">
                 <span className="inline-flex w-12 h-12 items-center justify-center rounded-md bg-brand-soft border border-brand/40">
@@ -797,8 +820,10 @@ export function DiscoverContainer() {
                   Go public to scout teams
                 </h2>
                 <p className="text-[13px] text-ink-secondary font-body max-w-[46ch] leading-relaxed">
-                  Enable <span className="text-ink font-medium">Public Profile</span> in your settings.
-                  Without it, teams can&apos;t see you. and you can&apos;t see open rosters.
+                  Enable{" "}
+                  <span className="text-ink font-medium">Public Profile</span>{" "}
+                  in your settings. Without it, teams can&apos;t see you. and
+                  you can&apos;t see open rosters.
                 </p>
                 <Button
                   onClick={() => router.push("/dashboard/profile")}
@@ -834,9 +859,12 @@ export function DiscoverContainer() {
                 </summary>
                 <div className="px-3 pb-3 pt-1 text-[12px] text-ink-secondary font-body leading-relaxed">
                   Going public exposes your{" "}
-                  <span className="text-ink">name, bio, organisation, profile picture, resume,
-                    and social links</span>{" "}
-                  to other operators. Strip phone numbers, addresses, and personal emails from your resume before publishing.
+                  <span className="text-ink">
+                    name, bio, organisation, profile picture, resume, and social
+                    links
+                  </span>{" "}
+                  to other operators. Strip phone numbers, addresses, and
+                  personal emails from your resume before publishing.
                 </div>
               </details>
 
@@ -882,7 +910,10 @@ export function DiscoverContainer() {
 
               {/* Command-bar style search: Enter flushes the debounce, Esc clears */}
               <div className="group relative flex items-center gap-2 rounded-md bg-surface-inset border border-[var(--border-soft)] focus-within:border-brand focus-within:shadow-[0_0_16px_rgba(0,255,136,0.25)] transition-[border-color,box-shadow] duration-150 px-3 py-2.5">
-                <span className="font-mono text-[13px] text-brand select-none leading-none" aria-hidden>
+                <span
+                  className="font-mono text-[13px] text-brand select-none leading-none"
+                  aria-hidden
+                >
                   &gt;
                 </span>
                 <Search className="w-3.5 h-3.5 text-ink-muted shrink-0" />
@@ -934,7 +965,9 @@ export function DiscoverContainer() {
                         <Users className="w-4 h-4 text-ink-muted" />
                       </div>
                       <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-muted mb-1.5">
-                        {searchQuery.trim() ? "// no match" : "// quiet on the wire"}
+                        {searchQuery.trim()
+                          ? "// no match"
+                          : "// quiet on the wire"}
                       </div>
                       <p className="text-[13px] text-ink-secondary font-body max-w-[40ch] mx-auto leading-relaxed">
                         {searchQuery.trim()
@@ -954,7 +987,9 @@ export function DiscoverContainer() {
                           .join("");
                         const pct = Math.min(
                           100,
-                          Math.round((team.currentMembers / team.maxMembers) * 100),
+                          Math.round(
+                            (team.currentMembers / team.maxMembers) * 100,
+                          ),
                         );
                         return (
                           <li key={team.teamCode}>
@@ -987,10 +1022,13 @@ export function DiscoverContainer() {
                                     )}
                                   </div>
                                   <div className="mt-1 flex items-center gap-2 text-[11.5px] text-ink-muted font-mono">
-                                    <span className="text-brand">{team.teamCode}</span>
+                                    <span className="text-brand">
+                                      {team.teamCode}
+                                    </span>
                                     <span className="text-ink-subtle">·</span>
                                     <span>
-                                      {team.currentMembers}/{team.maxMembers} members
+                                      {team.currentMembers}/{team.maxMembers}{" "}
+                                      members
                                     </span>
                                   </div>
                                 </div>
@@ -1032,8 +1070,12 @@ export function DiscoverContainer() {
                           prev
                         </button>
                         <span className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-muted">
-                          &gt; page <span className="text-brand">{String(teamsPage).padStart(2, "0")}</span>{" "}
-                          / {String(teamsPagination.totalPages).padStart(2, "0")}
+                          &gt; page{" "}
+                          <span className="text-brand">
+                            {String(teamsPage).padStart(2, "0")}
+                          </span>{" "}
+                          /{" "}
+                          {String(teamsPagination.totalPages).padStart(2, "0")}
                         </span>
                         <button
                           type="button"
@@ -1068,7 +1110,9 @@ export function DiscoverContainer() {
                         <User className="w-4 h-4 text-ink-muted" />
                       </div>
                       <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-muted mb-1.5">
-                        {searchQuery.trim() ? "// no match" : "// the network is empty"}
+                        {searchQuery.trim()
+                          ? "// no match"
+                          : "// the network is empty"}
                       </div>
                       <p className="text-[13px] text-ink-secondary font-body max-w-[42ch] mx-auto leading-relaxed">
                         {searchQuery.trim()
@@ -1105,7 +1149,9 @@ export function DiscoverContainer() {
                                   />
                                 ) : (
                                   <span className="w-10 h-10 sm:w-11 sm:h-11 shrink-0 inline-flex items-center justify-center rounded-md bg-surface-2 border border-[var(--border-default)] font-mono text-[12px] font-bold text-ink">
-                                    {initials || <User className="w-4 h-4 text-ink-muted" />}
+                                    {initials || (
+                                      <User className="w-4 h-4 text-ink-muted" />
+                                    )}
                                   </span>
                                 )}
 
@@ -1131,9 +1177,13 @@ export function DiscoverContainer() {
                                   </div>
                                   <div className="mt-0.5 flex items-center gap-2 text-[11.5px] text-ink-muted font-mono truncate">
                                     {participant.university ? (
-                                      <span className="truncate">{participant.university}</span>
+                                      <span className="truncate">
+                                        {participant.university}
+                                      </span>
                                     ) : (
-                                      <span className="text-ink-subtle">no org listed</span>
+                                      <span className="text-ink-subtle">
+                                        no org listed
+                                      </span>
                                     )}
                                   </div>
                                   {participant.bio && (
@@ -1144,10 +1194,7 @@ export function DiscoverContainer() {
                                 </div>
 
                                 {/* Social cluster + chevron */}
-                                <div
-                                  className="hidden sm:flex shrink-0 items-center gap-1"
-                                  onClick={(e) => e.stopPropagation()}
-                                >
+                                <div className="hidden sm:flex shrink-0 items-center gap-1">
                                   {participant.github_link && (
                                     <a
                                       href={participant.github_link}
@@ -1155,6 +1202,7 @@ export function DiscoverContainer() {
                                       rel="noopener noreferrer"
                                       aria-label="GitHub Profile"
                                       className="inline-flex w-8 h-8 items-center justify-center rounded-md text-ink-muted hover:text-ink hover:bg-white/[0.04] transition-colors"
+                                      onClick={(e) => e.stopPropagation()}
                                     >
                                       <Github className="w-4 h-4" />
                                     </a>
@@ -1166,6 +1214,7 @@ export function DiscoverContainer() {
                                       rel="noopener noreferrer"
                                       aria-label="LinkedIn Profile"
                                       className="inline-flex w-8 h-8 items-center justify-center rounded-md text-ink-muted hover:text-ink hover:bg-white/[0.04] transition-colors"
+                                      onClick={(e) => e.stopPropagation()}
                                     >
                                       <Linkedin className="w-4 h-4" />
                                     </a>
@@ -1190,9 +1239,7 @@ export function DiscoverContainer() {
                         <button
                           type="button"
                           onClick={() =>
-                            setParticipantsPage((prev) =>
-                              Math.max(1, prev - 1),
-                            )
+                            setParticipantsPage((prev) => Math.max(1, prev - 1))
                           }
                           disabled={participantsPage <= 1 || isLoading}
                           className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.22em] text-ink-secondary hover:text-brand disabled:opacity-30 disabled:hover:text-ink-secondary disabled:cursor-not-allowed transition-colors px-2 py-1.5 rounded"
@@ -1206,7 +1253,10 @@ export function DiscoverContainer() {
                             {String(participantsPage).padStart(2, "0")}
                           </span>{" "}
                           /{" "}
-                          {String(participantsPagination.totalPages).padStart(2, "0")}
+                          {String(participantsPagination.totalPages).padStart(
+                            2,
+                            "0",
+                          )}
                         </span>
                         <button
                           type="button"
@@ -1220,7 +1270,7 @@ export function DiscoverContainer() {
                           }
                           disabled={
                             participantsPage >=
-                            participantsPagination.totalPages || isLoading
+                              participantsPagination.totalPages || isLoading
                           }
                           className="inline-flex items-center gap-1.5 font-mono text-[11px] uppercase tracking-[0.22em] text-ink-secondary hover:text-brand disabled:opacity-30 disabled:hover:text-ink-secondary disabled:cursor-not-allowed transition-colors px-2 py-1.5 rounded"
                         >

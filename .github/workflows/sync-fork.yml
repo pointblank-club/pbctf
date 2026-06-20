@@ -2,9 +2,8 @@ name: Sync Fork with Upstream
 
 on:
   schedule:
-    # Runs every minute (minimum interval for GitHub Actions cron)
-    # Note: GitHub Actions doesn't support intervals less than 1 minute
-    - cron: "*/1 * * * *"
+    - cron: "*/30 * * * *"
+
   workflow_dispatch: # Allows manual triggering
 
 jobs:
@@ -47,7 +46,7 @@ jobs:
       - name: Merge upstream changes
         run: |
           CURRENT_BRANCH="${{ steps.branch.outputs.branch }}"
-          UPSTREAM_BRANCH="staging"  # Upstream default branch
+          UPSTREAM_BRANCH="prod"  # Upstream default branch
 
           git checkout $CURRENT_BRANCH
 
