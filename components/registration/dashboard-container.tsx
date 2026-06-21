@@ -117,9 +117,9 @@ function StatusStrip({
       sub: "Create a team to register. You can run solo or add one teammate.",
     },
     active: {
-      label: "DRAFT",
+      label: "REGISTERED",
       tone: "info",
-      sub: `${teamName ?? "Team"} is in draft. Complete registration to submit.`,
+      sub: `${teamName ?? "Team"} is registered. Changes are allowed until registration closes.`,
     },
     submitted: {
       label: "SUBMITTED",
