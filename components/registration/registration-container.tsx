@@ -63,12 +63,12 @@ const STEPS: Array<{
   hint: string;
   icon: typeof Lock;
 }> = [
-  { id: "account", label: "Account", hint: "Credentials", icon: Lock },
-  { id: "identity", label: "Identity", hint: "Who you are", icon: UserIcon },
-  { id: "profile", label: "Profile", hint: "Bio & files", icon: FileText },
-  { id: "links", label: "Links", hint: "Socials", icon: LinkIcon },
-  { id: "review", label: "Review", hint: "Confirm & submit", icon: ClipboardCheck },
-];
+    { id: "account", label: "Account", hint: "Credentials", icon: Lock },
+    { id: "identity", label: "Identity", hint: "Who you are", icon: UserIcon },
+    { id: "profile", label: "Profile", hint: "Bio & files", icon: FileText },
+    { id: "links", label: "Links", hint: "Socials", icon: LinkIcon },
+    { id: "review", label: "Review", hint: "Confirm & submit", icon: ClipboardCheck },
+  ];
 
 export function RegistrationContainer({
   onSuccess,
@@ -487,21 +487,21 @@ export function RegistrationContainer({
 
   const handleFieldBlur =
     (fieldName: string) =>
-    (e?: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-      const value =
-        fieldName === "phone" ? registerData.phone : e?.target.value || "";
-      const error = validateField(fieldName, value);
+      (e?: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const value =
+          fieldName === "phone" ? registerData.phone : e?.target.value || "";
+        const error = validateField(fieldName, value);
 
-      if (error) {
-        setErrors((prev) => ({ ...prev, [fieldName]: error }));
-      } else {
-        setErrors((prev) => {
-          const newErrors = { ...prev };
-          delete newErrors[fieldName];
-          return newErrors;
-        });
-      }
-    };
+        if (error) {
+          setErrors((prev) => ({ ...prev, [fieldName]: error }));
+        } else {
+          setErrors((prev) => {
+            const newErrors = { ...prev };
+            delete newErrors[fieldName];
+            return newErrors;
+          });
+        }
+      };
 
   const validateAllFields = (): Record<string, string> => {
     const validationErrors: Record<string, string> = {};
@@ -1174,7 +1174,7 @@ export function RegistrationContainer({
     <div className="flex flex-col gap-6 w-full max-w-[760px] mx-auto">
       {/* ===================== HERO / OPERATOR BRIEFING ===================== */}
       <header className="relative overflow-hidden rounded-lg border border-[var(--border-soft)] bg-surface-1/60 backdrop-blur-[6px]">
-<div className="relative z-10 flex flex-col gap-4 p-5 sm:p-7">
+        <div className="relative z-10 flex flex-col gap-4 p-5 sm:p-7">
           <div className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand">
             <span className="inline-flex w-1.5 h-1.5 rounded-full bg-brand shadow-glow-sm" />
             <span>&gt;</span>
@@ -1484,7 +1484,7 @@ export function RegistrationContainer({
               <div className="flex flex-col gap-1.5">
                 <FormInput
                   label="Full Name"
-                  placeholder="John Doe"
+                  placeholder="Narendra Damodardas Modi"
                   required
                   value={registerData.name}
                   onChange={(e) =>
@@ -1711,10 +1711,10 @@ export function RegistrationContainer({
                 {authMethod === "google"
                   ? reviewRow("Sign-in", "Google", 0)
                   : reviewRow(
-                      "Password",
-                      registerData.password ? "••••••••" : "",
-                      0,
-                    )}
+                    "Password",
+                    registerData.password ? "••••••••" : "",
+                    0,
+                  )}
               </div>
 
               <div className="rounded-md border border-[var(--border-soft)] bg-surface-inset/50 p-4">
@@ -1832,7 +1832,7 @@ export function RegistrationContainer({
                     <p className="mt-1 text-[12px] text-ink-secondary font-normal">
                       Required. Covers respect, fair play, and venue rules.
                     </p>
-                    
+
                     {!acceptedCodeOfConduct && (
                       <div className="mt-3 flex flex-col items-start gap-2">
                         <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-[var(--warning-soft)] text-[var(--warning)] text-[11px] font-mono tracking-wide uppercase border border-[var(--warning)]/20">
@@ -1913,40 +1913,40 @@ export function RegistrationContainer({
               authMethod === "email" &&
               !accountFieldsVisible
             ) && (
-            <div className="flex items-center justify-between gap-3 pt-2 mt-1">
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={goBack}
-                disabled={currentStepIndex === 0}
-              >
-                <ChevronLeft className="w-4 h-4 mr-1.5" />
-                Back
-              </Button>
-              <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-muted hidden sm:block">
-                {STEPS.length - currentStepIndex - 1} step
-                {STEPS.length - currentStepIndex - 1 === 1 ? "" : "s"} to go
+              <div className="flex items-center justify-between gap-3 pt-2 mt-1">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={goBack}
+                  disabled={currentStepIndex === 0}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-1.5" />
+                  Back
+                </Button>
+                <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-muted hidden sm:block">
+                  {STEPS.length - currentStepIndex - 1} step
+                  {STEPS.length - currentStepIndex - 1 === 1 ? "" : "s"} to go
+                </div>
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={goNext}
+                  disabled={checkingAvailability}
+                >
+                  {checkingAvailability ? (
+                    <>
+                      <Spinner size="sm" className="mr-2" />
+                      Checking…
+                    </>
+                  ) : (
+                    <>
+                      Continue
+                      <ChevronRight className="w-4 h-4 ml-1.5" />
+                    </>
+                  )}
+                </Button>
               </div>
-              <Button
-                type="button"
-                variant="primary"
-                onClick={goNext}
-                disabled={checkingAvailability}
-              >
-                {checkingAvailability ? (
-                  <>
-                    <Spinner size="sm" className="mr-2" />
-                    Checking…
-                  </>
-                ) : (
-                  <>
-                    Continue
-                    <ChevronRight className="w-4 h-4 ml-1.5" />
-                  </>
-                )}
-              </Button>
-            </div>
-          )}
+            )}
 
           {currentStep.id === "review" && currentStepIndex > 0 && (
             <div className="flex items-center justify-between gap-3 pt-2 mt-1">

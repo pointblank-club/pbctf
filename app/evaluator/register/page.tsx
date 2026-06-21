@@ -168,7 +168,7 @@ export default function EvaluatorRegisterPage() {
                             <form onSubmit={handleRegister} className="flex flex-col gap-[20px] w-full">
                                 <FormInput
                                     label="Full Name"
-                                    placeholder="John Doe"
+                                    placeholder="Narendra Damodardas Modi"
                                     required
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}

@@ -25,7 +25,7 @@ const EVENTS = [
   {
     date: "July 26, 2026 · 09:00 AM",
     title: "PBCTF Begins",
-    desc: "The competition kicks off. 24 hours of non-stop hacking begins.",
+    desc: "The competition kicks off. 8 hours of non-stop hacking begins.",
   },
   {
     date: "July 26, 2026 · 05:00 PM",
