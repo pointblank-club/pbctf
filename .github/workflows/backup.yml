@@ -28,12 +28,12 @@ jobs:
           set -e
           
           echo "Dumping specific databases..."
-          mongodump --uri "${{ secrets.MONGODB_URI }}" --db test --out ./temp_backup
+          mongodump --uri "${{ secrets.MONGODB_URI }}" --db pbctf --out ./temp_backup
           
           TIMESTAMP=$(date -u +%Y-%m-%dT%H-%M-%SZ)
 
           echo "Restoring databases..."
-          mongorestore --uri "${{ secrets.BACKUP_URI }}" --db "test-$TIMESTAMP" --drop ./temp_backup/test
+          mongorestore --uri "${{ secrets.BACKUP_URI }}" --nsFrom="pbctf.*" --nsTo="pbctf-$TIMESTAMP.*" --drop ./temp_backup
           
           echo "Backup completed successfully for $TIMESTAMP"
 
@@ -43,7 +43,7 @@ jobs:
             const maxBackups = parseInt(process.env.MAX_BACKUPS);
 
             // Cleanup
-            const testBackups = dbs.filter(name => name.startsWith("test-")).sort();
+            const testBackups = dbs.filter(name => name.startsWith("pbctf-")).sort();
             if (testBackups.length > maxBackups) {
               const backupsToDelete = testBackups.slice(0, testBackups.length - maxBackups);
               backupsToDelete.forEach(dbName => {
