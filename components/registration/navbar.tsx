@@ -187,9 +187,12 @@ export function NavBar({ user, onLogout, onNavigate, isAuthLoading }: NavBarProp
             className="group flex shrink-0 items-center -ml-1 px-1 py-1 rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
             aria-label="PBCTF 5.0 Home"
           >
-            <span className="font-body font-extrabold text-[1.5rem] leading-none tracking-[-0.02em] bg-gradient-to-br from-white to-brand bg-clip-text text-transparent">
-              PBCTF5.0
-            </span>
+            {/* eslint-disable-next-line @next/next/no-img-element -- static brand mark */}
+            <img
+              src="/images/pbctf-logo.svg"
+              alt="PBCTF 5.0"
+              className="h-9 w-auto drop-shadow-[0_0_8px_rgba(0,255,136,0.4)] transition-transform duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+            />
           </button>
 
           {/* Right cluster — nav + auth flush right, mirroring the landing header */}

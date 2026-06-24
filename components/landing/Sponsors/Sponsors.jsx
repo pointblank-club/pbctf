@@ -156,7 +156,6 @@ export default function Sponsors() {
           {SPONSORS.map(s => (
             <div key={s.id} id={s.id} className="sponsors__card">
               <div className="sponsors__card-inner">
-                <div className="sponsors__shimmer" />
                 {s.logo}
               </div>
             </div>

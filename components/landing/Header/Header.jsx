@@ -76,7 +76,12 @@ export default function Header() {
           onMouseEnter={playHover}
           onClick={playNav}
         >
-          <span className="header__logo-text">PBCTF5.0</span>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            className="header__logo-img"
+            src="/images/pbctf-logo.svg"
+            alt="PBCTF 5.0"
+          />
         </a>
 
         {/* Desktop Navigation */}

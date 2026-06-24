@@ -2,7 +2,7 @@ import Link from "next/link";
 
 /**
  * Minimal brand header for the auth pages (login / register). Renders the
- * PBCTF5.0 wordmark in the top-left, linking back to the landing page —
+ * PBCTF 5.0 logo in the top-left, linking back to the landing page —
  * matching the landing/dashboard header logo. The bar itself is
  * click-through (pointer-events-none) so only the logo is interactive.
  */
@@ -12,11 +12,14 @@ export function AuthHeader() {
       <Link
         href="/"
         aria-label="PBCTF 5.0 home"
-        className="pointer-events-auto inline-flex items-center rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
+        className="group pointer-events-auto inline-flex items-center rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand"
       >
-        <span className="font-body font-extrabold text-[1.5rem] leading-none tracking-[-0.02em] bg-gradient-to-br from-white to-brand bg-clip-text text-transparent">
-          PBCTF5.0
-        </span>
+        {/* eslint-disable-next-line @next/next/no-img-element -- static brand mark */}
+        <img
+          src="/images/pbctf-logo.svg"
+          alt="PBCTF 5.0"
+          className="h-9 w-auto drop-shadow-[0_0_8px_rgba(0,255,136,0.4)] transition-transform duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
+        />
       </Link>
     </header>
   );

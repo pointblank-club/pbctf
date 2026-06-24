@@ -64,14 +64,17 @@
   filter: drop-shadow(0 0 12px rgba(0, 255, 136, 0.8));
 }
 
-.pbctf-landing .header__logo-text {
-  font-family: var(--font-heading);
-  font-weight: 800;
-  font-size: 1.5rem;
-  background: linear-gradient(135deg, var(--text) 0%, var(--primary) 100%);
-  -webkit-background-clip: text;
-  color: transparent;
-  letter-spacing: -0.02em;
+.pbctf-landing .header__logo-img {
+  display: block;
+  height: 36px;
+  width: auto;
+  transition: filter 0.4s ease, transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  filter: drop-shadow(0 0 8px rgba(0, 255, 136, 0.4));
+}
+
+.pbctf-landing .header__logo:hover .header__logo-img {
+  transform: scale(1.05);
+  filter: drop-shadow(0 0 12px rgba(0, 255, 136, 0.8));
 }
 
 /* --- Desktop Nav --- */
