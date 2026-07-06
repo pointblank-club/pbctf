@@ -177,9 +177,9 @@ export default function Prizes() {
         {/* Total Prize Pool */}
         <div className="prizes__total">
           <div className="prizes__total-label">Total Prize Pool</div>
-          <div className="prizes__total-amount prize-blur" style={{ filter: "blur(8px)", userSelect: "none", opacity: 0.8 }}>
+          <div className="prizes__total-amount " style={{ userSelect: "none", opacity: 0.8 }}>
             <span className="prizes__total-currency">₹</span>
-            <span>??,???</span>
+            <span>1,00,000+</span>
           </div>
           <div className="prizes__total-divider" />
         </div>

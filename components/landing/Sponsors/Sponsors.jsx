@@ -114,6 +114,8 @@ const PARTNERS = [
   { id: 'k7', src: '/images/k7-logo.png', alt: 'K7 Security' },
   { id: 'xyz', src: '/images/xyz_logo.svg', alt: '.XYZ' },
   { id: 'givemycert', src: '/images/givemycert.png', alt: 'Give My Certificate' },
+  { id: 'twintro', src: '/images/twintro.webp', alt: 'Twintrow' },
+  { id: 'awesomesleep', src: '/images/awesome_sleep_logo.webp', alt: 'Awesome Sleep' },
 ];
 
 /* Repeat to fill the track, then duplicate for a seamless -50% loop */
