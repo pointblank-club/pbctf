@@ -106,7 +106,27 @@ const SPONSORS = [
         />
       </svg>
     ),
-  }
+  },
+  {
+    id: "sponsor-twintro",
+    logo: (
+      <img
+        src="/images/twintro.webp"
+        alt="Twintro"
+        className="sponsors__logo sponsors__logo--twintro"
+      />
+    ),
+  },
+  {
+    id: "sponsor-awesome-sleep",
+    logo: (
+      <img
+        src="/images/awesome_sleep_logo.webp"
+        alt="Awesome Sleep"
+        className="sponsors__logo sponsors__logo--awesome-sleep"
+      />
+    ),
+  },
 ];
 
 /* Community & media partner logos (from /public/images) */

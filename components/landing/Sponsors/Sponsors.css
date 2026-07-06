@@ -37,9 +37,8 @@
 
 /* Vertical stacked column */
 .pbctf-landing .sponsors__row {
-  display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(280px, 360px));
   justify-content: center;
   align-items: center;
   gap: var(--space-6);
@@ -49,7 +48,8 @@
 /* Card */
 .pbctf-landing .sponsors__card {
   position: relative;
-  width: 360px;
+  width: 100%;
+  max-width: 360px;
   height: 150px;
   border-radius: 16px;
   overflow: hidden;
@@ -235,17 +235,45 @@
   flex-shrink: 0;
 }
 
+.pbctf-landing .sponsors__logo--twintro {
+  width: 300px;
+  height: auto;
+}
+
+.pbctf-landing .sponsors__logo--awesome-sleep {
+  width: 300px;
+  height: auto;
+}
+
 /* Responsive */
+@media (max-width: 820px) {
+  .pbctf-landing .sponsors__logo--google,
+  .pbctf-landing .sponsors__logo--paytm,
+  .pbctf-landing .sponsors__logo--twintro,
+  .pbctf-landing .sponsors__logo--awesome-sleep {
+    width: 220px;
+  }
+}
+
 @media (max-width: 640px) {
+  .pbctf-landing .sponsors__row {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
+
   .pbctf-landing .sponsors__card {
     width: 100%;
     max-width: 320px;
     height: 120px;
+    margin-left: auto;
+    margin-right: auto;
   }
 
   .pbctf-landing .sponsors__logo--google,
-  .pbctf-landing .sponsors__logo--paytm {
-    width: 240px;
+  .pbctf-landing .sponsors__logo--paytm,
+  .pbctf-landing .sponsors__logo--twintro,
+  .pbctf-landing .sponsors__logo--awesome-sleep {
+    width: 200px;
   }
 
   .pbctf-landing .sponsors__cta-block {
