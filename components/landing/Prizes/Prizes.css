@@ -378,9 +378,6 @@
   z-index: 0;
 }
 
-
-
-
 /* ===================================================================
    2nd Place Device
    =================================================================== */
@@ -425,4 +422,404 @@
 
 .pbctf-landing .prizes__device--third .prizes__prompt {
   color: #A0E0B0;
+}
+
+/* ===================================================================
+   Total Prize LCD Panel Redesign
+   =================================================================== */
+
+.pbctf-landing .prizes__total-wrapper {
+  width: 100%;
+  max-width: 800px;
+  perspective: 1500px;
+  z-index: 2;
+  margin-top: 2rem;
+  margin-bottom: 4rem;
+}
+
+/* The physical bezel of the monitor */
+.pbctf-landing .prizes__lcd-bezel {
+  position: relative;
+  background: #0f1110;
+  border-radius: 4px;
+  padding: 30px;
+  border: 2px solid #1a1e1b;
+  border-bottom-width: 20px;
+  border-bottom-color: #0c0f0d;
+  box-shadow: 
+    0 40px 100px rgba(0, 0, 0, 0.9),
+    inset 0 1px 2px rgba(255, 255, 255, 0.05);
+  transform-style: preserve-3d;
+}
+
+/* Inner shadow to look like the screen is inset into the bezel */
+.pbctf-landing .prizes__lcd-bezel::before {
+  content: '';
+  position: absolute;
+  top: 30px; left: 30px; right: 30px; bottom: 50px;
+  box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* The actual LCD screen */
+.pbctf-landing .prizes__lcd-screen {
+  position: relative;
+  background-color: #020f08;
+  border-radius: 2px;
+  overflow: hidden;
+  height: 320px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 
+    0 0 100px rgba(0, 255, 136, 0.15),
+    inset 0 0 40px rgba(0, 255, 136, 0.1);
+  border: 1px solid rgba(0, 255, 136, 0.1);
+}
+
+/* The pixel grid overlay */
+.pbctf-landing .prizes__lcd-grid-overlay {
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+  background-size: 4px 4px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+/* Moving scanline */
+.pbctf-landing .prizes__lcd-scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(to bottom, transparent, rgba(0, 255, 136, 0.2), transparent);
+  opacity: 0.5;
+  animation: lcdScanline 8s linear infinite;
+  z-index: 3;
+  pointer-events: none;
+}
+
+@keyframes lcdScanline {
+  0% { transform: translateY(-100px); }
+  100% { transform: translateY(400px); }
+}
+
+/* Content layout inside the screen */
+.pbctf-landing .prizes__lcd-content {
+  position: relative;
+  z-index: 4;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 30px;
+}
+
+/* Header text */
+.pbctf-landing .prizes__lcd-header {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: clamp(8px, 2.5vw, 12px);
+  letter-spacing: clamp(0.05em, 0.2vw, 0.15em);
+  color: rgba(0, 255, 136, 0.6);
+  text-shadow: 0 0 5px rgba(0, 255, 136, 0.4);
+}
+
+@media (max-width: 500px) {
+  .pbctf-landing .prizes__lcd-header {
+    justify-content: center;
+    font-size: 10px;
+  }
+  .pbctf-landing .prizes__lcd-status {
+    display: none;
+  }
+}
+
+.pbctf-landing .prizes__lcd-status {
+  /* No animation */
+}
+
+/* Main prize amount area */
+.pbctf-landing .prizes__lcd-amount-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Typography for the huge amount */
+.pbctf-landing .prizes__lcd-amount {
+  font-family: var(--font-mono);
+  font-size: clamp(3.5rem, 8vw, 6rem);
+  font-weight: 700;
+  color: #c4ffde;
+  text-shadow: 
+    0 0 10px rgba(0, 255, 136, 0.8),
+    0 0 20px rgba(0, 255, 136, 0.6),
+    0 0 40px rgba(0, 255, 136, 0.4),
+    0 0 80px rgba(0, 255, 136, 0.2);
+  margin: 0;
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+/* Ghosting text effect for LCD */
+.pbctf-landing .prizes__lcd-amount--ghost {
+  position: absolute;
+  color: rgba(0, 255, 136, 0.15);
+  transform: translate(4px, 4px);
+  filter: blur(2px);
+  z-index: -1;
+  text-shadow: none;
+}
+
+.pbctf-landing .prizes__lcd-currency {
+  font-size: 0.5em;
+  vertical-align: top;
+  margin-right: 12px;
+  opacity: 0.9;
+}
+
+.pbctf-landing .prizes__lcd-plus {
+  color: rgba(0, 255, 136, 0.8);
+  font-size: 0.8em;
+}
+
+/* Footer text */
+.pbctf-landing .prizes__lcd-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: rgba(0, 255, 136, 0.4);
+}
+
+/* --- LCD Glitch Effect (clean) --- */
+.pbctf-landing .prizes__lcd-glitch .prizes__lcd-amount {
+  animation: cleanGlitch 0.8s steps(1) forwards;
+}
+
+@keyframes cleanGlitch {
+  0%   { opacity: 1; transform: translateX(0); }
+  8%   { opacity: 0.4; transform: translateX(2px); }
+  10%  { opacity: 1; transform: translateX(-1px); }
+  18%  { opacity: 0.6; transform: translateX(0); }
+  20%  { opacity: 1; transform: translateX(1px); }
+  30%  { opacity: 0.3; transform: translateX(0); }
+  32%  { opacity: 1; transform: translateX(-2px); }
+  50%  { opacity: 0.5; transform: translateX(1px); }
+  52%  { opacity: 1; transform: translateX(0); }
+  65%  { opacity: 0.7; transform: translateX(-1px); }
+  67%  { opacity: 1; transform: translateX(0); }
+  80%  { opacity: 0.8; transform: translateX(0); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+
+/* --- Flying Money Animation --- */
+.pbctf-landing .prizes__lcd-money-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.pbctf-landing .prizes__lcd-money-note {
+  position: absolute;
+  color: rgba(0, 255, 136, 0.15);
+  font-family: var(--font-mono);
+  font-weight: bold;
+  opacity: 0;
+  bottom: -20px;
+  animation: floatMoney linear infinite;
+}
+
+@keyframes floatMoney {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+  10% { opacity: 0.3; }
+  90% { opacity: 0.3; }
+  100% { transform: translateY(-400px) rotate(360deg); opacity: 0; }
+}
+
+.pbctf-landing .prizes__lcd-money-note--0 { left: 10%; font-size: 14px; animation-duration: 8s; animation-delay: 0s; }
+.pbctf-landing .prizes__lcd-money-note--1 { left: 85%; font-size: 18px; animation-duration: 12s; animation-delay: 2s; }
+.pbctf-landing .prizes__lcd-money-note--2 { left: 30%; font-size: 12px; animation-duration: 6s; animation-delay: 4s; }
+.pbctf-landing .prizes__lcd-money-note--3 { left: 55%; font-size: 20px; animation-duration: 9s; animation-delay: 1s; }
+.pbctf-landing .prizes__lcd-money-note--4 { left: 70%; font-size: 16px; animation-duration: 11s; animation-delay: 5s; }
+.pbctf-landing .prizes__lcd-money-note--5 { left: 20%; font-size: 15px; animation-duration: 7s; animation-delay: 3s; }
+.pbctf-landing .prizes__lcd-money-note--6 { left: 95%; font-size: 19px; animation-duration: 13s; animation-delay: 6s; }
+.pbctf-landing .prizes__lcd-money-note--7 { left: 5%; font-size: 13px; animation-duration: 8.5s; animation-delay: 1.5s; }
+.pbctf-landing .prizes__lcd-money-note--8 { left: 45%; font-size: 22px; animation-duration: 10s; animation-delay: 0.5s; }
+.pbctf-landing .prizes__lcd-money-note--9 { left: 65%; font-size: 14px; animation-duration: 7.5s; animation-delay: 4.5s; }
+.pbctf-landing .prizes__lcd-money-note--10 { left: 80%; font-size: 17px; animation-duration: 11.5s; animation-delay: 2.5s; }
+.pbctf-landing .prizes__lcd-money-note--11 { left: 40%; font-size: 16px; animation-duration: 9.5s; animation-delay: 7s; }
+.pbctf-landing .prizes__lcd-money-note--12 { left: 25%; font-size: 18px; animation-duration: 10.5s; animation-delay: 3.5s; }
+.pbctf-landing .prizes__lcd-money-note--13 { left: 75%; font-size: 15px; animation-duration: 8s; animation-delay: 5.5s; }
+.pbctf-landing .prizes__lcd-money-note--14 { left: 15%; font-size: 20px; animation-duration: 12.5s; animation-delay: 8s; }
+
+/* --- Red Button on Bezel --- */
+.pbctf-landing .prizes__red-button {
+  position: absolute;
+  bottom: 4px;
+  right: 20px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #3a1515;
+  background: radial-gradient(circle at 35% 35%, #ff4444, #991111);
+  box-shadow:
+    0 0 6px rgba(255, 50, 50, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5);
+  cursor: pointer;
+  z-index: 20;
+  transition: transform 0.1s, box-shadow 0.2s;
+  padding: 0;
+  outline: none;
+}
+
+.pbctf-landing .prizes__red-button:hover {
+  box-shadow:
+    0 0 14px rgba(255, 50, 50, 0.7),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.5);
+  transform: scale(1.1);
+}
+
+.pbctf-landing .prizes__red-button:active {
+  transform: scale(0.9);
+  box-shadow:
+    0 0 4px rgba(255, 50, 50, 0.3),
+    inset 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+/* --- Money Burst from behind the device --- */
+.pbctf-landing .prizes__money-burst {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.pbctf-landing .prizes__money-burst-note {
+  position: absolute;
+  opacity: 0;
+  animation: burstOut 4s cubic-bezier(0.25, 0.46, 0.45, 0.94) var(--delay) forwards;
+}
+
+@keyframes burstOut {
+  0% {
+    transform: translate(0, 0) rotate(0deg) scale(0.2);
+    opacity: 1;
+  }
+  10% {
+    opacity: 1;
+    transform: translate(calc(var(--dx) * 0.15), calc(var(--dy) * 0.15)) rotate(calc(var(--rot) * 0.1)) scale(1.5);
+  }
+  30% {
+    opacity: 1;
+    transform: translate(calc(var(--dx) * 0.5), calc(var(--dy) * 0.5)) rotate(calc(var(--rot) * 0.4)) scale(1.2);
+  }
+  70% {
+    opacity: 0.7;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) rotate(var(--rot)) scale(0.7);
+    opacity: 0;
+  }
+}
+
+/* --- 3D Coin --- */
+.pbctf-landing .prizes__coin {
+  display: block;
+  width: var(--size);
+  height: var(--size);
+  position: relative;
+  transform-style: preserve-3d;
+  animation: coinSpin var(--spin-dur) linear infinite;
+}
+
+@keyframes coinSpin {
+  0% { transform: rotateY(0deg); }
+  100% { transform: rotateY(360deg); }
+}
+
+.pbctf-landing .prizes__coin-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: calc(var(--size) * 0.5);
+  color: #0a2e14;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: radial-gradient(
+    ellipse at 35% 30%,
+    #a0ffb8 0%,
+    #30d060 25%,
+    #1a9e40 50%,
+    #0f7030 75%,
+    #0a5020 100%
+  );
+  box-shadow:
+    inset 0 3px 6px rgba(255, 255, 255, 0.5),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.4),
+    0 2px 8px rgba(0, 0, 0, 0.5);
+  border: 2px solid #0d6030;
+  backface-visibility: hidden;
+}
+
+/* Back face of coin */
+.pbctf-landing .prizes__coin-face::after {
+  content: '₹';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: calc(var(--size) * 0.5);
+  color: #0a2e14;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.3);
+  background: radial-gradient(
+    ellipse at 65% 70%,
+    #80e8a0 0%,
+    #28b050 25%,
+    #158838 50%,
+    #0d6028 75%,
+    #084018 100%
+  );
+  box-shadow:
+    inset 0 3px 6px rgba(255, 255, 255, 0.4),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.5);
+  border: 2px solid #0d6030;
+  transform: rotateY(180deg);
+  backface-visibility: hidden;
+}
+
+/* Coin edge (thickness) */
+.pbctf-landing .prizes__coin::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 50%;
+  width: 4px;
+  height: 80%;
+  background: linear-gradient(to bottom, #1a9e40, #0a5020, #1a9e40);
+  transform: translateX(-50%) rotateY(90deg);
+  border-radius: 2px;
 }
