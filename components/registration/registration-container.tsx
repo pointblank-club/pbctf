@@ -438,33 +438,57 @@ export function RegistrationContainer({
       case "age":
         if (!value || !value.trim()) return "Age is required";
         const ageNum = parseInt(value.trim());
-        if (isNaN(ageNum) || ageNum < 13 || ageNum > 100) {
+        if (isNaN(ageNum) || ageNum < 13 || ageNum > 100){
           return "Please enter a valid age (13-100)";
         }
         break;
       case "organisation":
         if (!value.trim()) return "Organisation is required";
         break;
+      case "bio":
+        if (!value.trim()) return "Bio is required";
+        if (value.length > 500) return "Bio must be 500 characters or less";
+        break;
       case "github":
         if (!value.trim()) return "GitHub link is required";
-        const githubPattern =
-          /^(https?:\/\/)?(www\.)?github\.com\/[\w-]+(\/)?$/i;
-        if (!githubPattern.test(value.trim())) {
+        try {
+          const url = new URL(value.trim());
+          const host = url.hostname.toLowerCase().replace(/^www\./, "");
+          if (
+            !["http:", "https:"].includes(url.protocol) ||
+            host !== "github.com"
+          ) {
+            return "Please enter a valid GitHub URL (e.g., https://github.com/username)";
+          }
+        } catch {
           return "Please enter a valid GitHub URL (e.g., https://github.com/username)";
         }
         break;
       case "linkedin":
         if (!value.trim()) return "LinkedIn link is required";
-        const linkedinPattern =
-          /^(https?:\/\/)?(www\.)?linkedin\.com\/(in|profile)\/[\w-]+(\/)?$/i;
-        if (!linkedinPattern.test(value.trim())) {
+        try {
+          const url = new URL(value.trim());
+          const host = url.hostname.toLowerCase().replace(/^www\./, "");
+          if (
+            !["http:", "https:"].includes(url.protocol) ||
+            (host !== "linkedin.com" && !host.endsWith(".linkedin.com"))
+          ) {
+            return "Please enter a valid LinkedIn URL (e.g., https://linkedin.com/in/username)";
+          }
+        } catch {
           return "Please enter a valid LinkedIn URL (e.g., https://linkedin.com/in/username)";
         }
         break;
       case "portfolio":
         if (value.trim()) {
           try {
-            new URL(value.trim());
+            const url = new URL(value.trim());
+            if (
+              !["http:", "https:"].includes(url.protocol) ||
+              !url.hostname.includes(".")
+            ) {
+              return "Please enter a valid portfolio URL";
+            }
           } catch {
             return "Please enter a valid portfolio URL";
           }
@@ -473,7 +497,13 @@ export function RegistrationContainer({
       case "ctf":
         if (value.trim()) {
           try {
-            new URL(value.trim());
+            const url = new URL(value.trim());
+            if (
+              !["http:", "https:"].includes(url.protocol) ||
+              !url.hostname.includes(".")
+            ) {
+              return "Please enter a valid CTF profile URL";
+            }
           } catch {
             return "Please enter a valid CTF profile URL";
           }
@@ -517,6 +547,7 @@ export function RegistrationContainer({
       "phone",
       "age",
       "organisation",
+      "bio",
       "github",
       "linkedin",
     ];
@@ -530,7 +561,6 @@ export function RegistrationContainer({
 
     const optionalFields: Array<keyof typeof registerData> = [
       "portfolio",
-      "bio",
       "ctf",
     ];
 
@@ -562,7 +592,7 @@ export function RegistrationContainer({
   const stepFieldMap: Record<StepId, Array<keyof typeof registerData>> = {
     account: ["email", "password", "confirmPassword"],
     identity: ["name", "age", "phone", "discord_username", "organisation"],
-    profile: [],
+    profile: ["bio"],
     links: ["github", "linkedin", "portfolio", "ctf"],
     review: [],
   };
@@ -600,22 +630,50 @@ export function RegistrationContainer({
     return "pending";
   };
 
-  const isFieldTaken = async (
-    field: "email" | "discord_username",
-    value: string,
-  ): Promise<boolean> => {
-    try {
-      const token = await executeRecaptcha("check_registration");
-      const params = new URLSearchParams({ [field]: value });
-      if (token) params.set("recaptcha_token", token);
-      const res = await fetch(`${API_ENDPOINTS.register}?${params.toString()}`);
-      if (!res.ok) return false;
-      const data = await res.json();
-      return data?.exists === true;
-    } catch (error) {
-      console.error("[registration] availability check failed:", error);
-      return false;
+  const validateStepWithBackend = async (
+    stepId: StepId,
+  ): Promise<Record<string, string>> => {
+    const token = await executeRecaptcha("check_registration");
+    const payload: Record<string, string> = {
+      validation_step: stepId,
+    };
+    if (token) payload.recaptcha_token = token;
+
+    if (stepId === "account") {
+      payload.email = registerData.email.trim();
+      payload.password = registerData.password;
+      payload.confirm_password = registerData.confirmPassword;
+    } else if (stepId === "identity") {
+      payload.name = registerData.name.trim();
+      payload.age = registerData.age.trim();
+      payload.phone = registerData.phone.trim();
+      payload.discord_username = registerData.discord_username.trim();
+      payload.organisation = registerData.organisation.trim();
+    } else if (stepId === "profile") {
+      payload.bio = registerData.bio;
+    } else if (stepId === "links") {
+      payload.github_link = registerData.github.trim();
+      payload.linkedin_link = registerData.linkedin.trim();
+      payload.portfolio_link = registerData.portfolio.trim();
+      payload.ctf_profile = registerData.ctf.trim();
     }
+
+    const res = await fetch(API_ENDPOINTS.register, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      throw new Error(
+        data?.message ||
+        data?.error ||
+        "Could not validate this step. Please try again.",
+      );
+    }
+
+    return data?.errors && typeof data.errors === "object" ? data.errors : {};
   };
 
   const goNext = async () => {
@@ -632,37 +690,30 @@ export function RegistrationContainer({
       return;
     }
 
-    const checks: Array<{
-      field: "email" | "discord_username";
-      value: string;
-      message: string;
-    }> = [];
-    if (stepId === "account" && authMethod === "email") {
-      checks.push({
-        field: "email",
-        value: registerData.email.trim(),
-        message: "This email is already registered.",
-      });
-    }
-    if (stepId === "identity") {
-      checks.push({
-        field: "discord_username",
-        value: registerData.discord_username.trim(),
-        message: "This Discord username is already registered.",
-      });
-    }
-
-    if (checks.length > 0) {
+    if (!(stepId === "account" && authMethod === "google")) {
       setCheckingAvailability(true);
       try {
-        for (const check of checks) {
-          if (await isFieldTaken(check.field, check.value)) {
-            setErrors((prev) => ({ ...prev, [check.field]: check.message }));
-            setAlert({ type: "error", message: check.message });
-            setTimeout(() => setAlert(null), 3000);
-            return;
-          }
+        const backendErrors = await validateStepWithBackend(stepId);
+        if (Object.keys(backendErrors).length > 0) {
+          setErrors((prev) => ({ ...prev, ...backendErrors }));
+          const firstError = backendErrors[Object.keys(backendErrors)[0]];
+          setAlert({
+            type: "error",
+            message: firstError || "Resolve the highlighted fields to continue.",
+          });
+          setTimeout(() => setAlert(null), 3000);
+          return;
         }
+      } catch (error) {
+        setAlert({
+          type: "error",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Could not validate this step. Please try again.",
+        });
+        setTimeout(() => setAlert(null), 3000);
+        return;
       } finally {
         setCheckingAvailability(false);
       }
@@ -1569,13 +1620,13 @@ export function RegistrationContainer({
           {currentStep.id === "profile" && (
             <div className="flex flex-col gap-4 anim-fade-up">
               <p className="text-[13px] text-ink-secondary leading-[1.55]">
-                Your resume is required so teams can spot you. Bio and photo
-                are optional but recommended. they help you stand out in
-                recruitment.
+                Your resume and bio are required so teams can spot you. A photo
+                is optional, but it helps you stand out in recruitment.
               </p>
               <FormTextarea
                 label="Bio"
                 placeholder="One paragraph on what you hack on, what you're into, and what you want from PBCTF."
+                required
                 value={registerData.bio}
                 onChange={(e) =>
                   setRegisterData({
