@@ -33,7 +33,7 @@ const TotalPrizeCard = () => {
   const [isHovered, setIsHovered] = useState(false);
   const [bursts, setBursts] = useState([]);
   const [isGlitching, setIsGlitching] = useState(false);
-  const { playHover } = useRetroSound();
+ const { playHover, playCoinBurst } = useRetroSound();
   const burstIdRef = useRef(0);
 
   const handleMouseLeave = () => {
@@ -42,6 +42,7 @@ const TotalPrizeCard = () => {
 
   const handleRedButtonClick = (e) => {
     e.stopPropagation();
+     playCoinBurst();
     const id = burstIdRef.current++;
     setBursts((prev) => [...prev, id]);
     // Trigger glitch effect
