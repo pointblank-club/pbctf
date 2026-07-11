@@ -177,6 +177,7 @@ export async function GET(request: NextRequest) {
       isLooking: user.isLooking,
       teamCode: user.teamCode || null,
       hasSolvedChallenge: user.hasSolvedChallenge || false,
+      twintroChallengeSolved: user.twintroChallengeSolved || false,
       isProfileLocked: false,
     };
 

@@ -65,6 +65,19 @@ export async function PUT(request: NextRequest) {
       );
     }
 
+    if (!user.twintroChallengeSolved) {
+      return NextResponse.json(
+        {
+          message: "Prerequisite challenge not completed",
+          error: {
+            code: 'TWINTRO_NOT_SOLVED',
+            message: 'You must solve the prerequisite challenge before RSVPing'
+          }
+        },
+        { status: 400 }
+      );
+    }
+
     if (!user.teamCode) {
       return NextResponse.json(
         {

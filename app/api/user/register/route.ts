@@ -11,6 +11,7 @@ import { verifyRecaptcha } from "@/lib/recaptcha";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { getAuth as getAdminAuth } from "@/lib/firebase-admin";
 import { isRegistrationClosed } from "@/lib/constants";
+import { validateTwintroCode } from "@/lib/validate-twintro";
 
 // Configure route
 export const dynamic = "force-dynamic";
@@ -199,6 +200,35 @@ export async function POST(request: Request) {
           { status: 400 },
         );
       }
+    }
+
+    // Extract and validate twintro challenge code
+    const twintroCode = formData.get("twintro_code") as string;
+    if (!twintroCode || !twintroCode.trim()) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Twintro challenge code is required.",
+          error: {
+            code: "missing_twintro_code",
+            message: "Solve the Twintro challenge before registering.",
+          },
+        },
+        { status: 400 },
+      );
+    }
+    if (!validateTwintroCode(twintroCode)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Invalid twintro challenge code.",
+          error: {
+            code: "invalid_twintro_code",
+            message: "The provided twintro code is not valid.",
+          },
+        },
+        { status: 400 },
+      );
     }
 
     // Helper to convert File to base64
@@ -472,6 +502,7 @@ export async function POST(request: Request) {
       role: "user",
       teamCode: undefined,
       authProvider: isGoogle ? "google" : "password",
+      twintroChallengeSolved: true,
     });
 
     await newUser.save();
