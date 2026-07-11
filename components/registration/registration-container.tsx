@@ -28,6 +28,7 @@ import {
   ClipboardCheck,
   Pencil,
   AlertCircle,
+  Flag,
 } from "lucide-react";
 import { FormInput } from "./form-input";
 import { FormTextarea } from "./form-textarea";
@@ -55,7 +56,7 @@ interface RegistrationContainerProps {
   onSuccess?: () => void;
 }
 
-type StepId = "account" | "identity" | "profile" | "links" | "review";
+type StepId = "account" | "identity" | "profile" | "links" | "challenge" | "review";
 
 const STEPS: Array<{
   id: StepId;
@@ -67,6 +68,7 @@ const STEPS: Array<{
     { id: "identity", label: "Identity", hint: "Who you are", icon: UserIcon },
     { id: "profile", label: "Profile", hint: "Bio & files", icon: FileText },
     { id: "links", label: "Links", hint: "Socials", icon: LinkIcon },
+    { id: "challenge", label: "Challenge", hint: "Prove your reconnaissance", icon: Flag },
     { id: "review", label: "Review", hint: "Confirm & submit", icon: ClipboardCheck },
   ];
 
@@ -137,6 +139,22 @@ export function RegistrationContainer({
     };
   };
 
+  // Helper to restore challenge state from localStorage on mount
+  const getInitialChallengeState = (): { solved: boolean; code: string } => {
+    try {
+      const savedData = localStorage.getItem(REGISTRATION_FORM_STORAGE_KEY);
+      if (savedData) {
+        const parsed = JSON.parse(savedData);
+        if (parsed.challengeSolved && parsed.validatedTwintroCode) {
+          return { solved: true, code: parsed.validatedTwintroCode };
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return { solved: false, code: "" };
+  };
+
   // Registration form state - initialized from localStorage
   const [registerData, setRegisterData] = useState(getInitialFormData);
 
@@ -161,6 +179,15 @@ export function RegistrationContainer({
   // True while a reCAPTCHA-guarded availability check (email / Discord) is in
   // flight, so the "Continue" button can show progress and block double-clicks.
   const [checkingAvailability, setCheckingAvailability] = useState(false);
+
+  // Challenge step state — initialised from localStorage so a page refresh
+  // doesn't wipe the solved status the user already earned.
+  const [challengeInput, setChallengeInput] = useState("");
+  const [challengeError, setChallengeError] = useState("");
+  const [isSubmittingChallenge, setIsSubmittingChallenge] = useState(false);
+  const initialChallenge = getInitialChallengeState();
+  const [challengeSolved, setChallengeSolved] = useState(initialChallenge.solved);
+  const [validatedTwintroCode, setValidatedTwintroCode] = useState(initialChallenge.code);
 
   // Google SSO. authMethod "google" means the user authenticated via the Google
   // popup; we then collect the remaining profile fields, lock the name, and skip
@@ -259,6 +286,24 @@ export function RegistrationContainer({
       console.error("Error saving form data to localStorage:", error);
     }
   }, [registerData]);
+
+  // Persist challenge solved state so it survives a page refresh.
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem(REGISTRATION_FORM_STORAGE_KEY);
+      const existing = savedData ? JSON.parse(savedData) : {};
+      localStorage.setItem(
+        REGISTRATION_FORM_STORAGE_KEY,
+        JSON.stringify({
+          ...existing,
+          challengeSolved,
+          validatedTwintroCode,
+        }),
+      );
+    } catch (error) {
+      console.error("Error saving challenge state to localStorage:", error);
+    }
+  }, [challengeSolved, validatedTwintroCode]);
 
   // Auto-enter Google mode when the user arrives already signed in with Google
   // but without a profile — e.g. they clicked "Continue with Google" on the
@@ -386,6 +431,10 @@ export function RegistrationContainer({
     });
     setResume(resumeFile);
     setResumeFileName("test_resume.pdf");
+
+    // Bug #4 fix: mark challenge as solved so auto-fill doesn't block submission
+    setChallengeSolved(true);
+    setValidatedTwintroCode("DEBUG_AUTOFILL");
 
     setAlert({
       type: "info",
@@ -555,7 +604,7 @@ export function RegistrationContainer({
   };
   const isFormValid = (): boolean => {
     const validationErrors = validateAllFields();
-    return Object.keys(validationErrors).length === 0;
+    return Object.keys(validationErrors).length === 0 && challengeSolved;
   };
 
   // Per-step validation
@@ -564,6 +613,7 @@ export function RegistrationContainer({
     identity: ["name", "age", "phone", "discord_username", "organisation"],
     profile: [],
     links: ["github", "linkedin", "portfolio", "ctf"],
+    challenge: [],
     review: [],
   };
 
@@ -618,9 +668,47 @@ export function RegistrationContainer({
     }
   };
 
+  const handleSolveChallenge = async () => {
+    const code = challengeInput.trim();
+    if (!code) return;
+
+    setIsSubmittingChallenge(true);
+    setChallengeError("");
+
+    try {
+      const res = await fetch("/api/validate-twintro", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setChallengeSolved(true);
+        setValidatedTwintroCode(code);
+      } else {
+        setChallengeError(data.message || "Incorrect code. Try again.");
+      }
+    } catch (error) {
+      setChallengeError("Server error. Please try again.");
+    } finally {
+      setIsSubmittingChallenge(false);
+    }
+  };
+
   const goNext = async () => {
     const stepId = STEPS[currentStepIndex].id;
     const stepErrors = validateStep(stepId);
+
+    // Gate the challenge step — must solve before proceeding
+    if (stepId === "challenge" && !challengeSolved) {
+      setAlert({
+        type: "error",
+        message: "Solve the challenge before proceeding to review.",
+      });
+      setTimeout(() => setAlert(null), 3000);
+      return;
+    }
 
     if (Object.keys(stepErrors).length > 0) {
       setErrors((prev) => ({ ...prev, ...stepErrors }));
@@ -694,6 +782,14 @@ export function RegistrationContainer({
       setAlert(null);
       return;
     }
+    if (idx > 4 && !challengeSolved) {
+      setAlert({
+        type: "error",
+        message: "Solve the challenge before proceeding to review.",
+      });
+      setTimeout(() => setAlert(null), 3000);
+      return;
+    }
     for (let i = currentStepIndex; i < idx; i++) {
       const stepErrors = validateStep(STEPS[i].id);
       if (Object.keys(stepErrors).length > 0) {
@@ -712,6 +808,15 @@ export function RegistrationContainer({
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!challengeSolved) {
+      setAlert({
+        type: "error",
+        message: "You must solve the Twintro challenge before submitting.",
+      });
+      setTimeout(() => setAlert(null), 3000);
+      return;
+    }
 
     const validationErrors = validateAllFields();
     if (Object.keys(validationErrors).length > 0) {
@@ -805,6 +910,8 @@ export function RegistrationContainer({
         formData.append("referral_code", registerData.referralCode);
       formData.append("attended_zenith", String(attendedZenith));
       formData.append("attended_pbctf4", String(attendedPBCTF4));
+      if (validatedTwintroCode)
+        formData.append("twintro_code", validatedTwintroCode);
 
       // reCAPTCHA v3 background token — scored server-side, no user interaction.
       const recaptchaToken = await executeRecaptcha("register");
@@ -1145,13 +1252,14 @@ export function RegistrationContainer({
     label: string,
     value: string | null | undefined,
     stepIdx: number,
+    valueClassName?: string,
   ) => (
     <div className="flex items-start justify-between gap-3 py-2 last:border-b-0">
       <div className="min-w-0 flex-1">
         <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-muted mb-0.5">
           {label}
         </div>
-        <div className="text-[13px] text-ink truncate">
+        <div className={`text-[13px] truncate ${valueClassName || "text-ink"}`}>
           {value && value.toString().trim() ? (
             value
           ) : (
@@ -1695,7 +1803,106 @@ export function RegistrationContainer({
             </div>
           )}
 
-          {/* ---------- STEP 5: REVIEW ---------- */}
+          {/* ---------- STEP 5: CHALLENGE ---------- */}
+          {currentStep.id === "challenge" && (
+            <div className="flex flex-col gap-4 anim-fade-up">
+              <p className="text-[13px] text-ink-secondary leading-[1.55]">
+                Complete this challenge to unlock the final review step.
+              </p>
+
+              {!challengeSolved ? (
+                <div className="flex flex-col gap-3">
+                  <div className="rounded-md border border-[var(--danger)]/35 bg-[var(--danger-soft)] p-3 md:p-3.5 flex items-center gap-3">
+                    <span className="shrink-0 inline-flex w-7 h-7 items-center justify-center rounded-md bg-[var(--danger)]/15 border border-[var(--danger)]/40">
+                      <Flag className="w-3.5 h-3.5 text-[var(--danger)]" />
+                    </span>
+                    <div className="flex-1 min-w-0 flex flex-row flex-wrap items-baseline gap-x-2">
+                      <span className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-[var(--danger)] shrink-0">
+                        WARM-UP · CHALLENGE
+                      </span>
+                      <span className="text-[13px] md:text-[13.5px] text-ink font-body">
+                        You haven&apos;t captured the flag yet
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="rounded-md border border-[var(--border-soft)] bg-surface-inset/50 p-4 md:p-5">
+                    <div className="flex flex-col gap-4">
+                        <div className="p-4 rounded-md bg-surface-inset border border-[var(--border-soft)] space-y-3">
+                            <div className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand">
+                              <span className="text-ink-disabled">&gt;</span>
+                              <span>intel.briefing</span>
+                            </div>
+                            <p className="text-[13.5px] leading-relaxed text-ink font-body">
+                              The intro to a twin holds the key. Find the sponsor&apos;s space and
+                              claim your flag.
+                            </p>
+                          </div>
+
+                      <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
+                        <div className="flex-1">
+                          <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-muted mb-1.5">
+                            Enter challenge code
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Enter the code from Twintro"
+                            value={challengeInput}
+                            onChange={(e) => {
+                              setChallengeInput(e.target.value);
+                              if (challengeError) setChallengeError("");
+                            }}
+                            className="w-full h-10 px-3 rounded-md border border-[var(--border-default)] bg-surface-2 text-[13px] text-ink font-body placeholder:text-ink-disabled focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={handleSolveChallenge}
+                          disabled={isSubmittingChallenge || !challengeInput.trim()}
+                          className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-md font-mono text-[10.5px] uppercase tracking-[0.22em] font-semibold bg-brand text-[#03110a] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_0_20px_rgba(0,255,136,0.15)]"
+                        >
+                          {isSubmittingChallenge ? (
+                            <>
+                              <span className="inline-block w-3.5 h-3.5 rounded-full border-2 border-[#03110a] border-t-transparent animate-spin" />
+                              Verifying
+                            </>
+                          ) : (
+                            <>
+                              <Flag className="w-3.5 h-3.5" />
+                              Submit Code
+                            </>
+                          )}
+                        </button>
+                      </div>
+
+                      {challengeError && (
+                        <p className="text-[13px] text-[var(--danger)] font-body flex items-center gap-2">
+                          <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--danger)] animate-pulse" />
+                          {challengeError}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="rounded-md border border-brand/35 bg-brand/[0.04] p-4 flex items-center gap-3">
+                  <span className="shrink-0 inline-flex w-8 h-8 items-center justify-center rounded-md bg-brand/15 border border-brand/40">
+                    <CircleCheck className="w-4 h-4 text-brand" />
+                  </span>
+                  <div>
+                    <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand">
+                      Challenge solved
+                    </div>
+                    <p className="text-[13px] text-ink-secondary mt-0.5">
+                      You&apos;ve proven your reconnaissance skills. Proceed to review.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* ---------- STEP 6: REVIEW ---------- */}
           {currentStep.id === "review" && (
             <div className="flex flex-col gap-5 anim-fade-up">
               <p className="text-[13px] text-ink-secondary leading-[1.55]">
@@ -1753,6 +1960,13 @@ export function RegistrationContainer({
                 {reviewRow("LinkedIn", registerData.linkedin, 3)}
                 {reviewRow("Portfolio", registerData.portfolio, 3)}
                 {reviewRow("CTF Profile", registerData.ctf, 3)}
+              </div>
+
+              <div className="rounded-md border border-[var(--border-soft)] bg-surface-inset/50 p-4">
+                <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand mb-3">
+                  &gt; challenge
+                </div>
+                {reviewRow("Twintro Recon", challengeSolved ? "Solved" : "Not solved", 4, challengeSolved ? "text-[var(--success)]" : "")}
               </div>
 
               {/* Optional Attendance Checkboxes */}
@@ -1957,7 +2171,7 @@ export function RegistrationContainer({
                 disabled={isSubmitting}
               >
                 <ChevronLeft className="w-4 h-4 mr-1.5" />
-                Back to links
+                Back
               </Button>
               <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-muted hidden sm:block">
                 final step

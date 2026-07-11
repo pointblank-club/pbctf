@@ -8,7 +8,7 @@ import Link from "next/link";
  */
 export function AuthHeader() {
   return (
-    <header className="pointer-events-none fixed top-0 left-0 z-30 w-full px-[clamp(1.25rem,4vw,2.5rem)] py-5">
+    <header className="pointer-events-none absolute top-0 left-0 z-30 w-full px-[clamp(1.25rem,4vw,2.5rem)] py-5">
       <Link
         href="/"
         aria-label="PBCTF 5.0 home"

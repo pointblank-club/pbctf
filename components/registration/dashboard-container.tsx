@@ -153,26 +153,26 @@ function StatusStrip({
     m.tone === "danger"
       ? "border-[var(--danger)]/40 bg-[var(--danger-soft)]"
       : m.tone === "warning"
-      ? "border-[var(--warning)]/40 bg-[var(--warning-soft)]"
-      : m.tone === "brand"
-      ? "border-brand/40 bg-brand/10"
-      : "border-[var(--info)]/40 bg-[var(--info-soft)]";
+        ? "border-[var(--warning)]/40 bg-[var(--warning-soft)]"
+        : m.tone === "brand"
+          ? "border-brand/40 bg-brand/10"
+          : "border-[var(--info)]/40 bg-[var(--info-soft)]";
   const dotColor =
     m.tone === "danger"
       ? "bg-[var(--danger)]"
       : m.tone === "warning"
-      ? "bg-[var(--warning)]"
-      : m.tone === "brand"
-      ? "bg-brand"
-      : "bg-[var(--info)]";
+        ? "bg-[var(--warning)]"
+        : m.tone === "brand"
+          ? "bg-brand"
+          : "bg-[var(--info)]";
   const labelColor =
     m.tone === "danger"
       ? "text-[var(--danger)]"
       : m.tone === "warning"
-      ? "text-[var(--warning)]"
-      : m.tone === "brand"
-      ? "text-brand"
-      : "text-[var(--info)]";
+        ? "text-[var(--warning)]"
+        : m.tone === "brand"
+          ? "text-brand"
+          : "text-[var(--info)]";
 
   return (
     <div className="relative w-full rounded-lg border border-[var(--border-soft)] card-surface">
@@ -280,6 +280,13 @@ export function DashboardContainer() {
   const [isSubmittingFlag, setIsSubmittingFlag] = useState(false);
   const [flagError, setFlagError] = useState("");
 
+  // Twintro challenge (RSVP gate)
+  const [hasSolvedTwintro, setHasSolvedTwintro] = useState(false);
+  const [twintroInput, setTwintroInput] = useState("");
+  const [twintroError, setTwintroError] = useState("");
+  const [isSubmittingTwintro, setIsSubmittingTwintro] = useState(false);
+  const [isChallengeModalOpen, setIsChallengeModalOpen] = useState(false);
+
   // Tracks which join-request is currently being responded to, so we can show
   // a pending state on the right button (accept or decline) for that row.
   const [respondingTo, setRespondingTo] = useState<
@@ -323,6 +330,7 @@ export function DashboardContainer() {
   useEffect(() => {
     if (!user) return;
     setHasSolvedChallenge(!!(user as any).hasSolvedChallenge);
+    setHasSolvedTwintro(!!(user as any).twintroChallengeSolved);
 
     const profileFields = [
       { key: "name", label: "Name" },
@@ -428,8 +436,8 @@ export function DashboardContainer() {
         setInvites(
           Array.isArray(invitesPayload)
             ? invitesPayload.filter(
-                (r: any) => r.type === "invite" && r.status === "pending",
-              )
+              (r: any) => r.type === "invite" && r.status === "pending",
+            )
             : [],
         );
 
@@ -572,6 +580,55 @@ export function DashboardContainer() {
       setFlagError("Failed to submit flag. Server error.");
     } finally {
       setIsSubmittingFlag(false);
+    }
+  };
+
+  const handleSolveTwintro = async () => {
+    const code = twintroInput.trim();
+    if (!code) return;
+    setIsSubmittingTwintro(true);
+    setTwintroError("");
+    try {
+      // Step 1: validate the code
+      const validateRes = await fetch("/api/validate-twintro", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const validateData = await validateRes.json();
+      if (!validateData.success) {
+        setTwintroError(validateData.message || "Incorrect code. Try again.");
+        return;
+      }
+
+      // Step 2: persist solved status to the user profile
+      const token = await getToken();
+      if (!token) {
+        setTwintroError("Authentication error. Please refresh and try again.");
+        return;
+      }
+      const profileRes = await fetch("/api/user/twintro-solved", {
+        method: "PUT",
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      });
+      if (!profileRes.ok) {
+        const err = await profileRes.json().catch(() => ({}));
+        setTwintroError(err.message || "Failed to save progress. Please try again.");
+        return;
+      }
+
+      setHasSolvedTwintro(true);
+      setIsChallengeModalOpen(false);
+      toast({
+        title: "Challenge solved!",
+        description: "You're now eligible to RSVP for the event.",
+      });
+      await refreshUser();
+    } catch (err) {
+      console.error("Error solving challenge:", err);
+      setTwintroError("Server error. Please try again.");
+    } finally {
+      setIsSubmittingTwintro(false);
     }
   };
 
@@ -818,7 +875,7 @@ export function DashboardContainer() {
           {isChallengeCardOpen && (
             <div id="warmup-flag-panel">
               <FormSection title="Acquire the Flag" eyebrow="// CTF · 001. DON'T BE A NOOB">
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-2">
                   <div className="p-4 rounded-md bg-surface-inset border border-[var(--border-soft)] space-y-3">
                     <div className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand">
                       <span className="text-ink-disabled">&gt;</span>
@@ -890,282 +947,438 @@ export function DashboardContainer() {
         onRSVP={handleRSVP}
       />
 
-      {/* Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 md:gap-6">
-        {/* Left column */}
-        <div className="lg:col-span-2 flex flex-col gap-5 md:gap-6">
-          {teamStatus === "none" && (
-            <FormSection title="No team detected" eyebrow="// 01 · NEXT STEP. INITIALIZE">
-              <div className="flex flex-col gap-5">
-                <div className="p-4 rounded-md bg-surface-inset border border-[var(--border-soft)] flex flex-col gap-2">
+      {/* Inbox + Prerequisite Challenge side-by-side */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 md:gap-6">
+        {/* Inbox. unified incoming pings (requests + invites) */}
+        <FormSection
+          title="Inbox"
+          compact
+          className="[&>div]:!pl-8"
+          eyebrow={
+            pendingCount > 0
+              ? `// ${pendingCount} INCOMING PING${pendingCount === 1 ? "" : "S"}`
+              : "// INCOMING"
+          }
+        >
+          {pendingCount === 0 ? (
+            <div className="flex flex-col items-center text-center gap-1.5 py-2">
+              <div className="w-7 h-7 rounded-md bg-surface-inset border border-[var(--border-soft)] flex items-center justify-center">
+                <Inbox className="w-3 h-3 text-ink-muted" />
+              </div>
+              <div className="font-mono text-[9.5px] uppercase tracking-[0.22em] text-ink-muted">
+                no signal · all quiet
+              </div>
+              <p className="text-[11px] text-ink-subtle font-body max-w-[190px]">
+                Invites and join requests will appear here in real time.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col gap-2.5">
+              {teamRequests.map((request) => {
+                const responding = respondingTo?.id === request.requestId;
+                const busyAccept = responding && respondingTo?.action === "accept";
+                const busyDecline = responding && respondingTo?.action === "decline";
+                return (
+                  <div
+                    key={request.requestId}
+                    className="p-2.5 rounded-md bg-surface-inset border border-[var(--border-soft)] hover:border-brand/30 transition-colors flex flex-col gap-2"
+                  >
+                    <div className="min-w-0 flex items-start gap-2.5">
+                      <span className="shrink-0 mt-0.5 inline-flex w-6 h-6 items-center justify-center rounded-md bg-brand/10 border border-brand/30">
+                        <UserPlus className="w-3 h-3 text-brand" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-brand mb-0.5">
+                          join request
+                        </div>
+                        <p className="text-[13.5px] text-ink font-body">
+                          <span className="font-semibold">{request.userName}</span> wants to join
+                        </p>
+                        <p className="text-[11.5px] text-ink-muted font-mono break-all mt-0.5">
+                          {request.userEmail}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5 w-full">
+                      <Button
+                        onClick={() => handleRespondToInvite(request.requestId, "accept")}
+                        variant="primary"
+                        size="sm"
+                        disabled={!!respondingTo}
+                        className="w-full"
+                      >
+                        {busyAccept ? (
+                          <>
+                            <Spinner size="sm" />
+                            Accepting…
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-3.5 h-3.5" />
+                            Accept
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        onClick={() => handleRespondToInvite(request.requestId, "decline")}
+                        variant="danger"
+                        size="sm"
+                        disabled={!!respondingTo}
+                        className="w-full"
+                      >
+                        {busyDecline ? (
+                          <>
+                            <Spinner size="sm" />
+                            Declining…
+                          </>
+                        ) : (
+                          <>
+                            <X className="w-3.5 h-3.5" />
+                            Decline
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+              {invites.map((invite) => {
+                const responding = respondingTo?.id === invite.requestId;
+                const busyAccept = responding && respondingTo?.action === "accept";
+                const busyDecline = responding && respondingTo?.action === "decline";
+                return (
+                  <div
+                    key={invite.requestId}
+                    className="p-2.5 rounded-md bg-surface-inset border border-[var(--border-soft)] hover:border-brand/30 transition-colors flex flex-col gap-2"
+                  >
+                    <div className="min-w-0 flex items-start gap-2.5">
+                      <span className="shrink-0 mt-0.5 inline-flex w-6 h-6 items-center justify-center rounded-md bg-[var(--info)]/10 border border-[var(--info)]/30">
+                        <Users className="w-3 h-3 text-[var(--info)]" />
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--info)] mb-0.5">
+                          team invite
+                        </div>
+                        <p className="text-[13.5px] text-ink font-body">
+                          Invited to{" "}
+                          <span className="font-semibold">
+                            {invite.teamName || invite.teamCode}
+                          </span>
+                        </p>
+                        <p className="text-[11.5px] text-ink-muted font-mono mt-0.5">
+                          code · <span className="text-brand">{invite.teamCode}</span>
+                        </p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-1.5 w-full">
+                      <Button
+                        onClick={() => handleRespondToInvite(invite.requestId, "accept")}
+                        variant="primary"
+                        size="sm"
+                        disabled={!!respondingTo}
+                        className="w-full"
+                      >
+                        {busyAccept ? (
+                          <>
+                            <Spinner size="sm" />
+                            Accepting…
+                          </>
+                        ) : (
+                          <>
+                            <Check className="w-3.5 h-3.5" />
+                            Accept
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        onClick={() => handleRespondToInvite(invite.requestId, "decline")}
+                        variant="danger"
+                        size="sm"
+                        disabled={!!respondingTo}
+                        className="w-full"
+                      >
+                        {busyDecline ? (
+                          <>
+                            <Spinner size="sm" />
+                            Declining…
+                          </>
+                        ) : (
+                          <>
+                            <X className="w-3.5 h-3.5" />
+                            Decline
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </FormSection>
+
+        {/* Prerequisite Challenge — red when unsolved, green when solved */}
+        <section
+          className={`relative w-full rounded-lg card-surface border transition-all duration-300 ${hasSolvedTwintro
+            ? "border-brand/30 bg-brand/5"
+            : "border-[var(--danger)]/35 !bg-[rgba(244,63,94,0.08)] cursor-pointer hover:border-[var(--danger)]/65 hover:shadow-[0_0_20px_rgba(239,68,68,0.25)]"
+            }`}
+          onClick={() => {
+            if (!hasSolvedTwintro) {
+              setIsChallengeModalOpen(true);
+            }
+          }}
+        >
+          <span
+            aria-hidden
+            className={`pointer-events-none absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent ${hasSolvedTwintro ? "via-brand/40" : "via-[var(--danger)]/40"
+              } to-transparent`}
+          />
+          <span aria-hidden className={`pointer-events-none absolute -top-px -left-px w-4 h-4 border-l-[1.5px] border-t-[1.5px] ${hasSolvedTwintro ? "border-brand/60" : "border-[var(--danger)]/60"}`} />
+          <span aria-hidden className={`pointer-events-none absolute -top-px -right-px w-4 h-4 border-r-[1.5px] border-t-[1.5px] ${hasSolvedTwintro ? "border-brand/60" : "border-[var(--danger)]/60"}`} />
+          <span aria-hidden className={`pointer-events-none absolute -bottom-px -left-px w-4 h-4 border-l-[1.5px] border-b-[1.5px] ${hasSolvedTwintro ? "border-brand/60" : "border-[var(--danger)]/60"}`} />
+          <span aria-hidden className={`pointer-events-none absolute -bottom-px -right-px w-4 h-4 border-r-[1.5px] border-b-[1.5px] ${hasSolvedTwintro ? "border-brand/60" : "border-[var(--danger)]/60"}`} />
+
+          <div className="flex flex-col gap-3 p-4 sm:p-5">
+            <div>
+              <div className={`font-mono text-[10.5px] uppercase tracking-[0.2em] mb-1 ${hasSolvedTwintro ? "text-brand" : "text-[var(--danger)]"}`}>
+                {hasSolvedTwintro ? "// VERIFIED · RSVP UNLOCKED" : "// ACTION REQUIRED · RSVP LOCKED"}
+              </div>
+              <h2 className="text-[20px] sm:text-[24px] font-semibold text-ink tracking-tight font-heading leading-tight">
+                Prerequisite Challenge
+              </h2>
+            </div>
+            <div className="flex flex-col gap-3">
+              {!hasSolvedTwintro ? (
+                <>
+                  <div className="p-4 rounded-md !bg-[rgba(244,63,94,0.08)] border border-[var(--danger)]/20 flex flex-col gap-2">
+                    <div className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.22em] text-[var(--danger)]">
+                      <ShieldAlert className="w-3 h-3" />
+                      <span>mandatory.prerequisite</span>
+                    </div>
+                    <p className="text-[13.5px] leading-relaxed text-ink font-body">
+                      A new challenge has dropped — and it&apos;s <span className="font-semibold">mandatory</span>. Solve it to unlock your RSVP eligibility.
+                    </p>
+                  </div>
+
+                  {twintroError && (
+                    <p className="text-[12.5px] text-[var(--danger)] font-body flex items-center gap-1.5">
+                      <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--danger)] animate-pulse shrink-0" />
+                      {twintroError}
+                    </p>
+                  )}
+                </>
+              ) : (
+                <div className="p-4 rounded-md bg-surface-inset border border-brand/20 flex flex-col gap-2">
                   <div className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand">
-                    <Sparkles className="w-3 h-3" />
-                    <span>operator.note</span>
+                    <Check className="w-3 h-3" />
+                    <span>verification.complete</span>
                   </div>
                   <p className="text-[13.5px] leading-relaxed text-ink font-body">
-                    Registering solo is fine. Just create a team of one. You can add a second
-                    teammate later if you want. Teams cap at two members.
+                    Challenge cracked. You&apos;re all set to RSVP for the event.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+      </div>
+
+      {/* QuickActionsCard (full width) */}
+      {team && teamStatus !== "none" && (
+        <QuickActionsCard
+          isLead={isTeamLead()}
+          teamStatus={teamStatus}
+          memberCount={team.memberCount}
+          maxMembers={TEAM_SIZE}
+          onNavigate={(path) => router.push(path)}
+          onDeleteTeam={checkDeleteTeamEligibility}
+          onLeaveTeam={() => setLeaveTeamDialogOpen(true)}
+        />
+      )}
+
+      {/* Team section (full width, stacked) */}
+      {teamStatus === "none" && (
+        <FormSection title="No team detected" eyebrow="// 01 · NEXT STEP. INITIALIZE">
+          <div className="flex flex-col gap-5">
+            <div className="p-4 rounded-md bg-surface-inset border border-[var(--border-soft)] flex flex-col gap-2">
+              <div className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand">
+                <Sparkles className="w-3 h-3" />
+                <span>operator.note</span>
+              </div>
+              <p className="text-[13.5px] leading-relaxed text-ink font-body">
+                Registering solo is fine. Just create a team of one. You can add a second
+                teammate later if you want. Teams cap at two members.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <button
+                onClick={() => router.push("/dashboard/team")}
+                className="group text-left p-4 rounded-md bg-brand/8 border border-brand/40 hover:border-brand hover:bg-brand/12 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand min-h-[44px]"
+              >
+                <div className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand mb-2">
+                  <Users className="w-3 h-3" />
+                  <span>recommended</span>
+                </div>
+                <div className="text-[15px] text-ink font-heading font-semibold mb-1">
+                  Create a team
+                </div>
+                <p className="text-[12.5px] text-ink-secondary font-body">
+                  Solo is fine. Add a teammate later, or stay a team of one.
+                </p>
+                <div className="mt-3 inline-flex items-center gap-1.5 text-brand text-[12px] font-mono uppercase tracking-[0.18em] group-hover:gap-2.5 transition-all">
+                  initialize <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </button>
+
+              <button
+                onClick={() => router.push("/dashboard/discover")}
+                className="group text-left p-4 rounded-md bg-surface-inset border border-[var(--border-soft)] hover:border-[var(--border-strong)] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand min-h-[44px]"
+              >
+                <div className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-muted mb-2">
+                  <Search className="w-3 h-3" />
+                  <span>alternative</span>
+                </div>
+                <div className="text-[15px] text-ink font-heading font-semibold mb-1">
+                  Discover teams
+                </div>
+                <p className="text-[12.5px] text-ink-secondary font-body">
+                  Browse teams looking for a second member.
+                </p>
+                <div className="mt-3 inline-flex items-center gap-1.5 text-ink-secondary text-[12px] font-mono uppercase tracking-[0.18em] group-hover:gap-2.5 group-hover:text-ink transition-all">
+                  browse <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </button>
+            </div>
+          </div>
+        </FormSection>
+      )}
+
+      {team && teamStatus !== "none" && (
+        <TeamOverviewCard
+          team={{
+            teamName: team.teamName,
+            teamCode: team.teamCode,
+            memberCount: team.memberCount,
+            maxMembers: TEAM_SIZE,
+          }}
+          isLead={isTeamLead()}
+          status={teamStatus}
+        />
+      )}
+
+      {team && team.teamMembers && team.teamMembers.length > 0 && (
+        <TeamMembersCard
+          members={team.teamMembers}
+          isLead={isTeamLead()}
+          teamStatus={teamStatus}
+          currentUserId={user.uid}
+          onRemoveMember={handleRemoveMember}
+          onTransferOwnership={() => setTransferOwnershipDialogOpen(true)}
+        />
+      )}
+
+      {/* Dialogs */}
+      <AlertDialog open={isChallengeModalOpen} onOpenChange={setIsChallengeModalOpen}>
+        <AlertDialogContent className="bg-surface-2 border-[var(--border-default)] max-w-lg">
+          <AlertDialogHeader className="relative">
+            <button
+              onClick={() => setIsChallengeModalOpen(false)}
+              className="absolute right-0 top-0 text-ink-muted hover:text-ink transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <AlertDialogTitle className="font-heading text-[20px] text-ink">
+              Prerequisite Challenge
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-ink-secondary font-body mt-2">
+              Complete this challenge to unlock eligibility to RSVP for the event.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="flex flex-col gap-4 mt-4">
+            <div className="rounded-md border border-[var(--danger)]/35 bg-[var(--danger-soft)] p-3 md:p-3.5 flex items-center gap-3">
+              <span className="shrink-0 inline-flex w-7 h-7 items-center justify-center rounded-md bg-[var(--danger)]/15 border border-[var(--danger)]/40">
+                <Flag className="w-3.5 h-3.5 text-[var(--danger)]" />
+              </span>
+              <div className="flex-1 min-w-0 flex flex-row flex-wrap items-baseline gap-x-2">
+                <span className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-[var(--danger)] shrink-0">
+                  CHALLENGE
+                </span>
+                <span className="text-[13px] md:text-[13.5px] text-ink font-body">
+                  : You haven&apos;t captured the flag yet
+                </span>
+              </div>
+            </div>
+
+            <div className="rounded-md border border-[var(--border-soft)] bg-surface-inset/50 p-4 md:p-5">
+              <div className="flex flex-col gap-4">
+                <div className="p-4 rounded-md bg-surface-inset border border-[var(--border-soft)] space-y-3">
+                  <div className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand">
+                    <span className="text-ink-disabled">&gt;</span>
+                    <span>intel.briefing</span>
+                  </div>
+                  <p className="text-[13.5px] leading-relaxed text-ink font-body">
+                    The intro to a twin holds the key. Find the sponsor&apos;s space and claim your flag.
                   </p>
                 </div>
 
-                {/* Two clear paths, primary emphasized */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
+                  <div className="flex-1">
+                    <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-muted mb-1.5">
+                      Enter challenge code
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Enter the code"
+                      value={twintroInput}
+                      onChange={(e) => {
+                        setTwintroInput(e.target.value);
+                        if (twintroError) setTwintroError("");
+                      }}
+                      onKeyDown={(e) => e.key === "Enter" && handleSolveTwintro()}
+                      className="w-full h-10 px-3 rounded-md border border-[var(--border-default)] bg-surface-2 text-[13px] text-ink font-body placeholder:text-ink-disabled focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent transition-all"
+                      disabled={isSubmittingTwintro}
+                    />
+                  </div>
                   <button
-                    onClick={() => router.push("/dashboard/team")}
-                    className="group text-left p-4 rounded-md bg-brand/8 border border-brand/40 hover:border-brand hover:bg-brand/12 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand min-h-[44px]"
+                    type="button"
+                    onClick={handleSolveTwintro}
+                    disabled={isSubmittingTwintro || !twintroInput.trim()}
+                    className="inline-flex items-center justify-center gap-2 h-10 px-5 rounded-md font-mono text-[10.5px] uppercase tracking-[0.22em] font-semibold bg-brand text-[#03110a] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[0_0_20px_rgba(0,255,136,0.15)]"
                   >
-                    <div className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand mb-2">
-                      <Users className="w-3 h-3" />
-                      <span>recommended</span>
-                    </div>
-                    <div className="text-[15px] text-ink font-heading font-semibold mb-1">
-                      Create a team
-                    </div>
-                    <p className="text-[12.5px] text-ink-secondary font-body">
-                      Solo is fine. Add a teammate later, or stay a team of one.
-                    </p>
-                    <div className="mt-3 inline-flex items-center gap-1.5 text-brand text-[12px] font-mono uppercase tracking-[0.18em] group-hover:gap-2.5 transition-all">
-                      initialize <ArrowRight className="w-3.5 h-3.5" />
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => router.push("/dashboard/discover")}
-                    className="group text-left p-4 rounded-md bg-surface-inset border border-[var(--border-soft)] hover:border-[var(--border-strong)] transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand min-h-[44px]"
-                  >
-                    <div className="flex items-center gap-2 font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-muted mb-2">
-                      <Search className="w-3 h-3" />
-                      <span>alternative</span>
-                    </div>
-                    <div className="text-[15px] text-ink font-heading font-semibold mb-1">
-                      Discover teams
-                    </div>
-                    <p className="text-[12.5px] text-ink-secondary font-body">
-                      Browse teams looking for a second member.
-                    </p>
-                    <div className="mt-3 inline-flex items-center gap-1.5 text-ink-secondary text-[12px] font-mono uppercase tracking-[0.18em] group-hover:gap-2.5 group-hover:text-ink transition-all">
-                      browse <ArrowRight className="w-3.5 h-3.5" />
-                    </div>
+                    {isSubmittingTwintro ? (
+                      <>
+                        <span className="inline-block w-3.5 h-3.5 rounded-full border-2 border-[#03110a] border-t-transparent animate-spin" />
+                        Verifying
+                      </>
+                    ) : (
+                      <>
+                        <Flag className="w-3.5 h-3.5" />
+                        Submit Code
+                      </>
+                    )}
                   </button>
                 </div>
+                {twintroError && (
+                  <p className="text-[12.5px] text-[var(--danger)] font-body flex items-center gap-1.5">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--danger)] animate-pulse shrink-0" />
+                    {twintroError}
+                  </p>
+                )}
               </div>
-            </FormSection>
-          )}
+            </div>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
 
-          {team && teamStatus !== "none" && (
-            <TeamOverviewCard
-              team={{
-                teamName: team.teamName,
-                teamCode: team.teamCode,
-                memberCount: team.memberCount,
-                maxMembers: TEAM_SIZE,
-              }}
-              isLead={isTeamLead()}
-              status={teamStatus}
-            />
-          )}
-
-          {team && team.teamMembers && team.teamMembers.length > 0 && (
-            <TeamMembersCard
-              members={team.teamMembers}
-              isLead={isTeamLead()}
-              teamStatus={teamStatus}
-              currentUserId={user.uid}
-              onRemoveMember={handleRemoveMember}
-              onTransferOwnership={() => setTransferOwnershipDialogOpen(true)}
-            />
-          )}
-        </div>
-
-        {/* Right column */}
-        <div className="flex flex-col gap-5 md:gap-6">
-          {team && teamStatus !== "none" && (
-            <QuickActionsCard
-              isLead={isTeamLead()}
-              teamStatus={teamStatus}
-              memberCount={team.memberCount}
-              maxMembers={TEAM_SIZE}
-              onNavigate={(path) => router.push(path)}
-              onDeleteTeam={checkDeleteTeamEligibility}
-              onLeaveTeam={() => setLeaveTeamDialogOpen(true)}
-            />
-          )}
-
-          {/* Inbox. unified incoming pings (requests + invites) */}
-          <FormSection
-            title="Inbox"
-            eyebrow={
-              pendingCount > 0
-                ? `// ${pendingCount} INCOMING PING${pendingCount === 1 ? "" : "S"}`
-                : "// INCOMING"
-            }
-          >
-            {pendingCount === 0 ? (
-              <div className="flex flex-col items-center text-center gap-3 py-6">
-                <div className="w-10 h-10 rounded-md bg-surface-inset border border-[var(--border-soft)] flex items-center justify-center">
-                  <Inbox className="w-4 h-4 text-ink-muted" />
-                </div>
-                <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-ink-muted">
-                  no signal · all quiet
-                </div>
-                <p className="text-[12.5px] text-ink-subtle font-body max-w-[220px]">
-                  Invites and join requests will appear here in real time.
-                </p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2.5">
-                {teamRequests.map((request) => {
-                  const responding = respondingTo?.id === request.requestId;
-                  const busyAccept = responding && respondingTo?.action === "accept";
-                  const busyDecline = responding && respondingTo?.action === "decline";
-                  return (
-                    <div
-                      key={request.requestId}
-                      className="p-3.5 rounded-md bg-surface-inset border border-[var(--border-soft)] hover:border-brand/30 transition-colors flex flex-col gap-3"
-                    >
-                      <div className="min-w-0 flex items-start gap-2.5">
-                        <span className="shrink-0 mt-0.5 inline-flex w-6 h-6 items-center justify-center rounded-md bg-brand/10 border border-brand/30">
-                          <UserPlus className="w-3 h-3 text-brand" />
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-brand mb-0.5">
-                            join request
-                          </div>
-                          <p className="text-[13.5px] text-ink font-body">
-                            <span className="font-semibold">{request.userName}</span> wants to join
-                          </p>
-                          <p className="text-[11.5px] text-ink-muted font-mono break-all mt-0.5">
-                            {request.userEmail}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 w-full">
-                        <Button
-                          onClick={() => handleRespondToInvite(request.requestId, "accept")}
-                          variant="primary"
-                          size="sm"
-                          disabled={!!respondingTo}
-                          className="w-full"
-                        >
-                          {busyAccept ? (
-                            <>
-                              <Spinner size="sm" />
-                              Accepting…
-                            </>
-                          ) : (
-                            <>
-                              <Check className="w-3.5 h-3.5" />
-                              Accept
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          onClick={() => handleRespondToInvite(request.requestId, "decline")}
-                          variant="danger"
-                          size="sm"
-                          disabled={!!respondingTo}
-                          className="w-full"
-                        >
-                          {busyDecline ? (
-                            <>
-                              <Spinner size="sm" />
-                              Declining…
-                            </>
-                          ) : (
-                            <>
-                              <X className="w-3.5 h-3.5" />
-                              Decline
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
-                {invites.map((invite) => {
-                  const responding = respondingTo?.id === invite.requestId;
-                  const busyAccept = responding && respondingTo?.action === "accept";
-                  const busyDecline = responding && respondingTo?.action === "decline";
-                  return (
-                    <div
-                      key={invite.requestId}
-                      className="p-3.5 rounded-md bg-surface-inset border border-[var(--border-soft)] hover:border-brand/30 transition-colors flex flex-col gap-3"
-                    >
-                      <div className="min-w-0 flex items-start gap-2.5">
-                        <span className="shrink-0 mt-0.5 inline-flex w-6 h-6 items-center justify-center rounded-md bg-[var(--info)]/10 border border-[var(--info)]/30">
-                          <Users className="w-3 h-3 text-[var(--info)]" />
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-[var(--info)] mb-0.5">
-                            team invite
-                          </div>
-                          <p className="text-[13.5px] text-ink font-body">
-                            Invited to{" "}
-                            <span className="font-semibold">
-                              {invite.teamName || invite.teamCode}
-                            </span>
-                          </p>
-                          <p className="text-[11.5px] text-ink-muted font-mono mt-0.5">
-                            code · <span className="text-brand">{invite.teamCode}</span>
-                          </p>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-2 w-full">
-                        <Button
-                          onClick={() => handleRespondToInvite(invite.requestId, "accept")}
-                          variant="primary"
-                          size="sm"
-                          disabled={!!respondingTo}
-                          className="w-full"
-                        >
-                          {busyAccept ? (
-                            <>
-                              <Spinner size="sm" />
-                              Accepting…
-                            </>
-                          ) : (
-                            <>
-                              <Check className="w-3.5 h-3.5" />
-                              Accept
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          onClick={() => handleRespondToInvite(invite.requestId, "decline")}
-                          variant="danger"
-                          size="sm"
-                          disabled={!!respondingTo}
-                          className="w-full"
-                        >
-                          {busyDecline ? (
-                            <>
-                              <Spinner size="sm" />
-                              Declining…
-                            </>
-                          ) : (
-                            <>
-                              <X className="w-3.5 h-3.5" />
-                              Decline
-                            </>
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </FormSection>
-        </div>
-      </div>
-
-      {/* Dialogs */}
       <AlertDialog open={deleteTeamDialogOpen} onOpenChange={setDeleteTeamDialogOpen}>
         <AlertDialogContent className="bg-surface-2 border-[var(--border-default)]">
           <AlertDialogHeader>
             <AlertDialogTitle className="font-heading text-ink">Delete Team</AlertDialogTitle>
             <AlertDialogDescription className="text-ink-secondary font-body">
-              Are you sure you want to delete the team "{team?.teamName}"? This action cannot be
+              Are you sure you want to delete the team &quot;{team?.teamName}&quot;? This action cannot be
               undone and all team data including members will be permanently removed.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -1210,7 +1423,7 @@ export function DashboardContainer() {
           <AlertDialogHeader>
             <AlertDialogTitle className="font-heading text-ink">Leave Team</AlertDialogTitle>
             <AlertDialogDescription className="text-ink-secondary font-body">
-              Are you sure you want to leave the team "{team?.teamName}"? This action cannot be undone.
+              Are you sure you want to leave the team &quot;{team?.teamName}&quot;? This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
