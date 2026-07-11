@@ -778,7 +778,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Twintro challenge code — validated once at the challenge step via
+     // Twintro challenge code — validated once at the challenge step via
     // /api/validate-twintro (UX flow), and re-checked here as a server-side
     // guard against direct API calls that bypass the UI.
     const twintroCode = data.twintro_code as string;
@@ -787,6 +787,20 @@ export async function POST(request: Request) {
         {
           message: "Twintro challenge code is required.",
           error: "Solve the Twintro challenge before registering.",
+        },
+        { status: 400 },
+      );
+    }
+    if (!validateTwintroCode(twintroCode)) {
+      return NextResponse.json(
+        {
+          message: "Invalid twintro challenge code.",
+          error: "Invalid twintro code",
+        },
+        { status: 400 },
+      );
+    }
+
     const existingUserByGithub = await User.findOne({
       github_link: { $in: buildProfileLinkCandidates(data.github_link) },
     });
@@ -799,11 +813,6 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-    if (!validateTwintroCode(twintroCode)) {
-      return NextResponse.json(
-        {
-          message: "Invalid twintro challenge code.",
-          error: "Invalid twintro code",
 
     const existingUserByLinkedin = await User.findOne({
       linkedin_link: { $in: buildProfileLinkCandidates(data.linkedin_link) },
@@ -817,7 +826,6 @@ export async function POST(request: Request) {
         { status: 400 },
       );
     }
-
     // Check for duplicate email registration
     const existingUserByEmail = await User.findOne({ email: data.email });
     if (existingUserByEmail) {
