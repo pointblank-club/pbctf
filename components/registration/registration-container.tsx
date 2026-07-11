@@ -778,7 +778,7 @@ export function RegistrationContainer({
       return;
     }
 
-    if (!(stepId === "account" && authMethod === "google")) {
+    if (stepId !== "challenge" && !(stepId === "account" && authMethod === "google")) {
       setCheckingAvailability(true);
       try {
         const backendErrors = await validateStepWithBackend(stepId);
