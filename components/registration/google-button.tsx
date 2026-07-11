@@ -1,10 +1,21 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { Copy, Check, ExternalLink } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  detectInAppBrowser,
+  escapeInAppBrowser,
+  InAppBrowserInfo,
+} from "@/lib/in-app-browser";
 
 /**
  * "Continue with Google" button, themed to match the dark/terminal surface
  * styling used across the auth screens (mirrors the Button `secondary` variant).
  * lucide-react has no Google glyph, so the multi-color "G" is inlined as an SVG.
+ *
+ * Inside an in-app browser (WhatsApp, Instagram, ...) Google blocks OAuth with
+ * "403: disallowed_useragent", so instead of firing `onClick` the button tries
+ * to reopen the page in the system browser and shows manual instructions —
+ * see lib/in-app-browser.ts.
  */
 
 interface GoogleButtonProps {
@@ -46,27 +57,87 @@ export function GoogleButton({
   className = "",
 }: GoogleButtonProps) {
   const isDisabled = disabled || loading;
+  // Detect after mount only — the server render must match the first client
+  // render, and the UA is unknown until we're in the browser.
+  const [inApp, setInApp] = useState<InAppBrowserInfo | null>(null);
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    const info = detectInAppBrowser();
+    if (info.inApp) setInApp(info);
+  }, []);
+
+  const handleEscape = () => {
+    escapeInAppBrowser(window.location.href, inApp?.platform ?? "other");
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // Clipboard API can be unavailable in webviews — the ⋯ menu hint in the
+      // notice text remains as the last-resort path.
+    }
+  };
+
+  const notice = inApp && (
+    <div className="flex flex-col gap-2.5 p-3 rounded-md border border-brand/35 bg-brand/[0.04]">
+      <p className="text-[12.5px] text-ink-secondary leading-[1.5]">
+        Google sign-in doesn&apos;t work inside{" "}
+        <span className="text-ink font-medium">
+          {inApp.appName ? `${inApp.appName}'s` : "this app's"} built-in browser
+        </span>
+        . Open this page in{" "}
+        {inApp.platform === "ios" ? "Safari" : "Chrome"} to continue, or tap the
+        ⋯ menu and choose &quot;Open in browser&quot;.
+      </p>
+      <div className="flex items-center gap-4">
+        <button
+          type="button"
+          onClick={handleEscape}
+          className="inline-flex items-center gap-1.5 text-[12px] text-brand font-medium font-body hover:underline underline-offset-2"
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          Open in browser
+        </button>
+        <button
+          type="button"
+          onClick={handleCopyLink}
+          className="inline-flex items-center gap-1.5 text-[12px] text-ink-muted hover:text-brand transition-colors font-body underline-offset-2 hover:underline"
+        >
+          {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? "Copied" : "Copy link"}
+        </button>
+      </div>
+    </div>
+  );
+
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={isDisabled}
-      className={[
-        "inline-flex items-center justify-center gap-2.5 w-full h-12 px-5 rounded-md",
-        "bg-surface-1 text-ink text-[14px] font-medium tracking-[0.02em]",
-        "border border-[var(--border-default)]",
-        "transition-[background,border-color,color,box-shadow] duration-150 ease-out",
-        "hover:bg-surface-2 hover:border-[var(--border-brand)]",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
-        "whitespace-nowrap select-none",
-        isDisabled
-          ? "!bg-surface-1 !text-ink-disabled !border-[var(--border-hairline)] cursor-not-allowed pointer-events-none"
-          : "cursor-pointer",
-        className,
-      ].join(" ")}
-    >
-      {loading ? <Spinner size="sm" /> : <GoogleGlyph />}
-      {label}
-    </button>
+    <>
+      <button
+        type="button"
+        onClick={inApp ? handleEscape : onClick}
+        disabled={isDisabled}
+        className={[
+          "inline-flex items-center justify-center gap-2.5 w-full h-12 px-5 rounded-md",
+          "bg-surface-1 text-ink text-[14px] font-medium tracking-[0.02em]",
+          "border border-[var(--border-default)]",
+          "transition-[background,border-color,color,box-shadow] duration-150 ease-out",
+          "hover:bg-surface-2 hover:border-[var(--border-brand)]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-surface",
+          "whitespace-nowrap select-none",
+          isDisabled
+            ? "!bg-surface-1 !text-ink-disabled !border-[var(--border-hairline)] cursor-not-allowed pointer-events-none"
+            : "cursor-pointer",
+          className,
+        ].join(" ")}
+      >
+        {loading ? <Spinner size="sm" /> : <GoogleGlyph />}
+        {label}
+      </button>
+      {notice}
+    </>
   );
 }

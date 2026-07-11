@@ -38,32 +38,74 @@
 /* Vertical stacked column */
 .pbctf-landing .sponsors__row {
   display: flex;
-  flex-direction: column;
-  flex-wrap: nowrap;
+  flex-direction: row;
+  flex-wrap: wrap;
   justify-content: center;
   align-items: center;
   gap: var(--space-6);
   margin-bottom: var(--space-12);
 }
 
-/* Card */
+/* ===================================================================
+   Cybernetic Data-Plate Cards
+   =================================================================== */
 .pbctf-landing .sponsors__card {
   position: relative;
   width: 360px;
-  height: 150px;
-  border-radius: 16px;
+  height: 160px;
+  cursor: pointer;
+  transition: filter 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   overflow: hidden;
-  background: linear-gradient(135deg,
-    rgba(0, 255, 136, 0.08),
-    rgba(0, 255, 136, 0.04)
-  );
-  border: 1px solid rgba(0, 255, 136, 0.2);
-  box-shadow:
-    0 0 30px rgba(0, 255, 136, 0.12),
-    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+  
+  /* Thick 3D Metallic Bezel Border */
+  border-style: solid;
+  border-width: 8px;
+  border-color: #3a3a3a #111 #0a0a0a #2a2a2a;
+  
+  /* Inner shadow for recess, outer drop shadow for depth */
+  box-shadow: 
+    inset 4px 4px 12px rgba(0,0,0,0.9),
+    inset -2px -2px 6px rgba(0, 255, 136, 0.05),
+    0 0 0 1px rgba(0, 255, 136, 0.3),
+    6px 6px 12px rgba(0,0,0,0.8);
 }
 
-/* Card inner */
+.pbctf-landing .sponsors__card:hover {
+  border-color: #4a4a4a #1a1a1a #0f0f0f #3a3a3a;
+  box-shadow: 
+    inset 4px 4px 12px rgba(0,0,0,0.9),
+    inset -2px -2px 6px rgba(0, 255, 136, 0.1),
+    0 0 0 1px rgba(0, 255, 136, 0.8),
+    0 0 20px rgba(0, 255, 136, 0.2),
+    6px 6px 12px rgba(0,0,0,0.8);
+}
+
+/* Backdrop & Grid */
+.pbctf-landing .sponsors__card-backdrop {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, #0a0e0c 0%, #121a15 100%);
+  transition: background 0.4s;
+  z-index: 0;
+}
+
+.pbctf-landing .sponsors__card:hover .sponsors__card-backdrop {
+  background: linear-gradient(145deg, #0f1813 0%, #15201a 100%);
+}
+
+.pbctf-landing .sponsors__card-backdrop::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: 
+    linear-gradient(rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+  background-size: 8px 8px;
+  opacity: 0.5;
+}
+
+/* Inner Content & Tech Badge */
 .pbctf-landing .sponsors__card-inner {
   width: 100%;
   height: 100%;
@@ -72,7 +114,9 @@
   justify-content: center;
   padding: var(--space-5) var(--space-7);
   position: relative;
+  z-index: 3;
 }
+
 
 /* Logos */
 .pbctf-landing .sponsors__logo {
@@ -87,13 +131,23 @@
 }
 
 .pbctf-landing .sponsors__logo--paytm {
-  width: 300px;
+  width: 250px;
   height: auto;
   /* white outline */
   filter:
     drop-shadow(0 0 0.5px #fff)
     drop-shadow(0 0 0.5px #fff)
     drop-shadow(0 0 0.5px #fff);
+}
+
+.pbctf-landing .sponsors__logo--twintro {
+  width: 260px;
+  height: auto;
+}
+
+.pbctf-landing .sponsors__logo--awesomesleep {
+  width: 220px;
+  height: auto;
 }
 
 /* Ticker */

@@ -286,6 +286,40 @@ class RetroSoundEngine {
   gameOver() {
     this.ensureStarted().then(() => this.sequence(["G4", "E4", "C4", "G3"], 0.1, "8n", 0.6));
   }
+
+  /** Money burst — rapid coin cascade + jackpot chord. Like hitting a slot machine jackpot. */
+  coinBurst() {
+    this.ensureStarted().then(() => {
+      // Rapid coin cascade — ascending notes like coins pouring out
+      this.sequence(
+        ["E5", "G5", "B5", "E6", "G6", "B6", "E7"],
+        0.04,
+        "64n",
+        0.7
+      );
+      // Jackpot chord stab shortly after
+      if (this.chord) {
+        try {
+          this.chord.triggerAttackRelease(
+            ["C5", "E5", "G5", "C6"],
+            "4n",
+            this.when() + 0.35,
+            0.55
+          );
+        } catch {
+          /* ignore */
+        }
+      }
+      // Noise burst for the "explosion" feel
+      if (this.noise) {
+        try {
+          this.noise.triggerAttackRelease("8n", this.when() + 0.05);
+        } catch {
+          /* ignore */
+        }
+      }
+    });
+  }
 }
 
 // Module-level singleton shared by every component on the page.
@@ -309,6 +343,7 @@ export interface RetroSound {
   playGameJump: () => void;
   playGameScore: () => void;
   playGameOver: () => void;
+  playCoinBurst: () => void;
   toggleMute: () => void;
   muted: boolean;
 }
@@ -333,6 +368,7 @@ export function useRetroSound(): RetroSound {
     playGameJump: useCallback(() => eng.gameJump(), [eng]),
     playGameScore: useCallback(() => eng.gameScore(), [eng]),
     playGameOver: useCallback(() => eng.gameOver(), [eng]),
+    playCoinBurst: useCallback(() => eng.coinBurst(), [eng]),
     toggleMute: useCallback(() => eng.toggleMute(), [eng]),
     muted,
   };

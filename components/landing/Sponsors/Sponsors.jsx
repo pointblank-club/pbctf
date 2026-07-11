@@ -106,6 +106,28 @@ const SPONSORS = [
         />
       </svg>
     ),
+  },
+  {
+    id: "sponsor-twintro",
+    logo: (
+      /* eslint-disable-next-line @next/next/no-img-element */
+      <img
+        src="/images/twintro.webp"
+        alt="Twintrow"
+        className="sponsors__logo sponsors__logo--twintro"
+      />
+    ),
+  },
+  {
+    id: "sponsor-awesomesleep",
+    logo: (
+      /* eslint-disable-next-line @next/next/no-img-element */
+      <img
+        src="/images/awesome_sleep_logo.webp"
+        alt="Awesome Sleep"
+        className="sponsors__logo sponsors__logo--awesomesleep"
+      />
+    ),
   }
 ];
 
@@ -151,10 +173,13 @@ export default function Sponsors() {
           <h2 className="section__title">Sponsors &amp; Partners</h2>
         </header>
 
-        {/* Single row — both logos at the same level */}
+        {/* Main Sponsors Row */}
         <div className="sponsors__row">
           {SPONSORS.map(s => (
-            <div key={s.id} id={s.id} className="sponsors__card">
+            <div key={s.id} id={s.id} className="sponsors__card group">
+              {/* Backdrop with faint grid */}
+              <div className="sponsors__card-backdrop"></div>
+              
               <div className="sponsors__card-inner">
                 {s.logo}
               </div>
