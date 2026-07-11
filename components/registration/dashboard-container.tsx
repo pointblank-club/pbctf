@@ -1157,7 +1157,7 @@ export function DashboardContainer() {
                       <span>mandatory.prerequisite</span>
                     </div>
                     <p className="text-[13.5px] leading-relaxed text-ink font-body">
-                      A new challenge has dropped — and it&apos;s <span className="font-semibold">mandatory</span>. Solve it to unlock your RSVP eligibility.
+                      A new challenge has dropped and it&apos;s <span className="font-semibold">mandatory</span>. Solve it to unlock your RSVP eligibility.
                     </p>
                   </div>
 
