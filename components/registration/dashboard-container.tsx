@@ -1142,7 +1142,7 @@ export function DashboardContainer() {
           <div className="flex flex-col gap-3 p-4 sm:p-5">
             <div>
               <div className={`font-mono text-[10.5px] uppercase tracking-[0.2em] mb-1 ${hasSolvedTwintro ? "text-brand" : "text-[var(--danger)]"}`}>
-                {hasSolvedTwintro ? "// VERIFIED · RSVP UNLOCKED" : "// ACTION REQUIRED · RSVP LOCKED"}
+                {hasSolvedTwintro ? "// VERIFIED" : "// ACTION REQUIRED"}
               </div>
               <h2 className="text-[20px] sm:text-[24px] font-semibold text-ink tracking-tight font-heading leading-tight">
                 Prerequisite Challenge
@@ -1157,7 +1157,7 @@ export function DashboardContainer() {
                       <span>mandatory.prerequisite</span>
                     </div>
                     <p className="text-[13.5px] leading-relaxed text-ink font-body">
-                      A new challenge has dropped and it&apos;s <span className="font-semibold">mandatory</span>. Solve it to unlock your RSVP eligibility.
+                    You need to complete a new challenge to finish your registration.
                     </p>
                   </div>
 
@@ -1175,7 +1175,7 @@ export function DashboardContainer() {
                     <span>verification.complete</span>
                   </div>
                   <p className="text-[13.5px] leading-relaxed text-ink font-body">
-                    Challenge cracked. You&apos;re all set to RSVP for the event.
+                    Challenge cracked.
                   </p>
                 </div>
               )}
