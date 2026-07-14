@@ -140,7 +140,8 @@ export function EvaluatorContainer() {
                 url += '&type=all_teams&sort=votes';
             } else {
                 url += '&type=assigned';
-                // 'pending' and 'evaluated' are filtered client-side currently
+                // Filter to this tab server-side so pagination totals match what's shown.
+                url += `&status=${activeTab}`;
             }
 
             const response = await fetch(url, {
@@ -186,14 +187,9 @@ export function EvaluatorContainer() {
     };
 
     const filteredTeams = useMemo(() => {
+        // Pending/evaluated status is now filtered server-side (see fetchData's
+        // `status` param) so pagination totals match what's actually shown.
         let list = [...teams];
-
-        // Client-side filtering for Assigned tabs
-        if (activeTab === 'pending') {
-            list = list.filter(t => !t.myEvaluation);
-        } else if (activeTab === 'evaluated') {
-            list = list.filter(t => !!t.myEvaluation);
-        }
 
         if (searchQuery) {
             const q = searchQuery.toLowerCase();
@@ -203,7 +199,7 @@ export function EvaluatorContainer() {
             );
         }
         return list;
-    }, [teams, activeTab, searchQuery]);
+    }, [teams, searchQuery]);
 
     const handleEvaluationSuccess = (teamCode: string, evaluation: Evaluation) => {
         const team = teams.find(t => t.teamCode === teamCode);
