@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from '@/hooks/use-auth';
 import { API_ENDPOINTS } from "@/lib/api-config";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -111,6 +111,7 @@ export function EvaluatorContainer() {
     const [unreviewedOnly, setUnreviewedOnly] = useState(false);
 
     const [searchQuery, setSearchQuery] = useState("");
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
     const [alert, setAlert] = useState<{ type: "success" | "error" | "warning"; message: string } | null>(null);
 
     // Pagination State
@@ -139,6 +140,10 @@ export function EvaluatorContainer() {
 
             if (unreviewedOnly) {
                 url += '&reviewed=false';
+            }
+
+            if (debouncedSearchQuery) {
+                url += `&search=${encodeURIComponent(debouncedSearchQuery)}`;
             }
 
             if (activeTab === 'all_teams') {
@@ -182,30 +187,28 @@ export function EvaluatorContainer() {
         setPage(1);
     }, [activeTab, selectedTiers, unreviewedOnly]);
 
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery.trim());
+            setPage(1);
+        }, 300);
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
     // Fetch data
     useEffect(() => {
         fetchData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, activeTab, selectedTiers, unreviewedOnly]);
+    }, [page, activeTab, selectedTiers, unreviewedOnly, debouncedSearchQuery]);
 
     const toggleTier = (tier: Tier) => {
         setSelectedTiers(prev => prev.includes(tier) ? prev.filter(x => x !== tier) : [...prev, tier]);
     };
 
-    const filteredTeams = useMemo(() => {
-        // Pending/evaluated status is now filtered server-side (see fetchData's
-        // `status` param) so pagination totals match what's actually shown.
-        let list = [...teams];
-
-        if (searchQuery) {
-            const q = searchQuery.toLowerCase();
-            list = list.filter(t =>
-                t.teamName.toLowerCase().includes(q) ||
-                t.teamCode.toLowerCase().includes(q)
-            );
-        }
-        return list;
-    }, [teams, searchQuery]);
+    // Pending/evaluated/search filters are applied server-side so pagination
+    // totals match the full result set, not just the current page.
+    const filteredTeams = teams;
 
     const handleEvaluationSuccess = (teamCode: string, evaluation: Evaluation) => {
         const team = teams.find(t => t.teamCode === teamCode);

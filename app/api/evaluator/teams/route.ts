@@ -25,6 +25,10 @@ function createErrorResponse(message: string, code: string, status: number) {
   }, { status });
 }
 
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
 /**
  * GET /api/evaluator/teams
  * Get teams assigned to the evaluator
@@ -49,6 +53,7 @@ export async function GET(request: NextRequest) {
     const tiers = searchParams.get('tiers')?.split(',').filter(Boolean) || [];
     const status = searchParams.get('status'); // 'pending' | 'evaluated' (type === 'assigned' only)
     const reviewed = searchParams.get('reviewed'); // 'false' = only teams no evaluator has reviewed yet
+    const search = searchParams.get('search')?.trim();
 
     const skip = (page - 1) * limit;
 
@@ -102,6 +107,18 @@ export async function GET(request: NextRequest) {
     // Not-reviewed-by-anyone filter, applies to either view.
     if (reviewed === 'false') {
       pipeline.push({ $match: { isEvaluated: { $ne: true } } });
+    }
+
+    if (search) {
+      const searchRegex = { $regex: escapeRegExp(search), $options: 'i' };
+      pipeline.push({
+        $match: {
+          $or: [
+            { teamName: searchRegex },
+            { teamCode: searchRegex },
+          ],
+        },
+      });
     }
 
     pipeline.push({
