@@ -135,7 +135,7 @@ export async function GET(request: NextRequest) {
 
     
     const users = await User.find({ uid: { $in: uniqueUids } })
-      .select('uid name organisation github_link linkedin_link resume_link');
+      .select('uid name organisation github_link linkedin_link resume_link hasSolvedChallenge twintroChallengeSolved');
 
     const userMap = new Map(users.map((u: any) => [u.uid, u]));
 
@@ -159,6 +159,8 @@ export async function GET(request: NextRequest) {
           github_link: user?.github_link || null,
           linkedin_link: user?.linkedin_link || null,
           resume_link: user?.resume_link || null,
+          hasSolvedChallenge: user?.hasSolvedChallenge || false,
+          twintroChallengeSolved: user?.twintroChallengeSolved || false,
         };
       });
 

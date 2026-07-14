@@ -19,6 +19,7 @@ import {
     X,
     ArrowRight,
     Flag,
+    ShieldCheck,
 } from "lucide-react";
 import { StickyAlert } from "@/components/registration/sticky-alert";
 import { TeamDetailView } from "./team-detail-view";
@@ -52,7 +53,7 @@ interface Team {
     upvoteCount?: number;
     downvoteCount?: number;
     isEvaluated: boolean;
-    teamMembers?: Array<{ uid?: string; hasSolvedChallenge?: boolean }>;
+    teamMembers?: Array<{ uid?: string; hasSolvedChallenge?: boolean; twintroChallengeSolved?: boolean }>;
 }
 
 type Tab = 'pending' | 'evaluated' | 'all_teams';
@@ -639,8 +640,10 @@ export function EvaluatorContainer() {
                                                             const ms = team.teamMembers;
                                                             if (!ms || ms.length === 0) return null;
                                                             const solved = ms.filter((m) => m.hasSolvedChallenge).length;
+                                                            const twintroSolved = ms.filter((m) => m.twintroChallengeSolved).length;
                                                             const total = ms.length;
                                                             const allSolved = solved === total;
+                                                            const allTwintroSolved = twintroSolved === total;
                                                             return (
                                                                 <>
                                                                     <span className="text-ink-disabled">·</span>
@@ -655,6 +658,19 @@ export function EvaluatorContainer() {
                                                                     >
                                                                         <Flag className="w-3 h-3" />
                                                                         {solved}/{total} warm-up
+                                                                    </span>
+                                                                    <span className="text-ink-disabled">·</span>
+                                                                    <span
+                                                                        className={[
+                                                                            "inline-flex items-center gap-1",
+                                                                            allTwintroSolved ? "text-brand" : "text-ink-muted",
+                                                                        ].join(" ")}
+                                                                        title={allTwintroSolved
+                                                                            ? "All members solved the Twintro challenge"
+                                                                            : `${twintroSolved} of ${total} solved the Twintro challenge`}
+                                                                    >
+                                                                        <ShieldCheck className="w-3 h-3" />
+                                                                        {twintroSolved}/{total} twintro
                                                                     </span>
                                                                 </>
                                                             );

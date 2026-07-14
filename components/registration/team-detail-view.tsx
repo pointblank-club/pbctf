@@ -13,6 +13,7 @@ import {
     Github,
     Linkedin,
     Flag,
+    ShieldCheck,
 } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { API_ENDPOINTS } from "@/lib/api-config";
@@ -476,22 +477,41 @@ export function TeamDetailView({ team, onBack, onEvaluationSuccess, onVoteSucces
                                     {/* Row 2: status + socials, indented under the name so the
                                         eye still tracks down the same column */}
                                     <div className="flex items-center justify-between gap-2 pl-12">
-                                        <span
-                                            className={[
-                                                "inline-flex items-center gap-1 font-mono text-[9.5px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded-sm border shrink-0",
-                                                member.hasSolvedChallenge
-                                                    ? "bg-brand-soft text-brand border-brand/45"
-                                                    : "bg-white/[0.03] text-ink-muted border-[var(--border-soft)]",
-                                            ].join(" ")}
-                                            title={
-                                                member.hasSolvedChallenge
-                                                    ? "Captured the warm-up flag"
-                                                    : "Hasn't captured the warm-up flag"
-                                            }
-                                        >
-                                            <Flag className="w-2.5 h-2.5" />
-                                            {member.hasSolvedChallenge ? "warm-up ✓" : "no warm-up"}
-                                        </span>
+                                        <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                                            <span
+                                                className={[
+                                                    "inline-flex items-center gap-1 font-mono text-[9.5px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded-sm border shrink-0",
+                                                    member.hasSolvedChallenge
+                                                        ? "bg-brand-soft text-brand border-brand/45"
+                                                        : "bg-white/[0.03] text-ink-muted border-[var(--border-soft)]",
+                                                ].join(" ")}
+                                                title={
+                                                    member.hasSolvedChallenge
+                                                        ? "Captured the warm-up flag"
+                                                        : "Hasn't captured the warm-up flag"
+                                                }
+                                            >
+                                                <Flag className="w-2.5 h-2.5" />
+                                                {member.hasSolvedChallenge ? "warm-up ✓" : "no warm-up"}
+                                            </span>
+
+                                            <span
+                                                className={[
+                                                    "inline-flex items-center gap-1 font-mono text-[9.5px] uppercase tracking-[0.18em] px-1.5 py-0.5 rounded-sm border shrink-0",
+                                                    member.twintroChallengeSolved
+                                                        ? "bg-brand-soft text-brand border-brand/45"
+                                                        : "bg-white/[0.03] text-ink-muted border-[var(--border-soft)]",
+                                                ].join(" ")}
+                                                title={
+                                                    member.twintroChallengeSolved
+                                                        ? "Solved the Twintro challenge"
+                                                        : "Hasn't solved the Twintro challenge"
+                                                }
+                                            >
+                                                <ShieldCheck className="w-2.5 h-2.5" />
+                                                {member.twintroChallengeSolved ? "twintro ✓" : "no twintro"}
+                                            </span>
+                                        </div>
 
                                         <div className="flex items-center gap-2.5 z-10 shrink-0">
                                             {member.github_link && (

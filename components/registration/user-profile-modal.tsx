@@ -16,6 +16,7 @@ import {
   Award,
   Globe,
   Flag,
+  ShieldCheck,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "./button";
@@ -36,6 +37,7 @@ interface UserDetails {
   ctf_profile?: string;
   age?: number;
   hasSolvedChallenge?: boolean;
+  twintroChallengeSolved?: boolean;
 }
 
 interface UserProfileModalProps {
@@ -257,6 +259,20 @@ export function UserProfileModal({
                       >
                         <Flag className="w-3 h-3" />
                         No Warm-up Flag
+                      </span>
+                    )}
+                    {userDetails.twintroChallengeSolved ? (
+                      <span className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.18em] text-brand bg-brand-soft border border-brand/35 px-1.5 py-0.5 rounded">
+                        <ShieldCheck className="w-3 h-3" />
+                        Twintro Solved
+                      </span>
+                    ) : (
+                      <span
+                        className="inline-flex items-center gap-1 font-mono text-[10px] uppercase tracking-[0.18em] text-ink-muted bg-white/[0.04] border border-[var(--border-soft)] px-1.5 py-0.5 rounded"
+                        title="Hasn't solved the prerequisite (Twintro) challenge yet"
+                      >
+                        <ShieldCheck className="w-3 h-3" />
+                        No Twintro Flag
                       </span>
                     )}
                   </div>

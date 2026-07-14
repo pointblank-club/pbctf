@@ -67,7 +67,7 @@ export async function GET(
     // Get member details
     const memberUids = team.teamMembers.map((m: any) => m.uid);
     const members = await User.find({ uid: { $in: memberUids } })
-      .select('uid name email organisation github_link linkedin_link resume_link');
+      .select('uid name email organisation github_link linkedin_link resume_link hasSolvedChallenge twintroChallengeSolved');
 
     const formattedMembers = team.teamMembers.map((member: any) => {
       const userInfo = members.find(u => u.uid === member.uid);
@@ -80,6 +80,8 @@ export async function GET(
         linkedin_link: userInfo?.linkedin_link || null,
         resume_link: userInfo?.resume_link || null,
         role: member.role,
+        hasSolvedChallenge: userInfo?.hasSolvedChallenge || false,
+        twintroChallengeSolved: userInfo?.twintroChallengeSolved || false,
       };
     });
 

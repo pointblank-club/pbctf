@@ -270,6 +270,7 @@ export async function GET(
         role: user.role,
         isAdmin: user.role === "admin",
         hasSolvedChallenge: user.hasSolvedChallenge || false,
+        twintroChallengeSolved: user.twintroChallengeSolved || false,
       },
     });
   } catch (error) {

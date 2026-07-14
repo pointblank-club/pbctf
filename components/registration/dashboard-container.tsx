@@ -17,6 +17,7 @@ import {
   ArrowRight,
   Sparkles,
   UserPlus,
+  Lightbulb,
 } from "lucide-react";
 import { FormSection } from "./form-section";
 import { FormInput } from "./form-input";
@@ -286,6 +287,7 @@ export function DashboardContainer() {
   const [twintroError, setTwintroError] = useState("");
   const [isSubmittingTwintro, setIsSubmittingTwintro] = useState(false);
   const [isChallengeModalOpen, setIsChallengeModalOpen] = useState(false);
+  const [showTwintroHint, setShowTwintroHint] = useState(false);
 
   // Tracks which join-request is currently being responded to, so we can show
   // a pending state on the right button (accept or decline) for that row.
@@ -1327,6 +1329,24 @@ export function DashboardContainer() {
                   <p className="text-[13.5px] leading-relaxed text-ink font-body">
                     The intro to a twin holds the key. Find the sponsor&apos;s space and claim your flag.
                   </p>
+                  {showTwintroHint ? (
+                    <p className="text-[13px] leading-relaxed text-brand font-body">
+                      <span className="underline underline-offset-2">hint</span>. Make sure you come
+                      with good intent in the right orbit for the event.
+                    </p>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowTwintroHint(true);
+                      }}
+                      className="inline-flex items-center gap-1.5 self-start text-[12px] font-mono uppercase tracking-[0.18em] text-brand/80 hover:text-brand transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded-sm"
+                    >
+                      <Lightbulb className="w-3.5 h-3.5" />
+                      Reveal hint
+                    </button>
+                  )}
                 </div>
 
                 <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
