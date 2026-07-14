@@ -107,6 +107,7 @@ export function EvaluatorContainer() {
 
     // Filter State
     const [selectedTiers, setSelectedTiers] = useState<Tier[]>([]);
+    const [unreviewedOnly, setUnreviewedOnly] = useState(false);
 
     const [searchQuery, setSearchQuery] = useState("");
     const [alert, setAlert] = useState<{ type: "success" | "error" | "warning"; message: string } | null>(null);
@@ -133,6 +134,10 @@ export function EvaluatorContainer() {
 
             if (selectedTiers.length > 0) {
                 url += `&tiers=${selectedTiers.join(',')}`;
+            }
+
+            if (unreviewedOnly) {
+                url += '&reviewed=false';
             }
 
             if (activeTab === 'all_teams') {
@@ -174,13 +179,13 @@ export function EvaluatorContainer() {
     // Reset page on tab/filter change
     useEffect(() => {
         setPage(1);
-    }, [activeTab, selectedTiers]);
+    }, [activeTab, selectedTiers, unreviewedOnly]);
 
     // Fetch data
     useEffect(() => {
         fetchData();
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [page, activeTab, selectedTiers]);
+    }, [page, activeTab, selectedTiers, unreviewedOnly]);
 
     const toggleTier = (tier: Tier) => {
         setSelectedTiers(prev => prev.includes(tier) ? prev.filter(x => x !== tier) : [...prev, tier]);
@@ -454,7 +459,7 @@ export function EvaluatorContainer() {
                         <button
                             onClick={() => setShowFilters(prev => !prev)}
                             className={`flex items-center gap-2 px-3 py-2.5 rounded-md border transition-all duration-200 min-h-[44px] font-mono text-[11px] uppercase tracking-[0.15em] ${
-                                showFilters || selectedTiers.length > 0
+                                showFilters || selectedTiers.length > 0 || unreviewedOnly
                                     ? 'bg-brand-soft border-brand/40 text-brand shadow-glow-sm'
                                     : 'bg-surface-inset border-[var(--border-soft)] text-ink-muted hover:text-ink hover:border-[var(--border-default)]'
                             }`}
@@ -462,9 +467,9 @@ export function EvaluatorContainer() {
                         >
                             <SlidersHorizontal className="w-3.5 h-3.5" />
                             <span className="hidden sm:inline">Filter</span>
-                            {selectedTiers.length > 0 && (
+                            {(selectedTiers.length > 0 || unreviewedOnly) && (
                                 <span className="text-[10px] px-1.5 py-0.5 rounded-sm border border-brand/50 bg-void text-brand">
-                                    {selectedTiers.length}
+                                    {selectedTiers.length + (unreviewedOnly ? 1 : 0)}
                                 </span>
                             )}
                         </button>
@@ -472,39 +477,70 @@ export function EvaluatorContainer() {
 
                     {/* Filter chip rail */}
                     {showFilters && (
-                        <div className="flex flex-col gap-3 rounded-md border border-[var(--border-soft)] bg-surface-inset p-4 anim-fade-up">
-                            <div className="flex items-center justify-between gap-3">
-                                <span className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand">
-                                    // verdict filter
-                                </span>
-                                {selectedTiers.length > 0 && (
-                                    <button
-                                        onClick={() => setSelectedTiers([])}
-                                        className="font-mono text-[10.5px] uppercase tracking-[0.15em] text-ink-subtle hover:text-ink transition-colors"
-                                    >
-                                        Clear
-                                    </button>
-                                )}
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                                {(Object.keys(TIER_META) as Tier[]).map((tier) => {
-                                    const meta = TIER_META[tier];
-                                    const isSelected = selectedTiers.includes(tier);
-                                    return (
+                        <div className="flex flex-col gap-4 rounded-md border border-[var(--border-soft)] bg-surface-inset p-4 anim-fade-up">
+                            <div className="flex flex-col gap-3">
+                                <div className="flex items-center justify-between gap-3">
+                                    <span className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand">
+                                        // review status
+                                    </span>
+                                    {unreviewedOnly && (
                                         <button
-                                            key={tier}
-                                            onClick={() => toggleTier(tier)}
-                                            className={`flex items-center gap-2 px-3 py-1.5 rounded-sm text-[12px] font-medium border transition-all duration-150 min-h-[36px] ${
-                                                isSelected
-                                                    ? `${meta.chip} ring-1 ring-current/40`
-                                                    : 'bg-surface-2 text-ink-subtle border-[var(--border-hairline)] hover:text-ink hover:border-[var(--border-default)]'
-                                            }`}
+                                            onClick={() => setUnreviewedOnly(false)}
+                                            className="font-mono text-[10.5px] uppercase tracking-[0.15em] text-ink-subtle hover:text-ink transition-colors"
                                         >
-                                            <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
-                                            <span>{meta.label}</span>
+                                            Clear
                                         </button>
-                                    );
-                                })}
+                                    )}
+                                </div>
+                                <button
+                                    onClick={() => setUnreviewedOnly(prev => !prev)}
+                                    disabled={activeTab === 'evaluated'}
+                                    title={activeTab === 'evaluated' ? "Reviewed teams have always been reviewed by someone — this filter doesn't apply here." : undefined}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-sm text-[12px] font-medium border transition-all duration-150 min-h-[36px] w-fit disabled:opacity-40 disabled:cursor-not-allowed ${
+                                        unreviewedOnly
+                                            ? 'bg-brand-soft border-brand/40 text-brand ring-1 ring-current/40'
+                                            : 'bg-surface-2 text-ink-subtle border-[var(--border-hairline)] hover:text-ink hover:border-[var(--border-default)]'
+                                    }`}
+                                >
+                                    <span className={`w-1.5 h-1.5 rounded-full ${unreviewedOnly ? 'bg-brand' : 'bg-ink-subtle'}`} />
+                                    <span>Not reviewed by anyone</span>
+                                </button>
+                            </div>
+
+                            <div className="flex flex-col gap-3">
+                                <div className="flex items-center justify-between gap-3">
+                                    <span className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand">
+                                        // verdict filter
+                                    </span>
+                                    {selectedTiers.length > 0 && (
+                                        <button
+                                            onClick={() => setSelectedTiers([])}
+                                            className="font-mono text-[10.5px] uppercase tracking-[0.15em] text-ink-subtle hover:text-ink transition-colors"
+                                        >
+                                            Clear
+                                        </button>
+                                    )}
+                                </div>
+                                <div className="flex flex-wrap gap-2">
+                                    {(Object.keys(TIER_META) as Tier[]).map((tier) => {
+                                        const meta = TIER_META[tier];
+                                        const isSelected = selectedTiers.includes(tier);
+                                        return (
+                                            <button
+                                                key={tier}
+                                                onClick={() => toggleTier(tier)}
+                                                className={`flex items-center gap-2 px-3 py-1.5 rounded-sm text-[12px] font-medium border transition-all duration-150 min-h-[36px] ${
+                                                    isSelected
+                                                        ? `${meta.chip} ring-1 ring-current/40`
+                                                        : 'bg-surface-2 text-ink-subtle border-[var(--border-hairline)] hover:text-ink hover:border-[var(--border-default)]'
+                                                }`}
+                                            >
+                                                <span className={`w-1.5 h-1.5 rounded-full ${meta.dot}`} />
+                                                <span>{meta.label}</span>
+                                            </button>
+                                        );
+                                    })}
+                                </div>
                             </div>
                         </div>
                     )}

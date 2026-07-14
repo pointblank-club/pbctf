@@ -48,6 +48,7 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get('sort'); // 'votes'
     const tiers = searchParams.get('tiers')?.split(',').filter(Boolean) || [];
     const status = searchParams.get('status'); // 'pending' | 'evaluated' (type === 'assigned' only)
+    const reviewed = searchParams.get('reviewed'); // 'false' = only teams no evaluator has reviewed yet
 
     const skip = (page - 1) * limit;
 
@@ -96,6 +97,11 @@ export async function GET(request: NextRequest) {
       if (tiers.length > 0) {
         pipeline.push({ $match: { 'evaluations.tier': { $in: tiers } } });
       }
+    }
+
+    // Not-reviewed-by-anyone filter, applies to either view.
+    if (reviewed === 'false') {
+      pipeline.push({ $match: { isEvaluated: { $ne: true } } });
     }
 
     pipeline.push({
