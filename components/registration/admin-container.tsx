@@ -47,6 +47,7 @@ interface Participant {
   uid: string;
   name: string;
   email: string;
+  idName?: string | null;
   teamName: string | null;
   isLooking: boolean;
 }
@@ -92,6 +93,7 @@ export function AdminContainer() {
       uid: string;
       name: string;
       email?: string;
+      idName?: string;
       role: string;
     }>;
   }
@@ -709,6 +711,11 @@ export function AdminContainer() {
                               <div className="font-mono text-[11.5px] text-ink-muted truncate">
                                 {user.email}
                               </div>
+                              {user.idName && (
+                                <div className="font-mono text-[11px] text-brand truncate">
+                                  ID: {user.idName}
+                                </div>
+                              )}
                             </div>
                           </div>
                           <div className="flex items-center min-w-0">
@@ -1062,6 +1069,11 @@ export function AdminContainer() {
                                           {member.email && (
                                             <p className="font-mono text-[11px] text-ink-muted break-all">
                                               {member.email}
+                                            </p>
+                                          )}
+                                          {rsvpStatus === "confirmed" && member.idName && (
+                                            <p className="font-mono text-[11px] text-brand truncate">
+                                              ID: {member.idName}
                                             </p>
                                           )}
                                         </div>

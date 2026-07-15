@@ -16,6 +16,8 @@ export interface IUser extends Document {
   age?: number;
   organisation?: string;
   profile_picture?: string;
+  /** Name as per identification document, captured when confirming event RSVP. */
+  idName?: string;
   isLooking: boolean;
   role: "user" | "admin" | "evaluator" | "frai";
   teamCode?: string;
@@ -44,6 +46,7 @@ const UserSchema: Schema = new Schema(
     age: { type: Number }, // Optional - required for regular users during registration
     organisation: { type: String }, // Optional - required for regular users during registration
     profile_picture: { type: String },
+    idName: { type: String, trim: true },
     isLooking: { type: Boolean, default: false, index: true },
     role: {
       type: String,

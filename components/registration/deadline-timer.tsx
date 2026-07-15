@@ -10,7 +10,6 @@ import {
   Check,
   X,
 } from "lucide-react";
-import { Button } from "./button";
 import { HudFrame } from "./hud-frame";
 
 interface TimeRemaining {
@@ -33,8 +32,10 @@ interface DeadlineTimerProps {
     createdAt: Date | string;
   }>;
   hasTeam?: boolean;
+  /** Admin-panel shortlist flag. Unlike evaluations, this is the actual RSVP gate. */
+  isShortlisted?: boolean;
   rsvpStatus?: "pending" | "confirmed" | "declined";
-  onRSVP?: (status: "confirmed" | "declined") => void;
+  onRsvpExpiredChange?: (expired: boolean) => void;
 }
 
 function ShellWrap({ children, glow }: { children: React.ReactNode; glow?: boolean }) {
@@ -106,8 +107,9 @@ export function DeadlineTimer({
   isEvaluated = false,
   evaluations = [],
   hasTeam = true,
+  isShortlisted = false,
   rsvpStatus = "pending",
-  onRSVP,
+  onRsvpExpiredChange,
 }: DeadlineTimerProps) {
   const [timeRemaining, setTimeRemaining] = useState<TimeRemaining | null>(null);
   const [deadline, setDeadline] = useState<Date | null>(null);
@@ -118,6 +120,14 @@ export function DeadlineTimer({
   const [rsvpDeadline, setRsvpDeadline] = useState<Date | null>(null);
   const [rsvpTimeRemaining, setRsvpTimeRemaining] = useState<TimeRemaining | null>(null);
   const [isRsvpExpired, setIsRsvpExpired] = useState(false);
+
+  // Report the RSVP deadline's live expiry status up so the status strip
+  // (rendered by the parent, above this timer) can hide its Confirm/Decline
+  // actions the moment the deadline passes.
+  useEffect(() => {
+    onRsvpExpiredChange?.(isRsvpExpired);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isRsvpExpired]);
 
   useEffect(() => {
     const fetchDeadline = async () => {
@@ -215,14 +225,11 @@ export function DeadlineTimer({
     teamStatus === "shortlisted" ||
     teamStatus === "rsvped";
   const hasRejectedEvaluation = evaluations.some((e) => e.tier === "rejected");
-  const hasAcceptedEvaluation = evaluations.some(
-    (e) => e.tier === "accepted" || e.tier === "strongly_accepted",
-  );
 
   const getHeaderIcon = () => {
     if (isExpired && hasTeam && isEvaluated) {
       if (hasRejectedEvaluation) return <XCircle className="w-4 h-4 text-ink-muted" />;
-      if (hasAcceptedEvaluation) return <Trophy className="w-4 h-4 text-brand" />;
+      if (isShortlisted) return <Trophy className="w-4 h-4 text-brand" />;
       return <AlertTriangle className="w-4 h-4 text-[var(--warning)]" />;
     }
     if (isExpired) return <AlertTriangle className="w-4 h-4 text-[var(--warning)]" />;
@@ -233,7 +240,7 @@ export function DeadlineTimer({
   const getHeaderText = () => {
     if (isExpired && hasTeam && isEvaluated) {
       if (hasRejectedEvaluation) return "Team Not Selected";
-      if (hasAcceptedEvaluation) return "Your Team Has Been Selected";
+      if (isShortlisted) return "Your Team Has Been Selected";
       return "Registration Closed";
     }
     if (isExpired) return "Registration Closed";
@@ -242,7 +249,7 @@ export function DeadlineTimer({
   };
 
   return (
-    <ShellWrap glow={hasAcceptedEvaluation && isEvaluated && isExpired}>
+    <ShellWrap glow={isShortlisted && isEvaluated && isExpired}>
       <div className="flex flex-col items-center text-center">
         {/* Eyebrow */}
         <div className="font-mono text-[10px] uppercase tracking-[0.22em] text-brand opacity-80 mb-1">
@@ -250,7 +257,7 @@ export function DeadlineTimer({
         </div>
 
         {/* Header */}
-        <div className="flex items-center justify-center gap-2 mb-5">
+        <div className="flex items-center justify-center gap-2 mb-2">
           {getHeaderIcon()}
           <h3 className="text-[15px] sm:text-[16px] font-semibold text-ink font-heading tracking-tight">
             {getHeaderText()}
@@ -271,16 +278,28 @@ export function DeadlineTimer({
                       Thank you for participating. we appreciate your effort and dedication.
                     </p>
                   </>
-                ) : hasAcceptedEvaluation ? (
+                ) : isShortlisted ? (
                   <>
-                    <p className="text-[14px] text-brand font-semibold font-body text-center max-w-[42ch]">
-                      Congratulations. your team has been selected for the next round.
-                    </p>
-                    <p className="text-[12.5px] text-ink-secondary font-body text-center">
-                      Please confirm your participation:
-                    </p>
+                    {rsvpStatus === "confirmed" && (
+                      <RsvpStatusBadge status="confirmed" message="RSVP Confirmed. See you at the event." />
+                    )}
+                    {rsvpStatus === "declined" && (
+                      <RsvpStatusBadge status="declined" message="You have declined participation." />
+                    )}
+                    {(rsvpStatus === "confirmed" || rsvpStatus === "declined") && !isRsvpExpired && (
+                      <p className="text-[11.5px] text-ink-muted font-body text-center max-w-[44ch]">
+                        Changed your mind? You can update above until the RSVP deadline.
+                      </p>
+                    )}
+                    {rsvpStatus === "pending" && (
+                      <p className="text-[12.5px] text-ink-secondary font-body text-center max-w-[44ch]">
+                        Use the status panel above to confirm or decline your participation.
+                      </p>
+                    )}
 
-                    {rsvpTimeRemaining && !isRsvpExpired && (
+                    {/* Once confirmed there's nothing left to act on, so the
+                        countdown only matters while a response can still change. */}
+                    {rsvpStatus !== "confirmed" && rsvpTimeRemaining && !isRsvpExpired && (
                       <div className="w-full mt-1">
                         <p className="font-mono text-[10px] text-ink-muted text-center mb-2.5 uppercase tracking-[0.2em]">
                           RSVP Deadline
@@ -306,57 +325,6 @@ export function DeadlineTimer({
                           : ""}
                       </p>
                     )}
-
-                    {(() => {
-                      if (isRsvpExpired) {
-                        return (
-                          <>
-                            <p className="text-[12px] text-ink-muted font-body text-center max-w-[44ch] mt-1">
-                              RSVP deadline has passed. Please contact the organizers if you need assistance.
-                            </p>
-                            {rsvpStatus === "confirmed" && (
-                              <RsvpStatusBadge status="confirmed" message="RSVP Confirmed. See you at the event." />
-                            )}
-                            {rsvpStatus === "declined" && (
-                              <RsvpStatusBadge status="declined" message="You have declined participation." />
-                            )}
-                          </>
-                        );
-                      }
-
-                      if (!onRSVP) return null;
-
-                      if (rsvpStatus === "confirmed" || rsvpStatus === "declined") {
-                        return (
-                          <div className="flex flex-col gap-2 w-full mt-1">
-                            {rsvpStatus === "confirmed" && (
-                              <RsvpStatusBadge status="confirmed" message="RSVP Confirmed. See you at the event." />
-                            )}
-                            {rsvpStatus === "declined" && (
-                              <RsvpStatusBadge status="declined" message="You have declined participation." />
-                            )}
-                          </div>
-                        );
-                      }
-
-                      return (
-                        <div className="flex flex-col gap-2.5 w-full mt-1">
-                          <p className="text-[12.5px] text-ink-secondary font-body text-center">
-                            Please confirm your participation:
-                          </p>
-                          <div className="flex flex-col sm:flex-row gap-2.5 w-full justify-center">
-                            <Button onClick={() => onRSVP("confirmed")} variant="primary">
-                              <Check className="w-4 h-4" />
-                              Confirm Participation
-                            </Button>
-                            <Button onClick={() => onRSVP("declined")} variant="danger">
-                              <X className="w-4 h-4" />
-                              Decline
-                            </Button>
-                          </div>
-                        </div>
-                      );
-                    })()}
                   </>
                 ) : (
                   <>

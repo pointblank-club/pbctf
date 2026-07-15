@@ -28,6 +28,7 @@ import { TeamMembersCard } from "./team-members-card";
 import { QuickActionsCard } from "./quick-actions-card";
 import { DeadlineTimer } from "./deadline-timer";
 import { TransferOwnershipModal } from "./transfer-ownership-modal";
+import { RsvpConfirmModal } from "./rsvp-confirm-modal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -97,6 +98,10 @@ function StatusStrip({
   userName,
   profileCompleteness,
   onOpenProfile,
+  showRsvpActions,
+  rsvpStatus,
+  onConfirmRSVP,
+  onDeclineRSVP,
 }: {
   status: "none" | "active" | "submitted" | "under-review" | "shortlisted" | "confirmed" | "declined";
   teamName?: string;
@@ -107,6 +112,10 @@ function StatusStrip({
   userName: string;
   profileCompleteness?: number;
   onOpenProfile?: () => void;
+  showRsvpActions?: boolean;
+  rsvpStatus?: "pending" | "confirmed" | "declined";
+  onConfirmRSVP?: () => void;
+  onDeclineRSVP?: () => void;
 }) {
   const meta: Record<
     string,
@@ -239,13 +248,27 @@ function StatusStrip({
               {m.sub}
             </h1>
           </div>
-          {onPrimary && primaryLabel && (
-            <div className="shrink-0">
-              <Button onClick={onPrimary} variant="primary" size="md">
-                {PrimaryIcon ? <PrimaryIcon className="w-4 h-4" /> : null}
-                {primaryLabel}
+          {showRsvpActions && onConfirmRSVP && onDeclineRSVP ? (
+            <div className="shrink-0 flex flex-col sm:flex-row gap-2.5">
+              <Button onClick={onConfirmRSVP} variant="primary" size="md">
+                <Check className="w-4 h-4" />
+                {rsvpStatus === "confirmed" ? "Update ID Details" : "Confirm Participation"}
+              </Button>
+              <Button onClick={onDeclineRSVP} variant="danger" size="md">
+                <X className="w-4 h-4" />
+                Decline
               </Button>
             </div>
+          ) : (
+            onPrimary &&
+            primaryLabel && (
+              <div className="shrink-0">
+                <Button onClick={onPrimary} variant="primary" size="md">
+                  {PrimaryIcon ? <PrimaryIcon className="w-4 h-4" /> : null}
+                  {primaryLabel}
+                </Button>
+              </div>
+            )
           )}
         </div>
       </div>
@@ -261,6 +284,10 @@ export function DashboardContainer() {
   const [profileCompleteness, setProfileCompleteness] = useState(0);
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [rsvpStatus, setRsvpStatus] = useState<"pending" | "confirmed" | "declined">("pending");
+  const [rsvpIdName, setRsvpIdName] = useState("");
+  const [isRsvpModalOpen, setIsRsvpModalOpen] = useState(false);
+  const [isDeclineRsvpDialogOpen, setIsDeclineRsvpDialogOpen] = useState(false);
+  const [isRsvpExpired, setIsRsvpExpired] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [alert, setAlert] = useState<{
@@ -451,6 +478,7 @@ export function DashboardContainer() {
         if (!teamPayload) {
           setTeam(null);
           setRsvpStatus("pending");
+          setRsvpIdName("");
           setTeamRequests([]);
           return;
         }
@@ -459,8 +487,10 @@ export function DashboardContainer() {
 
         if (rsvp?.userRSVP) {
           setRsvpStatus(rsvp.userRSVP.rsvpStatus as "confirmed" | "declined");
+          setRsvpIdName(rsvp.userRSVP.idName || "");
         } else {
           setRsvpStatus("pending");
+          setRsvpIdName("");
         }
 
         // bootstrap already filters teamRequests to [] for non-leads, so
@@ -498,11 +528,7 @@ export function DashboardContainer() {
     | "confirmed"
     | "declined" => {
     if (!team || !team.teamStatus) return "none";
-    const hasAcceptedEvaluation = team.evaluations?.some(
-      (evaluation: any) =>
-        evaluation.tier === "accepted" || evaluation.tier === "strongly_accepted",
-    );
-    if (hasAcceptedEvaluation && team.teamStatus === "submitted") return "shortlisted";
+    if (team.isShortlisted && team.teamStatus === "submitted") return "shortlisted";
     const statusMap: Record<string, any> = {
       pending: "active",
       submitted: "submitted",
@@ -520,8 +546,8 @@ export function DashboardContainer() {
     return userMember?.role === "Team Lead" || false;
   };
 
-  const handleRSVP = async (status: "confirmed" | "declined") => {
-    if (!user) return;
+  const handleRSVP = async (status: "confirmed" | "declined", idName?: string): Promise<boolean> => {
+    if (!user) return false;
     try {
       const token = await getToken();
       if (!token) {
@@ -530,12 +556,12 @@ export function DashboardContainer() {
           title: "Authentication required",
           description: "Please log in again to submit RSVP",
         });
-        return;
+        return false;
       }
       const response = await fetch("/api/user/rsvp", {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ rsvpStatus: status }),
+        body: JSON.stringify({ rsvpStatus: status, ...(idName ? { idName } : {}) }),
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.message || "Failed to submit RSVP");
@@ -547,6 +573,7 @@ export function DashboardContainer() {
           `You have ${status === "confirmed" ? "confirmed" : "declined"} your attendance.`,
       });
       setRefreshTrigger((prev) => prev + 1);
+      return true;
     } catch (error) {
       console.error("Error submitting RSVP:", error);
       toast({
@@ -554,7 +581,21 @@ export function DashboardContainer() {
         title: "Failed to submit RSVP",
         description: error instanceof Error ? error.message : "Failed to submit RSVP",
       });
+      return false;
     }
+  };
+
+  const handleRSVPConfirmWithIdName = async (idName: string) => {
+    const success = await handleRSVP("confirmed", idName);
+    if (success) {
+      setRsvpIdName(idName);
+      setIsRsvpModalOpen(false);
+    }
+  };
+
+  const handleDeclineRSVP = async () => {
+    const success = await handleRSVP("declined");
+    if (success) setIsDeclineRsvpDialogOpen(false);
   };
 
   const handleSubmitFlag = async (e: React.FormEvent) => {
@@ -838,11 +879,19 @@ export function DashboardContainer() {
     stripPrimaryLabel = "Open Team Console";
     stripPrimaryOnClick = () => router.push("/dashboard/team");
     stripPrimaryIcon = ArrowRight;
-  } else if (teamStatus === "shortlisted" && rsvpStatus === "pending") {
-    stripPrimaryLabel = "Confirm RSVP";
-    stripPrimaryOnClick = () => handleRSVP("confirmed");
-    stripPrimaryIcon = Check;
   }
+
+  // Once the team clears evaluation, RSVP (Confirm/Decline) is the strip's
+  // action instead of the generic single-primary button, and stays available
+  // until the RSVP deadline since a response can be changed anytime before it.
+  const rsvpActionsAvailable =
+    (teamStatus === "shortlisted" || teamStatus === "confirmed" || teamStatus === "declined") &&
+    !isRsvpExpired;
+
+  // No response by the RSVP deadline reads as a decline on the frontend, even
+  // though nothing was written to the DB (the team never explicitly declined).
+  const effectiveRsvpStatus =
+    rsvpStatus === "pending" && isRsvpExpired ? "declined" : rsvpStatus;
 
   return (
     <div className="flex flex-col gap-6 w-full">
@@ -943,6 +992,10 @@ export function DashboardContainer() {
         userName={user.name}
         profileCompleteness={profileCompleteness}
         onOpenProfile={() => router.push("/dashboard/profile")}
+        showRsvpActions={rsvpActionsAvailable}
+        rsvpStatus={effectiveRsvpStatus}
+        onConfirmRSVP={() => setIsRsvpModalOpen(true)}
+        onDeclineRSVP={() => setIsDeclineRsvpDialogOpen(true)}
       />
 
       {/* Timer */}
@@ -950,8 +1003,11 @@ export function DashboardContainer() {
         teamStatus={team?.teamStatus}
         hasSubmitted={!!team}
         hasTeam={!!team}
-        rsvpStatus={rsvpStatus}
-        onRSVP={handleRSVP}
+        isEvaluated={team?.isEvaluated}
+        evaluations={team?.evaluations}
+        isShortlisted={team?.isShortlisted}
+        rsvpStatus={effectiveRsvpStatus}
+        onRsvpExpiredChange={setIsRsvpExpired}
       />
 
       {/* Inbox + Prerequisite Challenge side-by-side */}
@@ -1474,6 +1530,36 @@ export function DashboardContainer() {
           currentUserId={user.uid}
         />
       )}
+
+      <RsvpConfirmModal
+        isOpen={isRsvpModalOpen}
+        onClose={() => setIsRsvpModalOpen(false)}
+        onConfirm={handleRSVPConfirmWithIdName}
+        initialIdName={rsvpIdName}
+      />
+
+      <AlertDialog open={isDeclineRsvpDialogOpen} onOpenChange={setIsDeclineRsvpDialogOpen}>
+        <AlertDialogContent className="bg-surface-2 border-[var(--border-default)]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="font-heading text-ink">Decline Participation</AlertDialogTitle>
+            <AlertDialogDescription className="text-ink-secondary font-body">
+              Are you sure you want to decline? This marks you as not attending the event. You can
+              change your response anytime before the RSVP deadline.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-surface-1 border-[var(--border-soft)] text-ink hover:bg-surface-3 hover:text-ink">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeclineRSVP}
+              className="bg-[var(--danger)] hover:bg-[var(--danger)]/85 text-white border border-[var(--danger)]/60"
+            >
+              Decline
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div data-howdy={dynamicFlag} />
       {!hasSolvedChallenge && dynamicFlag && (

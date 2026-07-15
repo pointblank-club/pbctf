@@ -42,7 +42,7 @@ export async function GET(
 
     const memberUids = team.teamMembers.map((m: any) => m.uid);
     const members = await User.find({ uid: { $in: memberUids } })
-      .select('uid name email organisation profile_picture discord_username resume_link github_link linkedin_link');
+      .select('uid name email organisation profile_picture discord_username resume_link github_link linkedin_link idName');
 
     const teamLead = members.find(u => u.uid === team.teamLead);
 
@@ -61,6 +61,7 @@ export async function GET(
     const formattedRSVPs = team.memberRSVPs.map((rsvp: any) => ({
       uid: rsvp.uid,
       name: rsvp.name,
+      idName: members.find(u => u.uid === rsvp.uid)?.idName || null,
       rsvpStatus: rsvp.rsvpStatus,
       rsvpedAt: rsvp.rsvpedAt instanceof Date ? rsvp.rsvpedAt.toISOString() : rsvp.rsvpedAt,
     }));

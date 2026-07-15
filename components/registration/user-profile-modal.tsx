@@ -17,6 +17,7 @@ import {
   Globe,
   Flag,
   ShieldCheck,
+  IdCard,
 } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
 import { Button } from "./button";
@@ -26,6 +27,7 @@ interface UserDetails {
   uid: string;
   name: string;
   email: string;
+  idName?: string | null;
   discord_username?: string;
   organisation?: string;
   bio?: string;
@@ -243,6 +245,12 @@ export function UserProfileModal({
                       <div className="flex items-center gap-2 text-[12.5px] text-ink-secondary font-body min-w-0">
                         <Building className="w-3.5 h-3.5 text-ink-muted shrink-0" />
                         <span className="truncate">{userDetails.organisation}</span>
+                      </div>
+                    )}
+                    {userDetails.idName && (
+                      <div className="flex items-center gap-2 text-[12.5px] text-brand font-body min-w-0">
+                        <IdCard className="w-3.5 h-3.5 text-brand shrink-0" />
+                        <span className="truncate">ID: {userDetails.idName}</span>
                       </div>
                     )}
                   </div>

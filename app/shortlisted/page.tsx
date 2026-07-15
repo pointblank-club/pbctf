@@ -1,12 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { DotPattern } from "@/components/registration/dot-pattern";
 import { Button } from "@/components/registration/button";
+import { Spinner } from "@/components/ui/spinner";
 import { motion } from "framer-motion";
-import { Users, Trophy, ArrowLeft, Search, Sparkles } from "lucide-react";
-import { shortlistedTeams, totalParticipants } from "@/data/shortlisted-teams";
+import { Users, Trophy, ArrowLeft, Search, Sparkles, Clock } from "lucide-react";
+import { SHORTLIST_ANNOUNCE_TIME } from "@/lib/constants";
+
+interface ShortlistedTeam {
+  teamCode: string;
+  teamName: string;
+  memberCount: number;
+  leaderName: string;
+}
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -31,15 +39,95 @@ const getTeamInitials = (teamName: string) => {
   return (words[0][0] + words[1][0]).toUpperCase();
 };
 
+function PendingAnnouncement({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="min-h-screen w-full bg-void relative overflow-x-hidden flex items-center justify-center">
+      <DotPattern />
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative z-10 flex flex-col items-center text-center gap-4 px-6"
+      >
+        <div className="inline-flex items-center gap-2 h-7 px-3 rounded-full border border-brand/45 bg-brand-soft text-brand font-mono text-[10.5px] uppercase tracking-[0.22em]">
+          <Clock className="w-3 h-3" />
+          Shortlist · Pending
+        </div>
+        <h1 className="font-heading text-[32px] sm:text-[44px] font-bold text-ink tracking-tight">
+          Will be announced soon<span className="text-brand">.</span>
+        </h1>
+        <p className="text-[14px] text-ink-secondary font-body max-w-[480px]">
+          Check back later to see the teams shortlisted for the PBCTF 5.0 Finals.
+        </p>
+        <Button onClick={onBack} variant="secondary" size="sm">
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Back to Dashboard
+        </Button>
+      </motion.div>
+    </div>
+  );
+}
+
+function LoadingShortlist() {
+  return (
+    <div className="min-h-screen w-full bg-void relative overflow-x-hidden flex items-center justify-center">
+      <DotPattern />
+      <div className="relative z-10 flex flex-col items-center gap-3">
+        <Spinner size="lg" />
+        <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-muted">
+          Loading shortlisted teams…
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function ShortlistedPage() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
+  const [isAnnounced, setIsAnnounced] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [shortlistedTeams, setShortlistedTeams] = useState<ShortlistedTeam[]>([]);
+
+  useEffect(() => {
+    const announced = Date.now() >= SHORTLIST_ANNOUNCE_TIME.getTime();
+    setIsAnnounced(announced);
+    if (!announced) {
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchShortlisted = async () => {
+      try {
+        const response = await fetch("/api/shortlisted-teams");
+        const data = await response.json();
+        if (data.success && Array.isArray(data.data?.teams)) {
+          setShortlistedTeams(data.data.teams);
+        }
+      } catch (e) {
+        console.error("Failed to fetch shortlisted teams:", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchShortlisted();
+  }, []);
+
+  const totalParticipants = shortlistedTeams.reduce((sum, team) => sum + team.memberCount, 0);
 
   const filteredTeams = shortlistedTeams.filter(
     (team) =>
       team.teamName.toLowerCase().includes(searchQuery.toLowerCase()) ||
       team.teamCode.toLowerCase().includes(searchQuery.toLowerCase()),
   );
+
+  if (!isAnnounced) {
+    return <PendingAnnouncement onBack={() => router.push("/dashboard")} />;
+  }
+
+  if (isLoading || shortlistedTeams.length === 0) {
+    return <LoadingShortlist />;
+  }
 
   return (
     <div className="min-h-screen w-full bg-void relative overflow-x-hidden">
@@ -97,7 +185,7 @@ export default function ShortlistedPage() {
               variants={itemVariants}
               className="relative overflow-hidden rounded-lg bg-surface-1 border border-[var(--border-soft)] p-5 sm:p-6 text-center"
             >
-<div className="relative">
+              <div className="relative">
                 <div className="inline-flex w-10 h-10 items-center justify-center rounded-md bg-brand-soft border border-brand/35 mx-auto mb-3">
                   <Icon className="w-4 h-4 text-brand" />
                 </div>
@@ -143,7 +231,7 @@ export default function ShortlistedPage() {
             return (
               <motion.div key={team.teamCode} variants={itemVariants} className="group relative">
                 <div className="relative rounded-lg overflow-hidden bg-surface-1 border border-[var(--border-soft)] p-4 transition-[border-color,background] duration-200 hover:border-brand/45 hover:bg-surface-2">
-<div className="relative flex flex-col gap-3.5">
+                  <div className="relative flex flex-col gap-3.5">
                     <div className="flex items-start justify-between gap-2">
                       <span
                         className="w-10 h-10 shrink-0 rounded-md inline-flex items-center justify-center font-mono text-[13px] font-bold text-brand-ink bg-brand"
@@ -213,7 +301,7 @@ export default function ShortlistedPage() {
           transition={{ duration: 0.5, delay: 0.3 }}
         >
           <div className="relative overflow-hidden rounded-lg bg-surface-1 border border-[var(--border-soft)] p-6 sm:p-8 max-w-2xl mx-auto text-center">
-<div className="relative">
+            <div className="relative">
               <div className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand mb-2">
                 · End Transmission ·
               </div>

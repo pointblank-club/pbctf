@@ -3,7 +3,7 @@ import { authenticateUser, createAuthErrorResponse, requireEmailVerified } from 
 import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
-import { isRsvpClosed } from "@/lib/constants";
+import { isRsvpClosed, RSVP_DEADLINE } from "@/lib/constants";
 
 export const dynamic = 'force-dynamic';
 
@@ -27,7 +27,7 @@ export async function PUT(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { rsvpStatus } = body;
+    const { rsvpStatus, idName } = body;
 
     // Validate rsvpStatus
     if (!rsvpStatus || !['confirmed', 'declined'].includes(rsvpStatus)) {
@@ -42,13 +42,28 @@ export async function PUT(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    const trimmedIdName = typeof idName === 'string' ? idName.trim() : '';
+    if (rsvpStatus === 'confirmed' && !trimmedIdName) {
+      return NextResponse.json(
+        {
+          message: "ID name is required",
+          error: {
+            code: 'MISSING_ID_NAME',
+            message: "Please enter your name exactly as per your identification document to confirm participation"
+          }
+        },
+        { status: 400 }
+      );
+    }
+
     if (isRsvpClosed()) {
       return NextResponse.json(
         {
           message: "RSVP deadline has passed",
           error: {
             code: 'RSVP_DEADLINE_PASSED',
-            message: "The RSVP deadline was July 21, 2026, 11:59 PM IST. RSVP submissions are now closed."
+            message: `The RSVP deadline was ${RSVP_DEADLINE.toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short", timeZone: "Asia/Kolkata" })} IST. RSVP submissions are now closed.`
           }
         },
         { status: 400 }
@@ -99,45 +114,44 @@ export async function PUT(request: NextRequest) {
       );
     }
 
-    const hasAcceptedEvaluation = team.evaluations && team.evaluations.some((evaluation: any) => 
-      evaluation.tier === 'accepted' || evaluation.tier === 'strongly_accepted'
-    );
-    if (!hasAcceptedEvaluation) {
+    // RSVP unlocks once the admin panel explicitly shortlists the team, not
+    // from evaluator scoring alone (a team can have an accepted evaluation
+    // and still not be shortlisted for finals).
+    if (!team.isShortlisted) {
       return NextResponse.json(
         {
           message: "Team not selected",
           error: {
             code: 'TEAM_NOT_SELECTED',
-            message: 'Team must be selected (have accepted or strongly_accepted evaluation) before RSVP'
+            message: 'Team must be shortlisted by the admin panel before RSVP'
           }
         },
         { status: 400 }
       );
     }
 
-    // Check if user already RSVPed
+    // RSVP can be changed as many times as needed up until RSVP_DEADLINE (the
+    // isRsvpClosed() check above is the only hard cutoff), so update an
+    // existing entry in place instead of rejecting a resubmission.
+    const rsvpDate = new Date();
     const existingRSVP = team.memberRSVPs.find((r: any) => r.uid === authResult.user.uid);
     if (existingRSVP) {
-      return NextResponse.json(
-        {
-          message: "RSVP already submitted",
-          error: {
-            code: 'ALREADY_RSVPED',
-            message: 'You have already submitted your RSVP. RSVP cannot be changed once submitted.'
-          }
-        },
-        { status: 409 }
-      );
+      existingRSVP.rsvpStatus = rsvpStatus;
+      existingRSVP.rsvpedAt = rsvpDate;
+    } else {
+      team.memberRSVPs.push({
+        uid: authResult.user.uid,
+        name: user.name,
+        rsvpStatus,
+        rsvpedAt: rsvpDate,
+      });
     }
-    const rsvpDate = new Date();
-    
-    // Add user's RSVP
-    team.memberRSVPs.push({
-      uid: authResult.user.uid,
-      name: user.name,
-      rsvpStatus,
-      rsvpedAt: rsvpDate,
-    });
+
+    // Name as per ID is captured on the user profile, not the team RSVP record.
+    // Same as RSVP status, it can be updated on every resubmission until the deadline.
+    if (rsvpStatus === 'confirmed') {
+      user.idName = trimmedIdName;
+    }
 
     // Check if all members have RSVPed
     const allRSVPed = team.teamMembers.every((member: any) =>
@@ -162,7 +176,7 @@ export async function PUT(request: NextRequest) {
       team.teamStatus = 'rsvp_declined';
     }
 
-    await team.save();
+    await Promise.all([team.save(), user.save()]);
 
     // Format memberRSVPs for response
     const formattedRSVPs = team.memberRSVPs.map((rsvp: any) => ({
@@ -171,7 +185,7 @@ export async function PUT(request: NextRequest) {
       rsvpStatus: rsvp.rsvpStatus,
       rsvpedAt: rsvp.rsvpedAt instanceof Date ? rsvp.rsvpedAt.toISOString() : rsvp.rsvpedAt,
     }));
-    
+
     return NextResponse.json({
       success: true,
       message: allConfirmed ? "RSVP submitted successfully. Your team is now fully confirmed!" : "RSVP submitted successfully",
@@ -179,6 +193,7 @@ export async function PUT(request: NextRequest) {
         userRSVP: {
           uid: authResult.user.uid,
           name: user.name,
+          idName: rsvpStatus === 'confirmed' ? trimmedIdName : null,
           rsvpStatus,
           rsvpedAt: rsvpDate.toISOString(),
         },
@@ -254,16 +269,17 @@ export async function GET(request: NextRequest) {
     }
 
     const userRSVP = team.memberRSVPs.find((r: any) => r.uid === authResult.user.uid);
-    
-    // Get member names for RSVP display
+
+    // Get member names + ID names for RSVP display
     const memberUids = team.teamMembers.map((m: any) => m.uid);
-    const members = await User.find({ uid: { $in: memberUids } }).select('uid name');
+    const members = await User.find({ uid: { $in: memberUids } }).select('uid name idName');
 
     const memberRSVPs = team.teamMembers.map((member: any) => {
       const memberInfo = members.find(m => m.uid === member.uid);
       const rsvp = team.memberRSVPs.find((r: any) => r.uid === member.uid);
       return {
         name: memberInfo?.name || 'Unknown',
+        idName: memberInfo?.idName || null,
         rsvpStatus: rsvp?.rsvpStatus || null,
         rsvpedAt: rsvp?.rsvpedAt || null,
       };
@@ -275,6 +291,7 @@ export async function GET(request: NextRequest) {
       data: {
         hasRSVPed: !!userRSVP,
         userRSVP: userRSVP ? {
+          idName: user.idName || null,
           rsvpStatus: userRSVP.rsvpStatus,
           rsvpedAt: userRSVP.rsvpedAt,
         } : null,

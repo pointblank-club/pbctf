@@ -49,15 +49,16 @@ export async function GET(request: NextRequest) {
     }
 
     const userRSVP = team.memberRSVPs.find((r: any) => r.uid === authResult.user.uid);
-    
+
     const memberUids = team.teamMembers.map((m: any) => m.uid);
-    const members = await User.find({ uid: { $in: memberUids } }).select('uid name');
+    const members = await User.find({ uid: { $in: memberUids } }).select('uid name idName');
 
     const memberRSVPs = team.teamMembers.map((member: any) => {
       const memberInfo = members.find(m => m.uid === member.uid);
       const rsvp = team.memberRSVPs.find((r: any) => r.uid === member.uid);
       return {
         name: memberInfo?.name || 'Unknown',
+        idName: memberInfo?.idName || null,
         rsvpStatus: rsvp?.rsvpStatus || null,
         rsvpedAt: rsvp?.rsvpedAt ? (rsvp.rsvpedAt instanceof Date ? rsvp.rsvpedAt.toISOString() : rsvp.rsvpedAt) : null,
       };
@@ -68,6 +69,7 @@ export async function GET(request: NextRequest) {
       data: {
         hasRSVPed: !!userRSVP,
         userRSVP: userRSVP ? {
+          idName: user.idName || null,
           rsvpStatus: userRSVP.rsvpStatus,
           rsvpedAt: userRSVP.rsvpedAt instanceof Date ? userRSVP.rsvpedAt.toISOString() : userRSVP.rsvpedAt,
         } : null,

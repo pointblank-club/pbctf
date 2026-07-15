@@ -54,7 +54,7 @@ export async function GET(
     // Get member details
     const memberUids = team.teamMembers.map((m: any) => m.uid);
     const members = await User.find({ uid: { $in: memberUids } })
-      .select('uid name email organisation profile_picture discord_username resume_link github_link');
+      .select('uid name email organisation profile_picture discord_username resume_link github_link idName');
 
     // Get evaluator info
     // Fetch all evaluators who are assigned to this team
@@ -68,6 +68,7 @@ export async function GET(
         name: userInfo?.name || 'Unknown',
         email: userInfo?.email || null,
         organisation: userInfo?.organisation || null,
+        idName: userInfo?.idName || null,
         role: member.role,
         joinedAt: member.joinedAt,
       };

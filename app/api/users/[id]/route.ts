@@ -266,6 +266,7 @@ export async function GET(
         bio: user.bio || null,
         age: user.age || null,
         organisation: user.organisation || null,
+        idName: user.idName || null,
         isLooking: user.isLooking,
         role: user.role,
         isAdmin: user.role === "admin",

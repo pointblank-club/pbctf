@@ -63,7 +63,7 @@ export async function GET(request: NextRequest) {
     // owns the full profile globally, and bootstrap shouldn't duplicate it.
     // Invites load in parallel since they don't depend on the user doc.
     const [user, userInvites] = await Promise.all([
-      User.findOne({ uid }).select("uid teamCode"),
+      User.findOne({ uid }).select("uid teamCode idName"),
       TeamJoinRequest.find({ userId: uid }).sort({ requestedAt: -1 }),
     ]);
 
@@ -119,7 +119,7 @@ export async function GET(request: NextRequest) {
         // Hydrate team member details (name + light public fields).
         const memberUids: string[] = team.teamMembers.map((m: any) => m.uid);
         memberDetails = await User.find({ uid: { $in: memberUids } }).select(
-          "uid name email organisation profile_picture discord_username resume_link github_link linkedin_link hasSolvedChallenge",
+          "uid name email organisation profile_picture discord_username resume_link github_link linkedin_link hasSolvedChallenge idName",
         );
       }
     }
@@ -155,12 +155,16 @@ export async function GET(request: NextRequest) {
         };
       });
 
-      const formattedRSVPs = team.memberRSVPs.map((rsvp: any) => ({
-        uid: rsvp.uid,
-        name: rsvp.name,
-        rsvpStatus: rsvp.rsvpStatus,
-        rsvpedAt: isoIfDate(rsvp.rsvpedAt),
-      }));
+      const formattedRSVPs = team.memberRSVPs.map((rsvp: any) => {
+        const info = memberDetails.find((u: any) => u.uid === rsvp.uid);
+        return {
+          uid: rsvp.uid,
+          name: rsvp.name,
+          idName: info?.idName || null,
+          rsvpStatus: rsvp.rsvpStatus,
+          rsvpedAt: isoIfDate(rsvp.rsvpedAt),
+        };
+      });
 
       teamPayload = {
         teamCode: team.teamCode,
@@ -192,6 +196,7 @@ export async function GET(request: NextRequest) {
         const rsvp = team.memberRSVPs.find((r: any) => r.uid === member.uid);
         return {
           name: info?.name || "Unknown",
+          idName: info?.idName || null,
           rsvpStatus: rsvp?.rsvpStatus || null,
           rsvpedAt: rsvp?.rsvpedAt ? isoIfDate(rsvp.rsvpedAt) : null,
         };
@@ -201,6 +206,7 @@ export async function GET(request: NextRequest) {
         hasRSVPed: !!userRSVP,
         userRSVP: userRSVP
           ? {
+              idName: user.idName || null,
               rsvpStatus: userRSVP.rsvpStatus,
               rsvpedAt: isoIfDate(userRSVP.rsvpedAt),
             }
