@@ -29,6 +29,7 @@ import {
   Pencil,
   AlertCircle,
   Flag,
+  Lightbulb,
 } from "lucide-react";
 import { FormInput } from "./form-input";
 import { FormTextarea } from "./form-textarea";
@@ -185,6 +186,7 @@ export function RegistrationContainer({
   const [challengeInput, setChallengeInput] = useState("");
   const [challengeError, setChallengeError] = useState("");
   const [isSubmittingChallenge, setIsSubmittingChallenge] = useState(false);
+  const [showChallengeHint, setShowChallengeHint] = useState(false);
   const initialChallenge = getInitialChallengeState();
   const [challengeSolved, setChallengeSolved] = useState(initialChallenge.solved);
   const [validatedTwintroCode, setValidatedTwintroCode] = useState(initialChallenge.code);
@@ -1869,7 +1871,7 @@ export function RegistrationContainer({
                     </span>
                     <div className="flex-1 min-w-0 flex flex-row flex-wrap items-baseline gap-x-2">
                       <span className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-[var(--danger)] shrink-0">
-                        WARM-UP · CHALLENGE
+                        PREREQUISITE · CHALLENGE
                       </span>
                       <span className="text-[13px] md:text-[13.5px] text-ink font-body">
                         You haven&apos;t captured the flag yet
@@ -1888,6 +1890,24 @@ export function RegistrationContainer({
                               The intro to a twin holds the key. Find the sponsor&apos;s space and
                               claim your flag.
                             </p>
+                            {showChallengeHint ? (
+                              <p className="text-[13px] leading-relaxed text-brand font-body">
+                                <span className="underline underline-offset-2">hint</span>. Make sure you come
+                                with good intent in the right orbit for the event.
+                              </p>
+                            ) : (
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setShowChallengeHint(true);
+                                }}
+                                className="inline-flex items-center gap-1.5 self-start text-[12px] font-mono uppercase tracking-[0.18em] text-brand/80 hover:text-brand transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand rounded-sm"
+                              >
+                                <Lightbulb className="w-3.5 h-3.5" />
+                                Reveal hint
+                              </button>
+                            )}
                           </div>
 
                       <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
