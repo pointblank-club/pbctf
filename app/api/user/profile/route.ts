@@ -10,6 +10,7 @@ import dbConnect from "@/lib/db";
 import User from "@/models/User";
 import Team from "@/models/Team";
 import { verifyRecaptcha } from "@/lib/recaptcha";
+import { isRegistrationClosed } from "@/lib/constants";
 
 // Configure route
 export const dynamic = "force-dynamic";
@@ -181,7 +182,9 @@ export async function GET(request: NextRequest) {
       isProfileLocked: false,
     };
 
-    if (user.teamCode) {
+    // Evaluated teams stay editable while registration is open; the lock only
+    // kicks in once the registration deadline has passed.
+    if (user.teamCode && isRegistrationClosed()) {
       const team = await Team.findOne({ teamCode: user.teamCode });
       if (team && team.isEvaluated) {
         responseData.isProfileLocked = true;
@@ -298,12 +301,16 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ message: "User not found" }, { status: 404 });
     }
 
-    // Check if profile is locked
-    if (user.teamCode) {
+    // Check if profile is locked. Evaluated teams may still edit while
+    // registration is open; the lock only applies after the deadline.
+    if (user.teamCode && isRegistrationClosed()) {
       const team = await Team.findOne({ teamCode: user.teamCode });
       if (team && team.isEvaluated) {
         return NextResponse.json(
-          { message: "Profile cannot be edited after team evaluation" },
+          {
+            message:
+              "Profile cannot be edited after team evaluation once the registration deadline has passed",
+          },
           { status: 403 },
         );
       }

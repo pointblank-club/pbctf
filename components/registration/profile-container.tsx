@@ -170,7 +170,7 @@ export function ProfileContainer() {
               setAlert({
                 type: "warning",
                 message:
-                  "Your profile is locked because your team has been evaluated. You can no longer make changes.",
+                  "Your profile is locked because your team has been evaluated and the registration deadline has passed. You can no longer make changes.",
               });
             }
           }
