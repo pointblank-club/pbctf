@@ -26,6 +26,9 @@ export const RSVP_DEADLINE = new Date("2026-07-24T21:00:00+05:30");
 /** Public announcement time for the /shortlisted teams page. */
 export const SHORTLIST_ANNOUNCE_TIME = new Date("2026-07-21T12:00:00+05:30");
 
+export const WHATSAPP_COMMUNITY_URL =
+  process.env.NEXT_PUBLIC_WHATSAPP_COMMUNITY_URL || "";
+
 /** True once the registration / team-formation window has closed. */
 export const isRegistrationClosed = (now: Date = new Date()): boolean =>
   now > REGISTRATION_DEADLINE;
