@@ -912,6 +912,7 @@ export function DashboardContainer() {
   // action instead of the generic single-primary button, and stays available
   // until the RSVP deadline since a response can be changed anytime before it.
   const rsvpActionsAvailable =
+    !!team?.isShortlisted &&
     (teamStatus === "shortlisted" || teamStatus === "confirmed" || teamStatus === "declined") &&
     !isRsvpExpired;
 
