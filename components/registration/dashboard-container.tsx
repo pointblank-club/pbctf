@@ -18,6 +18,7 @@ import {
   Sparkles,
   UserPlus,
   Lightbulb,
+  MessageCircle,
 } from "lucide-react";
 import { FormSection } from "./form-section";
 import { FormInput } from "./form-input";
@@ -41,7 +42,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Spinner } from "@/components/ui/spinner";
 import { useToast } from "@/hooks/use-toast";
-import { TEAM_SIZE, isShortlistAnnounced } from "@/lib/constants";
+import { TEAM_SIZE, isShortlistAnnounced, WHATSAPP_COMMUNITY_URL } from "@/lib/constants";
 import { HudFrame } from "./hud-frame";
 
 interface Team {
@@ -289,6 +290,30 @@ function StatusStrip({
             )
           )}
         </div>
+
+        {/* Once locked in, surface the WhatsApp community where all further
+            event announcements are made. */}
+        {status === "confirmed" && WHATSAPP_COMMUNITY_URL && (
+          <a
+            href={WHATSAPP_COMMUNITY_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group inline-flex items-center gap-3 self-start rounded-md border border-brand/40 bg-brand/10 hover:bg-brand/15 hover:border-brand/60 transition-colors px-3.5 py-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand min-h-[44px]"
+          >
+            <span className="shrink-0 inline-flex w-7 h-7 items-center justify-center rounded-md bg-brand/15 border border-brand/40">
+              <MessageCircle className="w-3.5 h-3.5 text-brand" />
+            </span>
+            <span className="flex flex-col min-w-0">
+              <span className="font-mono text-[10.5px] uppercase tracking-[0.22em] text-brand">
+                Join the WhatsApp community
+              </span>
+              <span className="text-[12.5px] text-ink-secondary">
+                All further event announcements happen here. Tap to join.
+              </span>
+            </span>
+            <ArrowRight className="w-4 h-4 text-brand ml-2 shrink-0 transition-transform group-hover:translate-x-0.5" />
+          </a>
+        )}
       </div>
     </div>
   );
