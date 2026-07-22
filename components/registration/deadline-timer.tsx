@@ -39,7 +39,13 @@ interface DeadlineTimerProps {
   onRsvpExpiredChange?: (expired: boolean) => void;
 }
 
-function ShellWrap({ children, glow }: { children: React.ReactNode; glow?: boolean }) {
+function ShellWrap({
+  children,
+  glow,
+}: {
+  children: React.ReactNode;
+  glow?: boolean;
+}) {
   return (
     <div className="relative w-full rounded-lg card-surface border border-[var(--border-soft)]">
       <HudFrame cornerSize="md" intensity="strong" />
@@ -48,7 +54,15 @@ function ShellWrap({ children, glow }: { children: React.ReactNode; glow?: boole
   );
 }
 
-const TimeBox = ({ value, label, big = false }: { value: number; label: string; big?: boolean }) => (
+const TimeBox = ({
+  value,
+  label,
+  big = false,
+}: {
+  value: number;
+  label: string;
+  big?: boolean;
+}) => (
   <div
     className={[
       "flex flex-col items-center justify-center flex-1 min-w-0",
@@ -112,14 +126,17 @@ export function DeadlineTimer({
   rsvpStatus = "pending",
   onRsvpExpiredChange,
 }: DeadlineTimerProps) {
-  const [timeRemaining, setTimeRemaining] = useState<TimeRemaining | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<TimeRemaining | null>(
+    null,
+  );
   const [deadline, setDeadline] = useState<Date | null>(null);
   const [isExpired, setIsExpired] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [serverOffset, setServerOffset] = useState(0);
   const [error, setError] = useState(false);
   const [rsvpDeadline, setRsvpDeadline] = useState<Date | null>(null);
-  const [rsvpTimeRemaining, setRsvpTimeRemaining] = useState<TimeRemaining | null>(null);
+  const [rsvpTimeRemaining, setRsvpTimeRemaining] =
+    useState<TimeRemaining | null>(null);
   const [isRsvpExpired, setIsRsvpExpired] = useState(false);
 
   // Report the RSVP deadline's live expiry status up so the status strip
@@ -226,16 +243,19 @@ export function DeadlineTimer({
     teamStatus === "shortlisted" ||
     teamStatus === "rsvped";
   const hasRejectedEvaluation = evaluations.some((e) => e.tier === "rejected");
-  const notSelected = isExpired && hasTeam && !isShortlisted && isShortlistAnnounced();
+  const notSelected =
+    isExpired && hasTeam && !isShortlisted && isShortlistAnnounced();
 
   const getHeaderIcon = () => {
     if (notSelected) return <XCircle className="w-4 h-4 text-ink-muted" />;
     if (isExpired && hasTeam && isEvaluated) {
-      if (hasRejectedEvaluation) return <XCircle className="w-4 h-4 text-ink-muted" />;
+      if (hasRejectedEvaluation)
+        return <XCircle className="w-4 h-4 text-ink-muted" />;
       if (isShortlisted) return <Trophy className="w-4 h-4 text-brand" />;
       return <AlertTriangle className="w-4 h-4 text-[var(--warning)]" />;
     }
-    if (isExpired) return <AlertTriangle className="w-4 h-4 text-[var(--warning)]" />;
+    if (isExpired)
+      return <AlertTriangle className="w-4 h-4 text-[var(--warning)]" />;
     if (submitted) return <CheckCircle2 className="w-4 h-4 text-brand" />;
     return <Clock className="w-4 h-4 text-ink-secondary" />;
   };
@@ -275,10 +295,12 @@ export function DeadlineTimer({
               notSelected ? (
                 <>
                   <p className="text-[14px] text-ink-secondary font-body text-center max-w-[42ch]">
-                    Unfortunately, your team wasn&apos;t shortlisted for PBCTF 5.0.
+                    Unfortunately, your team wasn&apos;t shortlisted for PBCTF
+                    5.0.
                   </p>
                   <p className="text-[12.5px] text-ink-muted font-body text-center max-w-[42ch]">
-                    Thank you for participating. We&apos;d love to have you at our{" "}
+                    Thank you for participating. We&apos;d love to have you at
+                    our{" "}
                     <a
                       href="https://pointblank.club/events"
                       target="_blank"
@@ -294,10 +316,12 @@ export function DeadlineTimer({
                 hasRejectedEvaluation ? (
                   <>
                     <p className="text-[14px] text-ink-secondary font-body text-center max-w-[42ch]">
-                      Unfortunately, your team was not selected for the next round.
+                      Unfortunately, your team was not selected for the next
+                      round.
                     </p>
                     <p className="text-[12.5px] text-ink-muted font-body text-center max-w-[42ch]">
-                      Thank you for participating. We&apos;d love to have you at our{" "}
+                      Thank you for participating. We&apos;d love to have you at
+                      our{" "}
                       <a
                         href="https://pointblank.club/events"
                         target="_blank"
@@ -312,47 +336,74 @@ export function DeadlineTimer({
                 ) : isShortlisted ? (
                   <>
                     {rsvpStatus === "confirmed" && (
-                      <RsvpStatusBadge status="confirmed" message="RSVP Confirmed. See you at the event." />
+                      <RsvpStatusBadge
+                        status="confirmed"
+                        message="RSVP Confirmed. See you at the event."
+                      />
                     )}
                     {rsvpStatus === "declined" && (
-                      <RsvpStatusBadge status="declined" message="You have declined participation." />
+                      <RsvpStatusBadge
+                        status="declined"
+                        message="You have declined participation."
+                      />
                     )}
-                    {(rsvpStatus === "confirmed" || rsvpStatus === "declined") && !isRsvpExpired && (
-                      <p className="text-[11.5px] text-ink-muted font-body text-center max-w-[44ch]">
-                        Changed your mind? You can update above until the RSVP deadline.
-                      </p>
-                    )}
+                    {(rsvpStatus === "confirmed" ||
+                      rsvpStatus === "declined") &&
+                      !isRsvpExpired && (
+                        <p className="text-[11.5px] text-ink-muted font-body text-center max-w-[44ch]">
+                          Changed your mind? You can update above until the RSVP
+                          deadline.
+                        </p>
+                      )}
                     {rsvpStatus === "pending" && (
                       <p className="text-[12.5px] text-ink-secondary font-body text-center max-w-[44ch]">
-                        Use the status panel above to confirm or decline your participation.
+                        Use the status panel above to confirm or decline your
+                        participation.
                       </p>
                     )}
 
                     {/* Once confirmed there's nothing left to act on, so the
                         countdown only matters while a response can still change. */}
-                    {rsvpStatus !== "confirmed" && rsvpTimeRemaining && !isRsvpExpired && (
-                      <div className="w-full mt-1">
-                        <p className="font-mono text-[10px] text-ink-muted text-center mb-2.5 uppercase tracking-[0.2em]">
-                          RSVP Deadline
-                        </p>
-                        <div className="flex justify-center gap-2 w-full">
-                          <TimeBox value={rsvpTimeRemaining.days} label="Days" />
-                          <TimeBox value={rsvpTimeRemaining.hours} label="Hours" />
-                          <TimeBox value={rsvpTimeRemaining.minutes} label="Mins" />
-                          <TimeBox value={rsvpTimeRemaining.seconds} label="Secs" />
+                    {rsvpStatus !== "confirmed" &&
+                      rsvpTimeRemaining &&
+                      !isRsvpExpired && (
+                        <div className="w-full mt-1">
+                          <p className="font-mono text-[10px] text-ink-muted text-center mb-2.5 uppercase tracking-[0.2em]">
+                            RSVP Deadline
+                          </p>
+                          <div className="flex justify-center gap-2 w-full">
+                            <TimeBox
+                              value={rsvpTimeRemaining.days}
+                              label="Days"
+                            />
+                            <TimeBox
+                              value={rsvpTimeRemaining.hours}
+                              label="Hours"
+                            />
+                            <TimeBox
+                              value={rsvpTimeRemaining.minutes}
+                              label="Mins"
+                            />
+                            <TimeBox
+                              value={rsvpTimeRemaining.seconds}
+                              label="Secs"
+                            />
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
 
                     {isRsvpExpired && (
                       <p className="text-[12px] text-[var(--warning)] font-medium font-body text-center max-w-[44ch] mt-1">
                         RSVP deadline has passed
                         {rsvpDeadline
-                          ? ` (${new Date(rsvpDeadline).toLocaleString("en-IN", {
-                              dateStyle: "medium",
-                              timeStyle: "short",
-                              timeZone: "Asia/Kolkata",
-                            })} IST)`
+                          ? ` (${new Date(rsvpDeadline).toLocaleString(
+                              "en-IN",
+                              {
+                                dateStyle: "medium",
+                                timeStyle: "short",
+                                timeZone: "Asia/Kolkata",
+                              },
+                            )} IST)`
                           : ""}
                       </p>
                     )}
@@ -360,7 +411,8 @@ export function DeadlineTimer({
                 ) : (
                   <>
                     <p className="text-[12.5px] text-ink-muted font-body text-center max-w-[44ch]">
-                      The registration deadline has passed. No new registrations are being accepted.
+                      The registration deadline has passed. No new registrations
+                      are being accepted.
                     </p>
                     <p className="text-[14px] text-ink-secondary font-medium font-body text-center">
                       Results will be out soon.
@@ -370,7 +422,8 @@ export function DeadlineTimer({
               ) : (
                 <>
                   <p className="text-[12.5px] text-ink-muted font-body text-center max-w-[44ch]">
-                    The registration deadline has passed. No new registrations are being accepted.
+                    The registration deadline has passed. No new registrations
+                    are being accepted.
                   </p>
                   <p className="text-[14px] text-ink-secondary font-medium font-body text-center">
                     Results will be out soon.
@@ -379,7 +432,8 @@ export function DeadlineTimer({
               )
             ) : (
               <p className="text-[12.5px] text-ink-muted font-body text-center max-w-[44ch]">
-                The submission deadline has passed. No new submissions are being accepted.
+                The submission deadline has passed. No new submissions are being
+                accepted.
               </p>
             )}
           </div>
