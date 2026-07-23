@@ -21,7 +21,7 @@ export const FILE_SIZE = {
 export const REGISTRATION_DEADLINE = new Date("2026-07-19T23:59:59+05:30");
 
 /** RSVP deadline for shortlisted teams. */
-export const RSVP_DEADLINE = new Date("2026-07-24T21:00:00+05:30");
+export const RSVP_DEADLINE = new Date("2026-07-25T21:00:00+05:30");
 
 /** Public announcement time for the /shortlisted teams page. */
 export const SHORTLIST_ANNOUNCE_TIME = new Date("2026-07-21T12:00:00+05:30");
