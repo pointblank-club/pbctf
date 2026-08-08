@@ -55,7 +55,7 @@ export default function Footer() {
       <div className="footer__bottom-content">
         <div className="footer__left">
           <a href="https://www.pointblank.club" target="_blank" rel="noopener noreferrer">
-            <img src="/pb.png" alt="Point Blank Logo" className="footer__pb-logo" />
+            <img src="/pbctf/pb.png" alt="Point Blank Logo" className="footer__pb-logo" />
           </a>
           
           <div className="footer__legal-links">

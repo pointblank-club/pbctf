@@ -15,7 +15,7 @@ const SPONSORS = [
     logo: (
       /* eslint-disable-next-line @next/next/no-img-element */
       <img
-        src="/images/paytm-ai.png"
+        src="/pbctf/images/paytm-ai.png"
         alt="Paytm ❤ Ai"
         className="sponsors__logo sponsors__logo--paytm"
       />
@@ -112,7 +112,7 @@ const SPONSORS = [
     logo: (
       /* eslint-disable-next-line @next/next/no-img-element */
       <img
-        src="/images/twintro.webp"
+        src="/pbctf/images/twintro.webp"
         alt="Twintrow"
         className="sponsors__logo sponsors__logo--twintro"
       />
@@ -123,7 +123,7 @@ const SPONSORS = [
     logo: (
       /* eslint-disable-next-line @next/next/no-img-element */
       <img
-        src="/images/awesome_sleep_logo.webp"
+        src="/pbctf/images/awesome_sleep_logo.webp"
         alt="Awesome Sleep"
         className="sponsors__logo sponsors__logo--awesomesleep"
       />
@@ -133,9 +133,9 @@ const SPONSORS = [
 
 /* Community & media partner logos (from /public/images) */
 const PARTNERS = [
-  { id: 'k7', src: '/images/k7-logo.png', alt: 'K7 Security' },
-  { id: 'xyz', src: '/images/xyz_logo.svg', alt: '.XYZ' },
-  { id: 'givemycert', src: '/images/givemycert.png', alt: 'Give My Certificate' },
+  { id: 'k7', src: '/pbctf/images/k7-logo.png', alt: 'K7 Security' },
+  { id: 'xyz', src: '/pbctf/images/xyz_logo.svg', alt: '.XYZ' },
+  { id: 'givemycert', src: '/pbctf/images/givemycert.png', alt: 'Give My Certificate' },
 ];
 
 /* Repeat to fill the track, then duplicate for a seamless -50% loop */

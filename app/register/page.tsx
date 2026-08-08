@@ -25,7 +25,7 @@ export default function RegisterPage() {
   useEffect(() => {
     const fetchDeadline = async () => {
       try {
-        const response = await fetch("/api/config/deadline");
+        const response = await fetch("/pbctf/api/config/deadline");
         const data = await response.json();
         if (data.success && data.data) {
           setDeadline(new Date(data.data.deadline));

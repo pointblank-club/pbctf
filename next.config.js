@@ -15,6 +15,17 @@ const contentSecurityPolicy = [
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  basePath: '/pbctf',
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/pbctf',
+        permanent: true,
+        basePath: false,
+      },
+    ];
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -42,23 +53,36 @@ const nextConfig = {
     },
   },
   async headers() {
+    const commonHeaders = [
+      { key: 'Strict-Transport-Security', value: "max-age=63072000" },
+      { key: 'Content-Security-Policy', value: contentSecurityPolicy },
+      { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+      { key: 'Access-Control-Allow-Credentials', value: 'true' },
+      { key: 'Access-Control-Allow-Methods', value: "GET,POST,PUT,PATCH,DELETE,OPTIONS" },
+      {
+        key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization'
+      },
+      { key: 'Access-Control-Max-Age', value: '86400' },
+      { key: 'Vary', value: 'Origin' },
+    ];
+
     return [
       {
         source: '/:path*',
         headers: [
-          { key: 'Strict-Transport-Security', value: "max-age=63072000" },
-          { key: 'Content-Security-Policy', value: contentSecurityPolicy },
-          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          ...commonHeaders,
           { key: 'Access-Control-Allow-Origin', value: process.env.NEXT_PUBLIC_DOMAIN },
-          { key: 'Access-Control-Allow-Credentials', value: 'true' },
-          { key: 'Access-Control-Allow-Methods', value: "GET,POST,PUT,PATCH,DELETE,OPTIONS" },
-          {
-            key: 'Access-Control-Allow-Headers', value: 'X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version, Authorization'
-          },
-          { key: 'Access-Control-Max-Age', value: '86400' },
-          { key: 'Vary', value: 'Origin' },
-
         ],
+      },
+      {
+        source: '/:path*',
+        has: [{ type: 'header', key: 'Origin', value: 'https://pointblank.club' }],
+        headers: [{ key: 'Access-Control-Allow-Origin', value: 'https://pointblank.club' }],
+      },
+      {
+        source: '/:path*',
+        has: [{ type: 'header', key: 'Origin', value: 'https://pbctf.pointblank.club' }],
+        headers: [{ key: 'Access-Control-Allow-Origin', value: 'https://pbctf.pointblank.club' }],
       },
     ];
   },

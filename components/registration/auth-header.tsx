@@ -16,7 +16,7 @@ export function AuthHeader() {
       >
         {/* eslint-disable-next-line @next/next/no-img-element -- static brand mark */}
         <img
-          src="/images/pbctf-logo.svg"
+          src="/pbctf/images/pbctf-logo.svg"
           alt="PBCTF 5.0"
           className="h-9 w-auto drop-shadow-[0_0_8px_rgba(0,255,136,0.4)] transition-transform duration-300 [transition-timing-function:cubic-bezier(0.16,1,0.3,1)] group-hover:scale-105"
         />

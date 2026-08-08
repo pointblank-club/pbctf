@@ -161,7 +161,7 @@ export default function AdminRegisterPage() {
 
     try {
       const recaptchaToken = await executeRecaptcha("admin_register");
-      const response = await fetch('/api/admin/register', {
+      const response = await fetch('/pbctf/api/admin/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -99,7 +99,7 @@ export default function ShortlistedPage() {
 
     const fetchShortlisted = async () => {
       try {
-        const response = await fetch("/api/shortlisted-teams");
+        const response = await fetch("/pbctf/api/shortlisted-teams");
         const data = await response.json();
         if (data.success && Array.isArray(data.data?.teams)) {
           setShortlistedTeams(data.data.teams);

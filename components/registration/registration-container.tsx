@@ -736,7 +736,7 @@ export function RegistrationContainer({
     setChallengeError("");
 
     try {
-      const res = await fetch("/api/validate-twintro", {
+      const res = await fetch("/pbctf/api/validate-twintro", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),

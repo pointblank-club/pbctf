@@ -98,7 +98,7 @@ export default function Venue() {
             <div className="venue__image-wrapper">
               <div className="venue__image-overlay"></div>
               <img
-                src="/venue/venue.jpg"
+                src="/pbctf/venue/venue.jpg"
                 alt="Paytm Bengaluru Office — PBCTF venue"
                 loading="lazy"
               />

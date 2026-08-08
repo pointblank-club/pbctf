@@ -481,7 +481,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (auth.currentUser) {
             // Include continueUrl to redirect to dashboard after verification
             const actionCodeSettings = {
-                url: `${typeof window !== 'undefined' ? window.location.origin : ''}/auth/action?continueUrl=/dashboard`,
+                url: `${typeof window !== 'undefined' ? window.location.origin : ''}/pbctf/auth/action?continueUrl=/dashboard`,
                 handleCodeInApp: false,
             };
             await sendEmailVerification(auth.currentUser, actionCodeSettings);
@@ -491,7 +491,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const resetPassword = useCallback(async (email: string) => {
         try {
             const actionCodeSettings = {
-                url: `${typeof window !== 'undefined' ? window.location.origin : ''}/login`,
+                url: `${typeof window !== 'undefined' ? window.location.origin : ''}/pbctf/login`,
                 handleCodeInApp: false,
             };
             await sendPasswordResetEmail(auth, email, actionCodeSettings);

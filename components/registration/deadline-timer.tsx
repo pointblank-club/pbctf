@@ -150,7 +150,7 @@ export function DeadlineTimer({
   useEffect(() => {
     const fetchDeadline = async () => {
       try {
-        const response = await fetch("/api/config/deadline");
+        const response = await fetch("/pbctf/api/config/deadline");
         const data = await response.json();
         if (data.success && data.data) {
           const serverTime = new Date(data.data.serverTime).getTime();

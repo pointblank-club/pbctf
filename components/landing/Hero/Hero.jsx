@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 import { useRetroSound } from '../hooks/useRetroSound';
 import { useAuth } from '@/hooks/use-auth';
 import './Hero.css';
@@ -130,7 +131,7 @@ export default function Hero() {
       <div className="hero__actions-wrapper">
         <motion.div className="hero__actions" {...stagger(15)}>
           {isAuthenticated ? (
-            <a
+            <Link
               href="/dashboard"
               className="btn btn--secondary"
               id="hero-dashboard-cta"
@@ -142,9 +143,9 @@ export default function Hero() {
                 <line x1="5" y1="12" x2="19" y2="12" />
                 <polyline points="12 5 19 12 12 19" />
               </svg>
-            </a>
+            </Link>
           ) : (
-            <a
+            <Link
               href="/register"
               className="btn btn--secondary"
               id="hero-register-cta"
@@ -152,7 +153,7 @@ export default function Hero() {
               onClick={playClick}
             >
               Registrations Closed
-            </a>
+            </Link>
           )}
         </motion.div>
       </div>

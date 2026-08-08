@@ -519,7 +519,7 @@ export function TeamContainer() {
         return;
       }
 
-      const response = await fetch("/api/team/transfer-ownership", {
+      const response = await fetch("/pbctf/api/team/transfer-ownership", {
         method: "PUT",
         headers: {
           Authorization: `Bearer ${token}`,

@@ -481,7 +481,7 @@ export function DashboardContainer() {
         // roundtrips (flag, profile, rsvp, invites, team, team-requests).
         // Each of those would re-verify the Firebase token and re-open a
         // Mongo connection; the bootstrap route does both once.
-        const response = await fetch("/api/me/bootstrap", { headers });
+        const response = await fetch("/pbctf/api/me/bootstrap", { headers });
         if (!response.ok) {
           console.error("bootstrap fetch failed:", response.status);
           toast({
@@ -610,7 +610,7 @@ export function DashboardContainer() {
         });
         return false;
       }
-      const response = await fetch("/api/user/rsvp", {
+      const response = await fetch("/pbctf/api/user/rsvp", {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ rsvpStatus: status, ...(idName ? { idName } : {}) }),
@@ -658,7 +658,7 @@ export function DashboardContainer() {
     try {
       const token = await getToken();
       if (!token) return;
-      const response = await fetch("/api/user/flag", {
+      const response = await fetch("/pbctf/api/user/flag", {
         method: "POST",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ flag: flagInput.trim() }),
@@ -690,7 +690,7 @@ export function DashboardContainer() {
     setTwintroError("");
     try {
       // Step 1: validate the code
-      const validateRes = await fetch("/api/validate-twintro", {
+      const validateRes = await fetch("/pbctf/api/validate-twintro", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code }),
@@ -707,7 +707,7 @@ export function DashboardContainer() {
         setTwintroError("Authentication error. Please refresh and try again.");
         return;
       }
-      const profileRes = await fetch("/api/user/twintro-solved", {
+      const profileRes = await fetch("/pbctf/api/user/twintro-solved", {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
@@ -858,7 +858,7 @@ export function DashboardContainer() {
         setAlert({ type: "error", message: "Authentication required" });
         return;
       }
-      const response = await fetch("/api/team/transfer-ownership", {
+      const response = await fetch("/pbctf/api/team/transfer-ownership", {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
         body: JSON.stringify({ teamCode: team.teamCode, newLeadId }),

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { useRetroSound } from '../hooks/useRetroSound';
 import { useAuth } from '@/hooks/use-auth';
 import './Header.css';
@@ -80,7 +81,7 @@ export default function Header() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             className="header__logo-img"
-            src="/images/pbctf-logo.svg"
+            src="/pbctf/images/pbctf-logo.svg"
             alt="PBCTF 5.0"
           />
         </a>
@@ -133,7 +134,7 @@ export default function Header() {
           {/* Desktop CTA (logged out) / user controls (logged in) */}
           {isAuthenticated ? (
             <div className="header__user">
-              <a
+              <Link
                 href="/dashboard/profile"
                 className="header__user-tile"
                 id="header-profile"
@@ -148,7 +149,7 @@ export default function Header() {
                   <span className="header__user-avatar header__user-avatar--initials">{initials}</span>
                 )}
                 <span className="header__user-name">{firstName}</span>
-              </a>
+              </Link>
               <button
                 type="button"
                 className="header__logout"
@@ -166,7 +167,7 @@ export default function Header() {
               </button>
             </div>
           ) : (
-            <a
+            <Link
               href="/login"
               className="btn btn--primary header__cta"
               id="header-cta"
@@ -174,7 +175,7 @@ export default function Header() {
               onClick={playClick}
             >
               Login
-            </a>
+            </Link>
           )}
 
           {/* Mobile Hamburger */}
@@ -219,16 +220,17 @@ export default function Header() {
                   {link.label}
                 </motion.a>
               ))}
-              <motion.a
-                href={isAuthenticated ? '/dashboard' : '/login'}
-                className="btn btn--primary header__overlay-cta"
-                onClick={() => { playClick(); closeMenu(); }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + NAV_LINKS.length * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              >
-                {isAuthenticated ? 'Access Granted' : 'Login'}
-              </motion.a>
+              <Link href={isAuthenticated ? '/dashboard' : '/login'} legacyBehavior passHref>
+                <motion.a
+                  className="btn btn--primary header__overlay-cta"
+                  onClick={() => { playClick(); closeMenu(); }}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 + NAV_LINKS.length * 0.05, duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+                >
+                  {isAuthenticated ? 'Access Granted' : 'Login'}
+                </motion.a>
+              </Link>
               {isAuthenticated && (
                 <motion.button
                   type="button"
