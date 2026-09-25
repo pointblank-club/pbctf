@@ -6,6 +6,7 @@ import { useRetroSound } from '../hooks/useRetroSound';
 import { getTopThree, RANKED_COUNT, BANNED_COUNT } from '@/data/leaderboard';
 import Podium from './Podium';
 import './Leaderboard.css';
+import Link from 'next/link';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -49,7 +50,7 @@ export default function Leaderboard() {
         <Podium teams={TOP_THREE} />
 
         <div className="lb-section__cta">
-          <a
+          <Link
             href="/leaderboard"
             className="btn btn--secondary"
             onMouseEnter={playHover}
@@ -69,7 +70,7 @@ export default function Leaderboard() {
               <line x1="5" y1="12" x2="19" y2="12" />
               <polyline points="12 5 19 12 12 19" />
             </svg>
-          </a>
+          </Link>
           <p className="lb-section__note">
             {BANNED_COUNT} teams were disqualified for rule violations and hold no rank.
           </p>
